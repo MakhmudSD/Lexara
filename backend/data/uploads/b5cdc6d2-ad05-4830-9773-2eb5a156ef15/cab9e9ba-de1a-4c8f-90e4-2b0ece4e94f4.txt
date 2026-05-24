@@ -1,0 +1,1 @@
+FastAPI is a modern Python web framework. PostgreSQL stores relational data. FAISS enables fast similarity search. Sentence transformers create dense embeddings for retrieval.

@@ -1,0 +1,50 @@
+.file-uploader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.file-uploader-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  border: 2px dashed var(--border-color);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: transparent;
+}
+
+.file-uploader-label:hover {
+  border-color: var(--accent-color);
+  background-color: rgba(0, 102, 204, 0.05);
+}
+
+.file-uploader-label span {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.file-uploader-input {
+  display: none;
+}
+
+.file-uploader-input:disabled {
+  cursor: not-allowed;
+}
+
+.upload-status {
+  font-size: 0.9rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: #f0f7ff;
+  color: var(--accent-color);
+  margin: 0;
+  word-break: break-word;
+}
+
+.upload-status.loading {
+  background-color: #fff9e6;
+  color: #f57f17;
+}

@@ -1,0 +1,219 @@
+"""SQLAlchemy ORM models for PostgreSQL database."""
+
+from datetime import datetime
+from uuid import uuid4
+from sqlalchemy import Column, String, DateTime, ForeignKey, Integer, Text, Boolean, Float, Index, UniqueConstraint
+from sqlalchemy.dialects.postgresql import UUID, JSON
+from sqlalchemy.orm import relationship
+from app.db import Base
+
+
+class User(Base):
+    """User model."""
+    __tablename__ = "users"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    password_hash = Column(String(255), nullable=False)
+    full_name = Column(String(255), nullable=True)
+    is_active = Column(Boolean, default=True, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationships
+    organizations = relationship("OrganizationMember", back_populates="user", cascade="all, delete-orphan")
+    audit_logs = relationship("AuditLog", back_populates="user", cascade="all, delete-orphan")
+
+    __table_args__ = (
+        Index("idx_user_email", "email"),
+        Index("idx_user_is_active", "is_active"),
+    )
+
+
+class Organization(Base):
+    """Organization/Workspace model."""
+    __tablename__ = "organizations"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    name = Column(String(255), nullable=False)
+    slug = Column(String(255), unique=True, nullable=False, index=True)
+    description = Column(Text, nullable=True)
+    owner_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
+    settings = Column(JSON, default={}, nullable=False)
+    is_active = Column(Boolean, default=True, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationships
+    members = relationship("OrganizationMember", back_populates="organization", cascade="all, delete-orphan")
+    documents = relationship("Document", back_populates="organization", cascade="all, delete-orphan")
+    workspaces = relationship("Workspace", back_populates="organization", cascade="all, delete-orphan")
+
+    __table_args__ = (
+        Index("idx_org_slug", "slug"),
+        Index("idx_org_owner_id", "owner_id"),
+        Index("idx_org_is_active", "is_active"),
+    )
+
+
+class OrganizationMember(Base):
+    """Organization membership model."""
+    __tablename__ = "organization_members"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    organization_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id"), nullable=False, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
+    role = Column(String(50), default="member", nullable=False)  # owner, admin, member
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationships
+    organization = relationship("Organization", back_populates="members")
+    user = relationship("User", back_populates="organizations")
+
+    __table_args__ = (
+        UniqueConstraint("organization_id", "user_id", name="uq_org_member"),
+        Index("idx_org_member_org_id", "organization_id"),
+        Index("idx_org_member_user_id", "user_id"),
+        Index("idx_org_member_role", "role"),
+    )
+
+
+class Workspace(Base):
+    """Workspace model (tenant)."""
+    __tablename__ = "workspaces"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    organization_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id"), nullable=False, index=True)
+    name = Column(String(255), nullable=False)
+    is_active = Column(Boolean, default=True, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    # Relationships
+    organization = relationship("Organization", back_populates="workspaces")
+    documents = relationship("Document", back_populates="workspace", cascade="all, delete-orphan")
+
+    __table_args__ = (
+        Index("idx_workspace_org_id", "organization_id"),
+        Index("idx_workspace_is_active", "is_active"),
+    )
+
+
+class Document(Base):
+    """Document model."""
+    __tablename__ = "documents"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+
+    organization_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("organizations.id"),
+        nullable=False,
+        index=True
+    )
+
+    workspace_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("workspaces.id"),
+        nullable=False,
+        index=True
+    )
+
+    filename = Column(String(255), nullable=False)
+
+    content_type = Column(String(100), nullable=False)
+
+    file_size_bytes = Column(Integer, nullable=False)
+
+    storage_path = Column(String(500), nullable=False)
+
+    chunk_count = Column(Integer, default=0)
+
+    is_processed = Column(Boolean, default=False, index=True)
+
+    is_active = Column(Boolean, default=True, index=True)
+
+    document_metadata = Column("metadata", JSON, default=dict, nullable=False)
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False
+    )
+
+    updated_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False
+    )
+
+    # Relationships
+    organization = relationship(
+        "Organization",
+        back_populates="documents"
+    )
+
+    workspace = relationship(
+        "Workspace",
+        back_populates="documents"
+    )
+
+    chunks = relationship(
+        "DocumentChunk",
+        back_populates="document",
+        cascade="all, delete-orphan"
+    )
+
+    __table_args__ = (
+        Index("idx_document_org_id", "organization_id"),
+        Index("idx_document_workspace_id", "workspace_id"),
+        Index("idx_document_is_processed", "is_processed"),
+        Index("idx_document_is_active", "is_active"),
+    )
+    
+class DocumentChunk(Base):
+    """Document chunk model."""
+    __tablename__ = "document_chunks"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id"), nullable=False, index=True)
+    chunk_index = Column(Integer, nullable=False)
+    text = Column(Text, nullable=False)
+    embedding = Column(JSON, default=None, nullable=True)  # Vector stored as JSON
+    has_embedding = Column(Boolean, default=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    # Relationships
+    document = relationship("Document", back_populates="chunks")
+
+    __table_args__ = (
+        UniqueConstraint("document_id", "chunk_index", name="uq_document_chunk"),
+        Index("idx_chunk_document_id", "document_id"),
+        Index("idx_chunk_has_embedding", "has_embedding"),
+    )
+
+
+class AuditLog(Base):
+    """Audit log model."""
+    __tablename__ = "audit_logs"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    organization_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id"), nullable=False, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
+    action = Column(String(100), nullable=False)
+    resource_type = Column(String(100), nullable=False)
+    resource_id = Column(String(100), nullable=True)
+    details = Column(JSON, default={}, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+    # Relationships
+    user = relationship("User", back_populates="audit_logs")
+
+    __table_args__ = (
+        Index("idx_audit_org_id", "organization_id"),
+        Index("idx_audit_user_id", "user_id"),
+        Index("idx_audit_created_at", "created_at"),
+        Index("idx_audit_action", "action"),
+    )

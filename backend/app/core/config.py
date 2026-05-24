@@ -1,0 +1,88 @@
+from __future__ import annotations
+
+import os
+from dataclasses import dataclass
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DEFAULT_SQLITE_DB_PATH = str(Path(__file__).resolve().parents[2] / "data" / "rag.sqlite3")
+
+
+@dataclass(frozen=True)
+class Settings:
+    # OpenAI (optional — not used in retrieval-only MVP)
+    openai_api_key: str | None
+    embedding_model: str = "text-embedding-3-small"
+    chat_model: str = "gpt-4o-mini"
+
+    # Local embeddings (sentence-transformers)
+    local_embedding_model: str = "all-MiniLM-L6-v2"
+    embedding_dimension: int = 384
+    
+    # Database (PostgreSQL)
+    database_url: str = "postgresql://user:password@localhost:5432/rag_db"
+
+    # FAISS persistence
+    faiss_data_dir: str = ""
+    uploads_data_dir: str = ""
+    
+    # Legacy SQLite (kept for now)
+    sqlite_db_path: str = DEFAULT_SQLITE_DB_PATH
+    
+    # Upload settings
+    max_upload_size_bytes: int = 10 * 1024 * 1024
+    
+    # Document processing
+    default_chunk_size: int = 500
+    default_chunk_overlap: int = 100
+    
+    # Observability
+    max_log_entries: int = 1000
+    max_request_entries: int = 1000
+    max_retrieval_entries: int = 1000
+    
+    # Retrieval settings
+    max_context_chunks: int = 20
+    query_embedding_cache_size: int = 256
+    
+    # Features
+    debug: bool = False
+    environment: str = "development"
+    
+    # Redis
+    redis_url: str | None = None
+    embedding_cache_ttl_seconds: int = 60 * 60 * 24  # 24 hours
+    retrieval_cache_ttl_seconds: int = 60 * 5  # 5 minutes
+
+    @property
+    def openai_configured(self) -> bool:
+        return bool(self.openai_api_key)
+
+
+def get_settings() -> Settings:
+    """Load settings from environment variables."""
+    backend_root = Path(__file__).resolve().parents[2]
+    data_root = backend_root / "data"
+
+    db_url = os.getenv(
+        "DATABASE_URL",
+        "postgresql://user:password@localhost:5432/rag_db"
+    )
+
+    return Settings(
+        openai_api_key=os.getenv("OPENAI_API_KEY"),
+        database_url=db_url,
+        sqlite_db_path=os.getenv("SQLITE_DB_PATH", DEFAULT_SQLITE_DB_PATH),
+        local_embedding_model=os.getenv("LOCAL_EMBEDDING_MODEL", "all-MiniLM-L6-v2"),
+        embedding_dimension=int(os.getenv("EMBEDDING_DIMENSION", "384")),
+        faiss_data_dir=os.getenv("FAISS_DATA_DIR", str(data_root / "faiss")),
+        uploads_data_dir=os.getenv("UPLOADS_DATA_DIR", str(data_root / "uploads")),
+        debug=os.getenv("DEBUG", "false").lower() == "true",
+        environment=os.getenv("ENVIRONMENT", "development"),
+        redis_url=os.getenv("REDIS_URL", None),
+        embedding_cache_ttl_seconds=int(os.getenv("EMBEDDING_CACHE_TTL", str(60 * 60 * 24))),
+        retrieval_cache_ttl_seconds=int(os.getenv("RETRIEVAL_CACHE_TTL", str(60 * 5))),
+    )

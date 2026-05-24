@@ -1,0 +1,43 @@
+# FastAPI & Web
+fastapi
+uvicorn
+python-multipart
+
+# Database & ORM
+psycopg2-binary>=2.9.0
+sqlalchemy>=2.0.0
+alembic>=1.13.0
+
+# OpenAI
+openai
+
+# Document processing
+pypdf
+python-docx
+
+# Vector search & local embeddings
+numpy
+faiss-cpu
+sentence-transformers>=2.2.0
+torch
+
+# Environment & config
+python-dotenv
+
+# Authentication (Step 3)
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+pydantic-settings>=2.0.0
+
+# Caching (Step 2)
+redis>=5.0.0
+
+# Async/Background jobs (Step 6)
+celery>=5.3.0
+
+# Storage abstraction (Step 5)
+boto3>=1.28.0
+
+# Logging & monitoring
+python-json-logger>=2.0.0
+
