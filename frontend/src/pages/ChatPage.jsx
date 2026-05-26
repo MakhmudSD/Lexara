@@ -19,8 +19,14 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [connectionError, setConnectionError] = useState(false);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
+  const workspaceSelectorRef = useRef(null);
+
+  const retryWorkspaceCreation = useCallback(() => {
+    workspaceSelectorRef.current?.retryWorkspaceCreation?.();
+  }, []);
 
   const samplePrompts = [
     t('sample_prompt_topics'),
@@ -39,6 +45,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
       .slice(-HISTORY_LIMIT);
     setHistory(rebuiltHistory);
     setError('');
+    setConnectionError(false);
   }, [sessions]);
 
   const createNewSession = useCallback(() => {
@@ -56,6 +63,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
     setActiveSessionId(newSession.id);
     setMessages([]);
     setSidebarOpen(false);
+    setConnectionError(false);
   }, [sessions, workspaceId]);
 
   const deleteSession = useCallback((sessionId) => {
@@ -105,22 +113,26 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
           setActiveSessionId(parsed[0].id);
           setMessages(parsed[0].messages || []);
           setHistory((parsed[0].messages || []).filter((entry) => entry.role === 'user' || entry.role === 'assistant').slice(-HISTORY_LIMIT));
+          setConnectionError(false);
         } else {
           setActiveSessionId(null);
           setMessages([]);
           setHistory([]);
+          setConnectionError(false);
         }
       } catch {
         setSessions([]);
         setActiveSessionId(null);
         setMessages([]);
         setHistory([]);
+        setConnectionError(false);
       }
     } else {
       setSessions([]);
       setActiveSessionId(null);
       setMessages([]);
       setHistory([]);
+      setConnectionError(false);
     }
   }, [workspaceId]);
 
@@ -164,6 +176,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
 
     setInput('');
     setError('');
+    setConnectionError(false);
     setIsLoading(true);
     setMessages((prev) => [
       ...prev,
@@ -261,6 +274,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
         <div className="sidebar-section">
           <div className="sidebar-label">{t('workspace')}</div>
           <WorkspaceSelector
+            ref={workspaceSelectorRef}
             workspaceId={workspaceId}
             workspaceName={workspaceName}
             onWorkspaceChange={(id) => {
@@ -268,9 +282,11 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
               setMessages([]);
               setHistory([]);
               setError('');
+              setConnectionError(false);
               setSidebarOpen(false);
             }}
             onWorkspaceNameChange={onWorkspaceNameChange}
+            onConnectionError={() => setConnectionError(true)}
           />
         </div>
 
@@ -329,13 +345,27 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
         </div>
 
         <div className="chat-messages">
+          {connectionError && (
+            <div className="connection-error-state">
+              <div style={{ fontSize: 32 }}>⚠️</div>
+              <p>{t('connection_error')}</p>
+              <button
+                onClick={() => {
+                  setConnectionError(false);
+                  retryWorkspaceCreation();
+                }}
+              >
+                {t('retry')}
+              </button>
+            </div>
+          )}
           {!hasWorkspaceName && (
             <div className="workspace-name-overlay">
               <div className="workspace-name-overlay-arrow">↖</div>
               <div className="workspace-name-overlay-text">{t('no_workspace_overlay')}</div>
             </div>
           )}
-          {isEmpty && (
+          {!connectionError && isEmpty && (
             <div className="empty-state">
               <div className="empty-state-icon">✦</div>
               <div className="empty-state-text">
@@ -353,7 +383,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
             </div>
           )}
 
-          {messages.map((message, index) => (
+          {!connectionError && messages.map((message, index) => (
             <ChatMessage
               key={message.id || index}
               role={message.role}
@@ -367,10 +397,10 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
           <div ref={messagesEndRef} />
         </div>
 
-        {error && <div className="error-banner">{error}</div>}
+        {!connectionError && error && <div className="error-banner">{error}</div>}
 
         <div className="chat-input-area">
-          <div className={`chat-input-wrapper ${!workspaceId ? 'disabled' : ''}`}>
+          <div className={`chat-input-wrapper ${!workspaceId || connectionError ? 'disabled' : ''}`}>
             <textarea
               ref={textareaRef}
               className="chat-input"
@@ -383,10 +413,10 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
                 }
               }}
               placeholder={!hasWorkspaceName ? t('query_disabled_placeholder') : (workspaceId ? t('input_placeholder_ready') : t('input_placeholder_idle'))}
-              disabled={!workspaceId || isLoading || !hasWorkspaceName}
+              disabled={!workspaceId || isLoading || !hasWorkspaceName || connectionError}
               rows={1}
             />
-            <button className="send-btn" onClick={() => sendMessage(input)} disabled={!canSend} title={t('send')}>
+            <button className="send-btn" onClick={() => sendMessage(input)} disabled={!canSend || connectionError} title={t('send')}>
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M2 14L14 8 2 2" />
                 <path d="M14 8H6" />

@@ -1,16 +1,17 @@
-import { useEffect, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { quickCreateWorkspace, updateWorkspaceName } from '../api/workspace';
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/WorkspaceSelector.css';
 
 const NAME_RE = /^[^\x00-\x1F\x7F<>:"\/\\|?*]{1,40}$/;
 
-export default function WorkspaceSelector({
+function WorkspaceSelector({
   workspaceId,
   workspaceName,
   onWorkspaceChange,
   onWorkspaceNameChange,
-}) {
+  onConnectionError,
+}, ref) {
   const { t } = useTranslation();
   const [nameInput, setNameInput] = useState(workspaceName || '');
   const [creating, setCreating] = useState(false);
@@ -20,6 +21,10 @@ export default function WorkspaceSelector({
   useEffect(() => {
     setNameInput(workspaceName || '');
   }, [workspaceName]);
+
+  useImperativeHandle(ref, () => ({
+    retryWorkspaceCreation: handleGenerate,
+  }));
 
   const shortWorkspaceId = workspaceId ? `${workspaceId.slice(0, 8)}…` : '';
   const nameError = (() => {
@@ -66,6 +71,7 @@ export default function WorkspaceSelector({
     } catch (err) {
       const msg = err.response?.data?.error?.message || err.message || t('create_workspace_failed');
       setCreateError(msg);
+      onConnectionError?.();
     } finally {
       setCreating(false);
     }
@@ -104,8 +110,10 @@ export default function WorkspaceSelector({
       {!workspaceId && !createError && <div className="workspace-status hint">{t('paste_uuid_or_generate')}</div>}
 
       <button className="new-workspace-btn" onClick={handleGenerate} disabled={creating}>
-        {creating ? t('creating_workspace') : `+ ${t('generate_workspace')}`}
+        {creating ? t('creating_workspace') : t('generate_workspace')}
       </button>
     </div>
   );
 }
+
+export default forwardRef(WorkspaceSelector);

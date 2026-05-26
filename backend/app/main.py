@@ -27,6 +27,7 @@ def create_app() -> FastAPI:
     app.state.runtime = runtime
     app.state.settings = settings
 
+    app.add_middleware(RequestContextMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(","),
@@ -34,7 +35,6 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    app.add_middleware(RequestContextMiddleware)
     register_exception_handlers(app)
 
     app.include_router(health_router)

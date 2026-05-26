@@ -41,14 +41,14 @@
 .admin-tab:hover { color: var(--text-primary); }
 
 .admin-tab.active {
-  color: var(--accent);
-  border-color: rgba(37, 99, 235, 0.18);
+  color: var(--lexara-blue);
+  border-color: rgba(35, 86, 216, 0.18);
   background: #ffffff;
 }
 
 .tab-count {
   background: var(--surface-strong);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--lexara-border);
   border-radius: 999px;
   padding: 0 4px;
   font-size: 9px;
@@ -58,9 +58,9 @@
 }
 
 .admin-tab.active .tab-count {
-  background: var(--accent-muted);
-  border-color: rgba(37, 99, 235, 0.2);
-  color: var(--accent);
+  background: var(--lexara-blue-light);
+  border-color: rgba(35, 86, 216, 0.2);
+  color: var(--lexara-blue);
 }
 
 .admin-content {

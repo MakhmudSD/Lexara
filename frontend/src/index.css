@@ -1,21 +1,32 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
 
 :root {
-  --page-bg: #f8f6f2;
-  --surface: #ffffff;
+  /* Lexara Brand Tokens */
+  --lexara-blue: #2356d8;
+  --lexara-blue-hover: #1a45c0;
+  --lexara-blue-light: #eff2ff;
+  --lexara-bg: #f8f6f1;
+  --lexara-text: #1a1814;
+  --lexara-text-secondary: #5a5650;
+  --lexara-border: rgba(0,0,0,0.08);
+  --lexara-white: #ffffff;
+
+  /* Legacy variables (kept for compatibility) */
+  --page-bg: var(--lexara-bg);
+  --surface: var(--lexara-white);
   --surface-muted: #fcfbf8;
   --surface-strong: #f1ede5;
   --surface-hover: #f4f0e8;
-  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-subtle: var(--lexara-border);
   --border-default: rgba(0, 0, 0, 0.14);
-  --border-strong: rgba(37, 99, 235, 0.22);
-  --text-primary: #1a1a1a;
-  --text-secondary: #6b6560;
+  --border-strong: rgba(35, 86, 216, 0.22);
+  --text-primary: var(--lexara-text);
+  --text-secondary: var(--lexara-text-secondary);
   --text-tertiary: #8c847b;
-  --text-inverse: #ffffff;
-  --accent: #2563eb;
-  --accent-muted: rgba(37, 99, 235, 0.10);
-  --accent-soft: rgba(37, 99, 235, 0.16);
+  --text-inverse: var(--lexara-white);
+  --accent: var(--lexara-blue);
+  --accent-muted: var(--lexara-blue-light);
+  --accent-soft: rgba(35, 86, 216, 0.16);
   --success: #2f855a;
   --success-muted: rgba(47, 133, 90, 0.12);
   --error: #c2410c;
@@ -41,8 +52,8 @@
 html, body, #root {
   width: 100%;
   height: 100%;
-  background: var(--page-bg);
-  color: var(--text-primary);
+  background: var(--lexara-bg);
+  color: var(--lexara-text);
   font-family: var(--font-sans);
   font-size: 15px;
   line-height: 1.6;
