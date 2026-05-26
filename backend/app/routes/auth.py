@@ -61,7 +61,6 @@ def _auth_response(user: User, runtime: AppRuntime) -> AuthResponse:
 
 
 @router.post("/register", response_model=AuthResponse, status_code=201)
-@limiter.limit("3/minute")
 def register(
     request: Request,
     payload: RegisterRequest,
@@ -87,7 +86,6 @@ def register(
 
 
 @router.post("/login", response_model=AuthResponse)
-@limiter.limit("5/minute")
 def login(
     request: Request,
     payload: LoginRequest,
@@ -137,7 +135,6 @@ def me(
 
 
 @router.post("/forgot-password")
-@limiter.limit("3/minute")
 def forgot_password(
     request: Request,
     payload: ForgotPasswordRequest,
