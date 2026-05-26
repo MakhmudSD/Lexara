@@ -5,6 +5,7 @@
 backend/.env
 frontend/.env
 *.env.local
+.env.production
 
 # Logs
 *.log
@@ -37,3 +38,5 @@ frontend/dist/
 
 # TODO is tracked (do NOT gitignore it)
 # TODO.md is intentionally committed
+frontend/.env.production
+frontend/.env.local
