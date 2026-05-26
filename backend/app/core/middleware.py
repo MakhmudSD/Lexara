@@ -12,7 +12,9 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         request.state.request_id = request_id
 
         started_at = time.perf_counter()
-        runtime = request.app.state.runtime
+        runtime = getattr(request.app.state, 'runtime', None)
+        if runtime is None:
+            return await call_next(request)
         status_code = 500
 
         runtime.observability.add_event(
