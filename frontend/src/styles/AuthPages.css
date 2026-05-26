@@ -92,3 +92,58 @@
   margin-top: 12px;
   animation: fadeUp 0.3s ease;
 }
+
+.auth-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.52);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 2000;
+}
+
+.auth-modal {
+  width: min(100%, 460px);
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.18);
+  padding: 24px;
+}
+
+.auth-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.auth-modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #1a1a1a;
+}
+
+.auth-modal-close {
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: #6b6560;
+}
+
+.auth-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-modal-status {
+  margin: 0;
+  font-size: 12px;
+  color: #6b6560;
+}

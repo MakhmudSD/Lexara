@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from 'react';
 import { getDocuments, getHealth, getLogs, getRequests, getRetrievals } from '../api/admin';
-import { getConversations, getTokenSummary, getTokenUsage, getUsers, updateUserRole, updateUserStatus } from '../api/usage';
+import { deleteUser, getConversations, getTokenSummary, getTokenUsage, getUsers, updateUserRole, updateUserStatus } from '../api/usage';
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/AdminPage.css';
 
@@ -19,6 +19,26 @@ function shortId(id = '') {
   if (!id) return '—';
   const s = String(id);
   return s.length > 12 ? `${s.slice(0, 8)}…` : s;
+}
+
+function getScoreTier(value) {
+  if (value == null) return 'none';
+  if (value >= 0.75) return 'high';
+  if (value >= 0.55) return 'medium';
+  return 'low';
+}
+
+function formatJoinedDate(value) {
+  if (!value) return '—';
+  try {
+    return new Date(value).toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  } catch {
+    return value;
+  }
 }
 
 function formatCost(value) {
@@ -60,19 +80,30 @@ function HealthPanel({ data }) {
   );
 }
 
-function DocumentsPanel({ data }) {
-  if (!data?.length) return <div className="admin-empty">no documents indexed</div>;
+function EmptyUsersState({ t, filtered }) {
+  return (
+    <div className="admin-empty-state">
+      <div className="admin-empty-icon">◌</div>
+      <div className="admin-empty-message">
+        {filtered ? t('admin_no_users_match') : t('admin_no_users')}
+      </div>
+    </div>
+  );
+}
+
+function DocumentsPanel({ data, t }) {
+  if (!data?.length) return <div className="admin-empty">{t('admin_no_documents') || 'no documents indexed'}</div>;
   return (
     <div className="admin-table-wrap">
       <table className="admin-table">
         <thead>
           <tr>
-            <th>Filename</th>
-            <th>Workspace</th>
-            <th>Type</th>
-            <th>Chunks</th>
-            <th>Size</th>
-            <th>Uploaded</th>
+            <th>{t('admin_filename')}</th>
+            <th>{t('admin_workspace')}</th>
+            <th>{t('admin_type')}</th>
+            <th>{t('admin_chunks')}</th>
+            <th>{t('admin_size')}</th>
+            <th>{t('admin_uploaded')}</th>
           </tr>
         </thead>
         <tbody>
@@ -92,19 +123,19 @@ function DocumentsPanel({ data }) {
   );
 }
 
-function RequestsPanel({ data }) {
-  if (!data?.length) return <div className="admin-empty">no requests yet</div>;
+function RequestsPanel({ data, t }) {
+  if (!data?.length) return <div className="admin-empty">{t('admin_no_requests') || 'no requests yet'}</div>;
   return (
     <div className="admin-table-wrap">
       <table className="admin-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Method</th>
-            <th>Path</th>
-            <th>Status</th>
-            <th>Duration</th>
-            <th>Time</th>
+            <th>{t('admin_id') || 'ID'}</th>
+            <th>{t('admin_method')}</th>
+            <th>{t('admin_path')}</th>
+            <th>{t('admin_status_code')}</th>
+            <th>{t('admin_duration')}</th>
+            <th>{t('admin_time')}</th>
           </tr>
         </thead>
         <tbody>
@@ -128,18 +159,18 @@ function RequestsPanel({ data }) {
   );
 }
 
-function LogsPanel({ data }) {
-  if (!data?.length) return <div className="admin-empty">no logs yet</div>;
+function LogsPanel({ data, t }) {
+  if (!data?.length) return <div className="admin-empty">{t('admin_no_logs') || 'no logs yet'}</div>;
   return (
     <div className="admin-table-wrap">
       <table className="admin-table">
         <thead>
           <tr>
-            <th>Time</th>
-            <th>Level</th>
-            <th>Stage</th>
-            <th>Message</th>
-            <th>Request</th>
+            <th>{t('admin_time')}</th>
+            <th>{t('admin_level') || 'Level'}</th>
+            <th>{t('admin_stage') || 'Stage'}</th>
+            <th>{t('admin_message')}</th>
+            <th>{t('admin_request')}</th>
           </tr>
         </thead>
         <tbody>
@@ -162,18 +193,18 @@ function LogsPanel({ data }) {
   );
 }
 
-function RetrievalsPanel({ data }) {
-  if (!data?.length) return <div className="admin-empty">no retrievals yet</div>;
+function RetrievalsPanel({ data, t }) {
+  if (!data?.length) return <div className="admin-empty">{t('admin_no_retrievals') || 'no retrievals yet'}</div>;
   return (
     <div className="admin-table-wrap">
       <table className="admin-table">
         <thead>
           <tr>
-            <th>Question</th>
-            <th>Top-K</th>
-            <th>Results</th>
-            <th>Latency</th>
-            <th>Time</th>
+            <th>{t('admin_question')}</th>
+            <th>{t('admin_top_k')}</th>
+            <th>{t('admin_results')}</th>
+            <th>{t('admin_latency')}</th>
+            <th>{t('admin_time')}</th>
           </tr>
         </thead>
         <tbody>
@@ -206,20 +237,20 @@ function RetrievalsPanel({ data }) {
   );
 }
 
-function UsagePanel({ summary, usage }) {
+function UsagePanel({ summary, usage, t }) {
   if ((summary?.total_requests ?? 0) === 0) {
-    return <div className="admin-empty">No queries yet. Make your first query to see usage data.</div>;
+    return <div className="admin-empty">{t('admin_no_queries') || 'No queries yet. Make your first query to see usage data.'}</div>;
   }
   const summaryCards = [
-    { label: 'Total Requests', value: summary?.total_requests ?? 0 },
-    { label: 'Total Tokens', value: summary?.total_tokens ?? 0 },
-    { label: 'Est. Cost (USD)', value: formatCost(summary?.total_cost_usd ?? 0) },
-    { label: 'Avg Latency', value: `${Math.round(summary?.avg_latency_ms ?? 0)}ms` },
+    { label: t('admin_requests') || 'Total Requests', value: summary?.total_requests ?? 0 },
+    { label: t('admin_total_tokens') || 'Total Tokens', value: summary?.total_tokens ?? 0 },
+    { label: t('admin_cost') || 'Est. Cost (USD)', value: formatCost(summary?.total_cost_usd ?? 0) },
+    { label: t('admin_latency') || 'Avg Latency', value: `${Math.round(summary?.avg_latency_ms ?? 0)}ms` },
   ];
 
   return (
     <div>
-      <div className="health-grid">
+        <div className="health-grid">
         {summaryCards.map((card) => (
           <div key={card.label} className="health-card">
             <div className="health-card-label">{card.label}</div>
@@ -235,15 +266,15 @@ function UsagePanel({ summary, usage }) {
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Time</th>
-                <th>Workspace</th>
-                <th>Model</th>
-                <th>Prompt tok</th>
-                <th>Completion tok</th>
-                <th>Total tok</th>
-                <th>Cost ($)</th>
-                <th>Latency</th>
-                <th>Mode</th>
+                <th>{t('admin_time')}</th>
+                <th>{t('admin_workspace')}</th>
+                <th>{t('admin_model')}</th>
+                <th>{t('admin_prompt_tokens')}</th>
+                <th>{t('admin_completion_tokens')}</th>
+                <th>{t('admin_total_tokens')}</th>
+                <th>{t('admin_cost')}</th>
+                <th>{t('admin_latency')}</th>
+                <th>{t('admin_mode') || 'Mode'}</th>
               </tr>
             </thead>
             <tbody>
@@ -272,93 +303,146 @@ function UsagePanel({ summary, usage }) {
   );
 }
 
-function UsersPanel({ users, onReload }) {
-  if (!users?.length) return <div className="admin-empty">No users registered yet.</div>;
+function UsersPanel({
+  users,
+  onReload,
+  t,
+  search,
+  onSearchChange,
+  roleFilter,
+  onRoleFilterChange,
+}) {
+  const sourceUsers = Array.isArray(users) ? users : [];
+  const filteredUsers = sourceUsers.filter((user) => {
+    const haystack = `${user.email || ''} ${user.full_name || ''}`.toLowerCase();
+    const matchesSearch = !search || haystack.includes(search.toLowerCase());
+    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+    return matchesSearch && matchesRole;
+  });
+
   const handleToggleRole = async (user) => {
     const nextRole = user.role === 'admin' ? 'user' : 'admin';
     await updateUserRole(user.user_id, nextRole);
-    onReload();
+    await onReload();
   };
   const handleToggleStatus = async (user) => {
     if (user.is_active && !window.confirm('Deactivate this user?')) return;
     await updateUserStatus(user.user_id, !user.is_active);
-    onReload();
+    await onReload();
+  };
+  const handleDelete = async (user) => {
+    if (!window.confirm(t('confirm_delete_user') || 'Permanently delete this user? This cannot be undone.')) return;
+    await deleteUser(user.user_id);
+    await onReload();
   };
   return (
-    <div className="admin-table-wrap">
-      <table className="admin-table">
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Name</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Joined</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.user_id}>
-              <td>{user.email}</td>
-              <td>{user.full_name}</td>
-              <td>
-                <span className={`user-role-badge ${user.role === 'admin' ? 'admin' : 'user'}`}>
-                  {user.role}
-                </span>
-              </td>
-              <td>
-                <span className="user-status">
-                  <span className={`user-status-dot ${user.is_active ? 'active' : 'inactive'}`} />
-                  {user.is_active ? 'Active' : 'Inactive'}
-                </span>
-              </td>
-              <td className="td-mono">{formatTime(user.created_at)}</td>
-              <td style={{ display: 'flex', gap: 8 }}>
-                <button className="user-action-btn" onClick={() => handleToggleRole(user)}>
-                  {user.role === 'admin' ? 'Make user' : 'Make admin'}
-                </button>
-                <button className="user-action-btn" onClick={() => handleToggleStatus(user)}>
-                  {user.is_active ? 'Deactivate' : 'Activate'}
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div>
+      <div className="users-toolbar">
+        <input
+          type="search"
+          className="users-search"
+          value={search}
+          onChange={(event) => onSearchChange(event.target.value)}
+          placeholder={t('admin_search_placeholder')}
+        />
+        <label className="users-role-filter">
+          <span>{t('admin_role')}</span>
+          <select value={roleFilter} onChange={(event) => onRoleFilterChange(event.target.value)}>
+            <option value="all">{t('admin_filter_all')}</option>
+            <option value="admin">{t('admin_filter_admin')}</option>
+            <option value="user">{t('admin_filter_user')}</option>
+          </select>
+        </label>
+      </div>
+
+      {!filteredUsers.length ? (
+        <EmptyUsersState t={t} filtered={Boolean(sourceUsers.length)} />
+      ) : (
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>{t('admin_email')}</th>
+                <th>{t('admin_name')}</th>
+                <th>{t('admin_role')}</th>
+                <th>{t('admin_status')}</th>
+                <th>{t('admin_joined')}</th>
+                <th>{t('admin_actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.map((user) => (
+                <tr key={user.user_id}>
+                  <td>{user.email}</td>
+                  <td>{user.full_name}</td>
+                  <td>
+                    <span className={`user-role-badge ${user.role === 'admin' ? 'admin' : 'user'}`}>
+                      {user.role === 'admin' ? t('admin_filter_admin') : t('admin_filter_user')}
+                    </span>
+                  </td>
+                  <td>
+                    <span className="user-status">
+                      <span className={`user-status-dot ${user.is_active ? 'active' : 'inactive'}`} />
+                      {user.is_active ? t('admin_active') : t('admin_inactive')}
+                    </span>
+                  </td>
+                  <td className="td-mono">{formatJoinedDate(user.created_at)}</td>
+                  <td style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <button className="user-action-btn" onClick={() => handleToggleRole(user)}>
+                      {user.role === 'admin' ? t('admin_make_user') : t('admin_make_admin')}
+                    </button>
+                    <button className="user-action-btn secondary" onClick={() => handleToggleStatus(user)}>
+                      {user.is_active ? t('admin_deactivate') : t('admin_activate')}
+                    </button>
+                    <button className="user-action-btn danger" onClick={() => handleDelete(user)}>
+                      {t('admin_delete')}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
 
-function ConversationsPanel({ data, expandedRow, onToggleRow }) {
-  if (!data?.length) return <div className="admin-empty">no conversations yet</div>;
+function ConversationsPanel({ data, expandedRow, onToggleRow, t }) {
+  if (!data?.length) return <div className="admin-empty">{t('admin_no_conversations') || 'no conversations yet'}</div>;
   return (
     <div className="admin-table-wrap">
       <table className="admin-table">
         <thead>
           <tr>
-            <th>Time</th>
-            <th>Workspace</th>
-            <th>Question</th>
-            <th>Answer preview</th>
-            <th>Mode</th>
-            <th>Sources</th>
-            <th>Score</th>
-            <th>Turns</th>
-            <th>Latency</th>
+            <th>{t('admin_time')}</th>
+            <th>{t('admin_workspace')}</th>
+            <th>{t('admin_question')}</th>
+            <th>{t('admin_answer_preview')}</th>
+            <th>{t('admin_mode') || 'Mode'}</th>
+            <th>{t('admin_score') || 'Top score'}</th>
+            <th>{t('admin_sources')}</th>
+            <th>{t('admin_turns')}</th>
+            <th>{t('admin_latency')}</th>
           </tr>
         </thead>
         <tbody>
-          {data.map((item, index) => (
-            <Fragment key={`${item.request_id}-${index}`}>
-              <tr onClick={() => onToggleRow(item.request_id)} style={{ cursor: 'pointer' }}>
+          {data.map((item, index) => {
+            const tier = getScoreTier(item.top_score);
+            const color = tier === 'high' ? '#16a34a' : tier === 'medium' ? '#d97706' : tier === 'low' ? '#dc2626' : 'inherit';
+            return (
+              <Fragment key={`${item.request_id}-${index}`}>
+                <tr onClick={() => onToggleRow(item.request_id)} style={{ cursor: 'pointer' }}>
                   <td className="td-mono">{formatTime(item.timestamp)}</td>
                   <td className="td-mono">{shortId(item.workspace_id)}</td>
                   <td>{truncate(item.question, 80)}</td>
                   <td>{truncate(item.answer || '', 60)}</td>
                   <td><span className={`badge ${item.mode === 'rag' ? 'badge-ok' : 'badge-warn'}`}>{item.mode}</span></td>
+                  <td className="td-mono" style={{ color }}>
+                    {item.top_score != null ? item.top_score.toFixed(3) : '—'}
+                    {tier === 'low' && <span style={{ marginLeft: 6 }}>⚠ Needs review</span>}
+                  </td>
                   <td className="td-mono">{item.sources?.length ?? 0}</td>
-                  <td className="td-mono">{item.top_score != null ? item.top_score.toFixed(3) : '—'}</td>
                   <td className="td-mono">{item.history_turns}</td>
                   <td className="td-mono">{item.latency_ms != null ? `${Math.round(item.latency_ms)}ms` : '—'}</td>
                 </tr>
@@ -370,8 +454,9 @@ function ConversationsPanel({ data, expandedRow, onToggleRow }) {
                     </td>
                   </tr>
                 )}
-            </Fragment>
-          ))}
+              </Fragment>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -385,6 +470,15 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [expandedRow, setExpandedRow] = useState('');
+  const [userSearch, setUserSearch] = useState('');
+  const [userRoleFilter, setUserRoleFilter] = useState('all');
+  const [conversationScoreFilter, setConversationScoreFilter] = useState('all');
+
+  const refreshUsers = async () => {
+    const response = await getUsers();
+    const users = Array.isArray(response) ? response : response?.users || response?.data || [];
+    setData((prev) => ({ ...prev, users }));
+  };
 
   useEffect(() => {
     const fetchTab = async () => {
@@ -398,18 +492,17 @@ export default function AdminPage() {
             usage: await getTokenUsage(),
           }),
           conversations: getConversations,
-          users: getUsers,
+          users: refreshUsers,
           documents: getDocuments,
           requests: getRequests,
           logs: getLogs,
           retrievals: getRetrievals,
         };
-        const result = await fetchers[activeTab]();
-        if (activeTab === 'users') {
-          const users = Array.isArray(result) ? result : result?.users || result?.data || [];
-          setData((prev) => ({ ...prev, users }));
-        } else {
+        if (activeTab !== 'users') {
+          const result = await fetchers[activeTab]();
           setData((prev) => ({ ...prev, [activeTab]: result }));
+        } else {
+          await fetchers.users();
         }
       } catch (err) {
         setError(err.response?.data?.error?.message || err.message || 'Fetch failed');
@@ -421,14 +514,43 @@ export default function AdminPage() {
     fetchTab();
   }, [activeTab]);
 
+  const conversations = Array.isArray(data.conversations) ? data.conversations : [];
+  const conversationTotals = conversations.reduce(
+    (totals, item) => {
+      const tier = getScoreTier(item.top_score);
+      if (tier === 'high') totals.high += 1;
+      if (tier === 'medium') totals.medium += 1;
+      if (tier === 'low') totals.low += 1;
+      return totals;
+    },
+    { high: 0, medium: 0, low: 0 },
+  );
+  const conversationTotal = conversations.length;
+  const conversationPercent = (value) => (conversationTotal ? Math.round((value * 100) / conversationTotal) : 0);
+  const filteredConversations = conversations.filter((item) => {
+    if (conversationScoreFilter === 'all') return true;
+    const tier = getScoreTier(item.top_score);
+    return conversationScoreFilter === tier;
+  });
+
   const counts = {
     usage: data.usage?.usage?.length,
     documents: data.documents?.length,
     requests: data.requests?.length,
     logs: data.logs?.length,
     retrievals: data.retrievals?.length,
-    conversations: data.conversations?.length,
+    conversations: conversations.length,
     users: data.users?.length,
+  };
+
+  const tabLabels = {
+    users: t('admin_users'),
+    health: t('admin_health'),
+    usage: t('admin_usage'),
+    conversations: t('admin_conversations'),
+    documents: t('admin_documents'),
+    requests: t('admin_requests'),
+    logs: t('admin_logs'),
   };
 
   return (
@@ -443,8 +565,8 @@ export default function AdminPage() {
               setError('');
             }}
           >
-            {t(tab)}
-            {counts[tab] != null && <span className="tab-count">{counts[tab]}</span>}
+            {tabLabels[tab] || tab}
+            {tab === 'users' && <span className="tab-count">{counts.users ?? 0}</span>}
           </button>
         ))}
       </div>
@@ -466,28 +588,69 @@ export default function AdminPage() {
         ) : (
           <>
             {activeTab === 'health' && <HealthPanel data={data.health} />}
-            {activeTab === 'usage' && <UsagePanel summary={data.usage?.summary} usage={data.usage?.usage} />}
+            {activeTab === 'usage' && <UsagePanel summary={data.usage?.summary} usage={data.usage?.usage} t={t} />}
             {activeTab === 'conversations' && (
-              <ConversationsPanel
-                data={data.conversations}
-                expandedRow={expandedRow}
-                onToggleRow={(id) => setExpandedRow((prev) => (prev === id ? '' : id))}
-              />
+              <>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
+                  <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                    <div style={{ minWidth: 180, padding: 14, borderRadius: 12, background: '#ecfdf5', color: '#166534' }}>
+                      <div style={{ fontSize: 11, opacity: 0.8 }}>🟢 High</div>
+                      <div style={{ fontSize: 18, fontWeight: 700 }}>{conversationTotals.high}</div>
+                      <div style={{ fontSize: 12, opacity: 0.8 }}>{conversationPercent(conversationTotals.high)}%</div>
+                    </div>
+                    <div style={{ minWidth: 180, padding: 14, borderRadius: 12, background: '#fffbeb', color: '#92400e' }}>
+                      <div style={{ fontSize: 11, opacity: 0.8 }}>🟡 Medium</div>
+                      <div style={{ fontSize: 18, fontWeight: 700 }}>{conversationTotals.medium}</div>
+                      <div style={{ fontSize: 12, opacity: 0.8 }}>{conversationPercent(conversationTotals.medium)}%</div>
+                    </div>
+                    <div style={{ minWidth: 180, padding: 14, borderRadius: 12, background: '#fef2f2', color: '#991b1b' }}>
+                      <div style={{ fontSize: 11, opacity: 0.8 }}>🔴 Low</div>
+                      <div style={{ fontSize: 18, fontWeight: 700 }}>{conversationTotals.low}</div>
+                      <div style={{ fontSize: 12, opacity: 0.8 }}>{conversationPercent(conversationTotals.low)}%</div>
+                      {conversationPercent(conversationTotals.low) > 20 && (
+                        <div style={{ marginTop: 6, fontSize: 11, color: '#991b1b' }}>
+                          ⚠ More than 20% of conversations need review
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <label style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, minWidth: 220 }}>
+                    <span style={{ fontSize: 12, color: '#6b7280' }}>Score filter</span>
+                    <select
+                      value={conversationScoreFilter}
+                      onChange={(event) => setConversationScoreFilter(event.target.value)}
+                      style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #d1d5db', background: '#ffffff' }}
+                    >
+                      <option value="all">All scores</option>
+                      <option value="high">High (≥75%)</option>
+                      <option value="medium">Medium (55–74%)</option>
+                      <option value="low">Low (&lt;55%)</option>
+                    </select>
+                  </label>
+                </div>
+                <ConversationsPanel
+                  data={filteredConversations}
+                  expandedRow={expandedRow}
+                  onToggleRow={(id) => setExpandedRow((prev) => (prev === id ? '' : id))}
+                  t={t}
+                />
+              </>
             )}
             {activeTab === 'users' && (
               <UsersPanel
                 users={data.users}
-                onReload={async () => {
-                  const response = await getUsers();
-                  const users = Array.isArray(response) ? response : response?.users || response?.data || [];
-                  setData((prev) => ({ ...prev, users }));
-                }}
+                onReload={refreshUsers}
+                t={t}
+                search={userSearch}
+                onSearchChange={setUserSearch}
+                roleFilter={userRoleFilter}
+                onRoleFilterChange={setUserRoleFilter}
               />
             )}
-            {activeTab === 'documents' && <DocumentsPanel data={data.documents} />}
-            {activeTab === 'requests' && <RequestsPanel data={data.requests} />}
-            {activeTab === 'logs' && <LogsPanel data={data.logs} />}
-            {activeTab === 'retrievals' && <RetrievalsPanel data={data.retrievals} />}
+            {activeTab === 'documents' && <DocumentsPanel data={data.documents} t={t} />}
+            {activeTab === 'requests' && <RequestsPanel data={data.requests} t={t} />}
+            {activeTab === 'logs' && <LogsPanel data={data.logs} t={t} />}
+            {activeTab === 'retrievals' && <RetrievalsPanel data={data.retrievals} t={t} />}
           </>
         )}
       </div>

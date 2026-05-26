@@ -1,1 +1,39 @@
 .env
+
+# Secrets
+.env
+backend/.env
+frontend/.env
+*.env.local
+
+# Logs
+*.log
+logs/
+
+# Data (persisted locally, not in git)
+backend/data/faiss/
+backend/data/uploads/
+backend/backups/
+
+# Python cache
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# Node
+node_modules/
+frontend/dist/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Sentry
+.sentryclirc
+
+# TODO is tracked (do NOT gitignore it)
+# TODO.md is intentionally committed

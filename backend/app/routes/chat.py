@@ -79,6 +79,7 @@ async def chat_query(
             [chunk.text for chunk in retrieved_chunks],
             runtime.settings,
             history=payload.history,
+            top_score=retrieved_chunks[0].score if retrieved_chunks else None,
         )
         runtime.observability.add_token_usage(
             TokenUsageEntry(
@@ -203,6 +204,7 @@ async def chat_stream(
                 [chunk.text for chunk in sources],
                 runtime.settings,
                 history=payload.history,
+                top_score=sources[0].score if sources else None,
             ):
                 streamed_answer_parts.append(delta)
                 yield _sse_payload("delta", delta)

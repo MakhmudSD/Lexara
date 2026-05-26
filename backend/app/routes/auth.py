@@ -1,16 +1,43 @@
 from __future__ import annotations
 
+from datetime import datetime, timedelta
 from uuid import uuid4
+import secrets
 
-from fastapi import APIRouter, Depends, Header
+from fastapi import APIRouter, Depends, Header, Request
 from sqlalchemy import func
 from sqlalchemy.orm import Session
+
+try:  # pragma: no cover - optional dependency fallback for local builds
+    from slowapi import Limiter
+    from slowapi.util import get_remote_address
+except ImportError:  # pragma: no cover
+    class _NoopLimiter:
+        def limit(self, *_args, **_kwargs):
+            def decorator(func):
+                return func
+
+            return decorator
+
+    def get_remote_address(request):  # type: ignore[override]
+        return getattr(getattr(request, "client", None), "host", "unknown")
+
+    limiter = _NoopLimiter()
+else:
+    limiter = Limiter(key_func=get_remote_address)
 
 from app.core.dependencies import get_db, get_runtime
 from app.core.exceptions import AppError
 from app.core.runtime import AppRuntime
-from app.db.models import TokenUsage, User
-from app.schemas.auth import AuthResponse, LoginRequest, RegisterRequest, UserResponse
+from app.db.models import PasswordResetToken, TokenUsage, User
+from app.schemas.auth import (
+    AuthResponse,
+    ForgotPasswordRequest,
+    LoginRequest,
+    RegisterRequest,
+    ResetPasswordRequest,
+    UserResponse,
+)
 from app.services.auth_service import (
     create_access_token,
     decode_access_token,
@@ -34,7 +61,9 @@ def _auth_response(user: User, runtime: AppRuntime) -> AuthResponse:
 
 
 @router.post("/register", response_model=AuthResponse, status_code=201)
+@limiter.limit("3/minute")
 def register(
+    request: Request,
     payload: RegisterRequest,
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
@@ -58,7 +87,9 @@ def register(
 
 
 @router.post("/login", response_model=AuthResponse)
+@limiter.limit("5/minute")
 def login(
+    request: Request,
     payload: LoginRequest,
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
@@ -103,3 +134,53 @@ def me(
         total_tokens=int(stats.total_tokens or 0),
         total_cost_usd=float(stats.total_cost or 0.0),
     )
+
+
+@router.post("/forgot-password")
+@limiter.limit("3/minute")
+def forgot_password(
+    request: Request,
+    payload: ForgotPasswordRequest,
+    db: Session = Depends(get_db),
+    runtime: AppRuntime = Depends(get_runtime),
+) -> dict:
+    user = db.query(User).filter(User.email == payload.email).first()
+    token = secrets.token_urlsafe(32)
+    if user is not None:
+        db.add(
+            PasswordResetToken(
+                id=uuid4(),
+                user_id=user.id,
+                token=token,
+                expires_at=datetime.utcnow() + timedelta(hours=1),
+            )
+        )
+        db.commit()
+
+    if runtime.settings.environment == "development" and user is not None:
+        return {"message": "Reset token generated", "token": token, "expires_in": "1 hour"}
+
+    return {"message": "If this email exists, a reset link was sent"}
+
+
+@router.post("/reset-password")
+def reset_password(
+    payload: ResetPasswordRequest,
+    db: Session = Depends(get_db),
+) -> dict:
+    token_row = db.query(PasswordResetToken).filter(PasswordResetToken.token == payload.token).first()
+    if token_row is None:
+        raise AppError(400, "invalid_reset_token", "Reset token is invalid.")
+    if token_row.used_at is not None:
+        raise AppError(400, "invalid_reset_token", "Reset token has already been used.")
+    if token_row.expires_at <= datetime.utcnow():
+        raise AppError(400, "invalid_reset_token", "Reset token has expired.")
+
+    user = db.query(User).filter(User.id == token_row.user_id).first()
+    if user is None:
+        raise AppError(400, "invalid_reset_token", "Reset token is invalid.")
+
+    user.hashed_password = hash_password(payload.new_password)
+    token_row.used_at = datetime.utcnow()
+    db.commit()
+    return {"message": "Password reset successfully"}

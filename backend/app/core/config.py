@@ -51,6 +51,7 @@ class Settings:
     # Features
     debug: bool = False
     environment: str = "development"
+    sentry_dsn: str | None = None
     
     # Redis
     redis_url: str | None = None
@@ -63,6 +64,7 @@ class Settings:
     chat_top_p: float = 0.9
     chat_max_tokens: int = 600
     chat_frequency_penalty: float = 0.1
+    enable_reranking: bool = False
 
     @property
     def openai_configured(self) -> bool:
@@ -89,6 +91,7 @@ def get_settings() -> Settings:
         uploads_data_dir=os.getenv("UPLOADS_DATA_DIR", str(data_root / "uploads")),
         debug=os.getenv("DEBUG", "false").lower() == "true",
         environment=os.getenv("ENVIRONMENT", "development"),
+        sentry_dsn=os.getenv("SENTRY_DSN") or None,
         redis_url=os.getenv("REDIS_URL", None),
         embedding_cache_ttl_seconds=int(os.getenv("EMBEDDING_CACHE_TTL", str(60 * 60 * 24))),
         retrieval_cache_ttl_seconds=int(os.getenv("RETRIEVAL_CACHE_TTL", str(60 * 5))),
@@ -99,4 +102,5 @@ def get_settings() -> Settings:
         chat_top_p=float(os.getenv("CHAT_TOP_P", "0.9")),
         chat_max_tokens=int(os.getenv("CHAT_MAX_TOKENS", "600")),
         chat_frequency_penalty=float(os.getenv("CHAT_FREQUENCY_PENALTY", "0.1")),
+        enable_reranking=os.getenv("ENABLE_RERANKING", "false").lower() == "true",
     )

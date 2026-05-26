@@ -1,3 +1,4 @@
+from pathlib import Path
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile
@@ -33,7 +34,10 @@ def upload_document(
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
 ) -> DocumentUploadResponse:
-    filename = file.filename or "upload.txt"
+    safe_filename = Path(file.filename or "").name
+    if not safe_filename or safe_filename.startswith("."):
+        raise AppError(400, "invalid_filename", "Invalid filename.")
+    filename = safe_filename
     extension = _file_extension(filename)
     if extension not in ALLOWED_EXTENSIONS:
         raise AppError(

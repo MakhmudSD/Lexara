@@ -115,9 +115,24 @@ def build_messages(
     question: str,
     context_chunks: list[str],
     history: list[dict[str, Any]] | None = None,
+    top_score: float | None = None,
 ) -> tuple[list[dict[str, str]], int, int]:
     prepared_chunks = _prepare_context_chunks(context_chunks)
-    messages: list[dict[str, str]] = [{"role": "system", "content": SYSTEM_PROMPT}]
+    system_content = SYSTEM_PROMPT
+    if top_score is not None and top_score < 0.55:
+        system_content += (
+            "\n\nIMPORTANT: The retrieved document passages have LOW similarity "
+            f"to this question (top score: {top_score:.2f}). "
+            "Be explicit about uncertainty. If you cannot find the answer "
+            "in the context, clearly state: 'I could not find a reliable answer "
+            "to this question in your documents.'"
+        )
+    elif top_score is not None and top_score < 0.75:
+        system_content += (
+            "\n\nNote: Document match confidence is moderate. "
+            "Stick strictly to what the context says."
+        )
+    messages: list[dict[str, str]] = [{"role": "system", "content": system_content}]
     messages.extend(_trim_history(history))
     if prepared_chunks:
         context_text = "\n\n---\n\n".join(prepared_chunks)
@@ -240,6 +255,7 @@ async def generate_answer(
     context_chunks: list[str],
     settings: Settings,
     history: list[dict[str, Any]] | None = None,
+    top_score: float | None = None,
 ) -> tuple[str, TokenUsageData]:
     """Generate one final answer from retrieved context."""
     if not settings.openai_api_key:
@@ -253,6 +269,7 @@ async def generate_answer(
         question,
         context_chunks,
         history,
+        top_score=top_score,
     )
     started_at = time.perf_counter()
 
@@ -290,6 +307,7 @@ async def generate_answer_stream(
     context_chunks: list[str],
     settings: Settings,
     history: list[dict[str, Any]] | None = None,
+    top_score: float | None = None,
 ) -> Any:
     """Stream answer deltas from the LLM."""
     if not settings.openai_api_key:
@@ -303,6 +321,7 @@ async def generate_answer_stream(
         question,
         context_chunks,
         history,
+        top_score=top_score,
     )
     started_at = time.perf_counter()
 

@@ -153,6 +153,10 @@
   color: var(--text-primary);
 }
 
+.admin-table tbody tr {
+  transition: background 0.15s ease;
+}
+
 .td-mono {
   font-family: var(--font-mono);
   font-size: 12px;
@@ -317,4 +321,93 @@
 
 .user-action-btn:hover {
   background: var(--surface-muted);
+}
+
+.user-action-btn.secondary {
+  color: #374151;
+  border-color: rgba(107, 114, 128, 0.25);
+  background: #ffffff;
+}
+
+.user-action-btn.danger {
+  color: #b91c1c;
+  border-color: rgba(239, 68, 68, 0.18);
+  background: #fff5f5;
+}
+
+.user-action-btn.danger:hover {
+  background: #fee2e2;
+}
+
+.users-toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.users-search {
+  flex: 1;
+  min-width: 220px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+  background: #fff;
+  padding: 0 14px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-card);
+}
+
+.users-search:focus {
+  outline: none;
+  border-color: rgba(37, 99, 235, 0.28);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+}
+
+.users-role-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.users-role-filter select {
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  background: #fff;
+  height: 42px;
+  padding: 0 12px;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+
+.admin-empty-state {
+  min-height: 280px;
+  border: 1px dashed var(--border-subtle);
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(252,251,248,0.92));
+}
+
+.admin-empty-icon {
+  font-size: 34px;
+  color: var(--accent);
+}
+
+.admin-empty-message {
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-align: center;
 }

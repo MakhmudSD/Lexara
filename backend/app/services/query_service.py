@@ -13,6 +13,7 @@ from app.crud import document as document_crud
 from app.crud.workspace import get_workspace_or_404
 from app.schemas.chat import RetrievedChunk
 from app.services.embeddings import embed_query
+from app.services.reranking import rerank_chunks
 from app.services.vector_store import FaissVectorStore
 
 
@@ -60,6 +61,9 @@ def query_workspace(
                 score=hit.score,
             )
         )
+
+    if settings.enable_reranking and retrieved:
+        retrieved = rerank_chunks(question, retrieved, top_n=top_k)
 
     get_retrieval_cache().set(cache_key, retrieved)
     return retrieved

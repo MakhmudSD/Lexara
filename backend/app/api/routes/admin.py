@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+from datetime import datetime
+
+from fastapi import APIRouter, Depends, Header, Response
 from sqlalchemy.orm import Session
 
 from app.api.schemas.admin import (
@@ -18,6 +20,7 @@ from app.core.dependencies import get_db, get_runtime
 from app.core.exceptions import AppError
 from app.core.runtime import AppRuntime
 from app.db.models import TokenUsage, User
+from app.services.auth_service import decode_access_token
 from app.services.admin_service import (
     get_documents,
     get_health_status,
@@ -25,6 +28,7 @@ from app.services.admin_service import (
     get_request_history,
     get_retrieval_history,
 )
+from app.services.cleanup_service import cleanup_old_records
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -130,6 +134,26 @@ async def admin_conversations(
     return runtime.observability.list_conversations()
 
 
+@router.post("/cleanup")
+async def admin_cleanup(
+    authorization: str | None = Header(default=None),
+    db: Session = Depends(get_db),
+    runtime: AppRuntime = Depends(get_runtime),
+) -> dict[str, int]:
+    if not authorization or not authorization.startswith("Bearer "):
+        raise AppError(401, "missing_token", "Authorization token is required.")
+    token = authorization.split(" ", 1)[1].strip()
+    claims = decode_access_token(token, runtime.settings)
+    if claims.get("role") != "admin":
+        raise AppError(403, "forbidden", "Admin access required.")
+
+    results = cleanup_old_records(db)
+    return {
+        "token_usage_deleted": int(results.get("token_usage_deleted", 0)),
+        "reset_tokens_deleted": int(results.get("reset_tokens_deleted", 0)),
+    }
+
+
 @router.get("/users", response_model=list[UserAdminResponse])
 async def admin_users(db: Session = Depends(get_db)) -> list[UserAdminResponse]:
     rows = db.query(User).order_by(User.created_at.desc()).all()
@@ -188,3 +212,32 @@ async def admin_update_user_status(
         is_active=user.is_active,
         created_at=user.created_at.isoformat(),
     )
+
+
+@router.delete("/users/{user_id}", status_code=204)
+async def admin_delete_user(
+    user_id: str,
+    authorization: str | None = Header(default=None),
+    db: Session = Depends(get_db),
+    runtime: AppRuntime = Depends(get_runtime),
+) -> Response:
+    if not authorization or not authorization.startswith("Bearer "):
+        raise AppError(401, "missing_token", "Authorization token is required.")
+
+    token = authorization.split(" ", 1)[1].strip()
+    claims = decode_access_token(token, runtime.settings)
+    current_user_id = claims.get("sub")
+    if not current_user_id:
+        raise AppError(401, "invalid_token", "Invalid or expired token.")
+
+    if str(current_user_id) == str(user_id):
+        raise AppError(400, "cannot_delete_self", "You cannot delete your own account.")
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if user is None:
+        raise AppError(404, "user_not_found", "User not found.")
+
+    user.is_active = False
+    user.deleted_at = datetime.utcnow()
+    db.commit()
+    return Response(status_code=204)

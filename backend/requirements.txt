@@ -38,3 +38,5 @@ boto3>=1.28.0
 python-json-logger>=2.0.0
 
 tenacity==9.0.0
+slowapi==0.1.9
+sentry-sdk[fastapi]==2.19.2

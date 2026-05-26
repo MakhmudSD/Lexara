@@ -16,6 +16,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
   const [sessions, setSessions] = useState([]);
   const [activeSessionId, setActiveSessionId] = useState(null);
   const [input, setInput] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const messagesEndRef = useRef(null);
@@ -54,6 +55,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
     localStorage.setItem(`lexara_sessions_${workspaceId}`, JSON.stringify(updated));
     setActiveSessionId(newSession.id);
     setMessages([]);
+    setSidebarOpen(false);
   }, [sessions, workspaceId]);
 
   const deleteSession = useCallback((sessionId) => {
@@ -68,6 +70,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
         setMessages([]);
       }
     }
+    setSidebarOpen(false);
   }, [activeSessionId, loadSession, sessions, workspaceId]);
 
   const saveSession = useCallback((sessionId, newMessages) => {
@@ -250,7 +253,11 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
 
   return (
     <div className="chat-page">
-      <aside className="chat-sidebar">
+      <button className="sidebar-toggle" onClick={() => setSidebarOpen((value) => !value)}>
+        {sidebarOpen ? '✕' : '☰'}
+      </button>
+      <div className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`} onClick={() => setSidebarOpen(false)} />
+      <aside className={`chat-sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-section">
           <div className="sidebar-label">{t('workspace')}</div>
           <WorkspaceSelector
@@ -261,6 +268,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
               setMessages([]);
               setHistory([]);
               setError('');
+              setSidebarOpen(false);
             }}
             onWorkspaceNameChange={onWorkspaceNameChange}
           />
@@ -287,7 +295,10 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
               <div
                 key={session.id}
                 className={`session-item ${activeSessionId === session.id ? 'active' : ''}`}
-                onClick={() => loadSession(session.id)}
+                onClick={() => {
+                  loadSession(session.id);
+                  setSidebarOpen(false);
+                }}
               >
                 <span className="session-title">{session.title || 'New conversation'}</span>
                 <span className="session-date">{formatDate(session.createdAt)}</span>

@@ -81,4 +81,8 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
             document_id=getattr(request.state, "document_id", None),
         )
         response.headers["X-Request-ID"] = request_id
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         return response

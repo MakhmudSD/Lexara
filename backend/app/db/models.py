@@ -18,12 +18,14 @@ class User(Base):
     full_name = Column(String(255), nullable=True)
     role = Column(String(20), default="user", nullable=False)
     is_active = Column(Boolean, default=True, index=True)
+    deleted_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     # Relationships
     organizations = relationship("OrganizationMember", back_populates="user", cascade="all, delete-orphan")
     audit_logs = relationship("AuditLog", back_populates="user", cascade="all, delete-orphan")
+    password_reset_tokens = relationship("PasswordResetToken", back_populates="user", cascade="all, delete-orphan")
 
     __table_args__ = (
         Index("idx_user_email", "email"),
@@ -256,3 +258,16 @@ class TokenUsage(Base):
     latency_ms = Column(Float, nullable=False, default=0.0)
     mode = Column(String(20), nullable=False, default="retrieval")
     context_chunks_used = Column(Integer, nullable=False, default=0)
+
+
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
+    token = Column(String(64), nullable=False, unique=True, index=True)
+    expires_at = Column(DateTime, nullable=False)
+    used_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user = relationship("User", back_populates="password_reset_tokens")

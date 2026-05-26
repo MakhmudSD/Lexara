@@ -38,6 +38,21 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
   const hasAnswer = role === 'assistant' && mode === 'rag' && content && content.trim();
   const showThinking = !isUser && isStreaming && (!content || content.length === 0);
 
+  const topScore = sources?.length > 0
+    ? Math.max(...sources.map((s) => s.score || 0))
+    : null;
+
+  const tier = topScore === null ? null
+    : topScore >= 0.75 ? 'high'
+    : topScore >= 0.55 ? 'medium'
+    : 'low';
+
+  const tierConfig = {
+    high:   { color: '#16a34a', bg: '#f0fdf4', label: `${Math.round(topScore * 100)}% match` },
+    medium: { color: '#d97706', bg: '#fffbeb', label: `${Math.round(topScore * 100)}% match · verify sources` },
+    low:    { color: '#dc2626', bg: '#fef2f2', label: `Low match · document may not contain this answer` },
+  };
+
   if (isLoading) {
     return (
       <div className="message-row assistant">
@@ -98,6 +113,27 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
             <span className="sources-count">{sources.length}</span>
             <span className={`sources-toggle-chevron ${showSources ? 'open' : ''}`}>›</span>
           </button>
+
+          {tier && (
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              background: tierConfig[tier].bg,
+              border: `1px solid ${tierConfig[tier].color}22`,
+              borderRadius: 100, padding: '3px 10px',
+              fontSize: 11, color: tierConfig[tier].color,
+              fontFamily: 'var(--font-mono)', marginTop: 8,
+            }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: tierConfig[tier].color }} />
+              {tierConfig[tier].label}
+            </div>
+          )}
+
+          {tier === 'low' && (
+            <p style={{ fontSize: 11, color: '#dc2626', marginTop: 6, lineHeight: 1.5 }}>
+              The retrieved passages have low similarity to your question.
+              The answer above may not accurately reflect your documents.
+            </p>
+          )}
 
           {showSources && (
             <div className="sources-grid">

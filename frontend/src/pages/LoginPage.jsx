@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { login } from '../api/auth';
+import { forgotPassword, login, resetPassword } from '../api/auth';
 import { useTranslation } from '../i18n/useTranslation';
 import { LexaraLogo } from '../assets/LexaraLogo';
 import '../styles/AuthPages.css';
@@ -10,6 +10,13 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [forgotModal, setForgotModal] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotStatus, setForgotStatus] = useState('');
+  const [resetToken, setResetToken] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [showReset, setShowReset] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -45,6 +52,48 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
     }
   };
 
+  const handleForgot = async (event) => {
+    event.preventDefault();
+    setForgotLoading(true);
+    setForgotStatus('');
+    try {
+      const response = await forgotPassword(forgotEmail.trim());
+      if (response?.token) {
+        setResetToken(response.token);
+        setShowReset(true);
+        setForgotStatus('In production, this would be emailed to you.');
+      } else {
+        setForgotStatus(response?.message || 'If that email exists, a reset link was sent.');
+      }
+    } catch (err) {
+      setForgotStatus(err.response?.data?.error?.message || 'Unable to request password reset.');
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const handleReset = async (event) => {
+    event.preventDefault();
+    setForgotLoading(true);
+    setForgotStatus('');
+    try {
+      await resetPassword(resetToken.trim(), newPassword);
+      setForgotStatus('Password reset! You can now sign in.');
+      window.setTimeout(() => {
+        setForgotModal(false);
+        setShowReset(false);
+        setForgotEmail('');
+        setResetToken('');
+        setNewPassword('');
+        setForgotStatus('');
+      }, 1000);
+    } catch (err) {
+      setForgotStatus(err.response?.data?.error?.message || 'Reset failed.');
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   return (
     <div className="auth-root">
       <div className="auth-container">
@@ -73,7 +122,7 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
             <div className="auth-field">
               <div className="auth-label-row">
                 <label className="auth-label" htmlFor="login-password">Password</label>
-                <button type="button" className="auth-forgot" disabled={loading}>Forgot password?</button>
+                <button type="button" className="auth-forgot" disabled={loading} onClick={() => setForgotModal(true)}>Forgot password?</button>
               </div>
               <input
                 id="login-password"
@@ -104,6 +153,65 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
         </div>
         <p className="auth-legal">By signing in you agree to our <span>Terms</span> and <span>Privacy Policy</span></p>
       </div>
+
+      {forgotModal && (
+        <div className="auth-modal-overlay" onClick={() => setForgotModal(false)}>
+          <div className="auth-modal" onClick={(event) => event.stopPropagation()}>
+            <div className="auth-modal-header">
+              <h2>{showReset ? 'Reset password' : 'Forgot password'}</h2>
+              <button type="button" className="auth-modal-close" onClick={() => setForgotModal(false)}>×</button>
+            </div>
+            {!showReset ? (
+              <form className="auth-modal-form" onSubmit={handleForgot}>
+                <label className="auth-label" htmlFor="forgot-email">Email</label>
+                <input
+                  id="forgot-email"
+                  className="auth-input"
+                  type="email"
+                  value={forgotEmail}
+                  onChange={(event) => setForgotEmail(event.target.value)}
+                  placeholder="you@company.com"
+                  required
+                  disabled={forgotLoading}
+                />
+                <button type="submit" className="auth-btn" disabled={forgotLoading}>
+                  {forgotLoading ? 'Sending…' : 'Send reset token'}
+                </button>
+                {forgotStatus && <p className="auth-modal-status">{forgotStatus}</p>}
+              </form>
+            ) : (
+              <form className="auth-modal-form" onSubmit={handleReset}>
+                <label className="auth-label" htmlFor="reset-token">Reset token</label>
+                <input
+                  id="reset-token"
+                  className="auth-input"
+                  type="text"
+                  value={resetToken}
+                  onChange={(event) => setResetToken(event.target.value)}
+                  required
+                  disabled={forgotLoading}
+                />
+                <label className="auth-label" htmlFor="new-password">New password</label>
+                <input
+                  id="new-password"
+                  className="auth-input"
+                  type="password"
+                  value={newPassword}
+                  onChange={(event) => setNewPassword(event.target.value)}
+                  placeholder="At least 8 characters"
+                  minLength={8}
+                  required
+                  disabled={forgotLoading}
+                />
+                <button type="submit" className="auth-btn" disabled={forgotLoading}>
+                  {forgotLoading ? 'Resetting…' : 'Reset password'}
+                </button>
+                {forgotStatus && <p className="auth-modal-status">{forgotStatus}</p>}
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
