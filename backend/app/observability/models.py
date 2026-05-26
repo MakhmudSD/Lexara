@@ -54,3 +54,30 @@ class PipelineStepEntry(BaseModel):
     status: str
     latency_ms: float
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class TokenUsageEntry(BaseModel):
+    request_id: str
+    workspace_id: str | None = None
+    timestamp: str = Field(default_factory=utc_now_iso)
+    model: str
+    prompt_tokens: int
+    completion_tokens: int
+    total_tokens: int
+    estimated_cost_usd: float
+    latency_ms: float
+    mode: str
+    context_chunks_used: int
+
+
+class ConversationEntry(BaseModel):
+    request_id: str
+    workspace_id: str | None = None
+    timestamp: str = Field(default_factory=utc_now_iso)
+    question: str
+    answer: str | None = None
+    mode: str
+    sources: list[str] = Field(default_factory=list)
+    top_score: float | None = None
+    history_turns: int = 0
+    latency_ms: float | None = None

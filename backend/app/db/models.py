@@ -14,8 +14,9 @@ class User(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     email = Column(String(255), unique=True, nullable=False, index=True)
-    password_hash = Column(String(255), nullable=False)
+    hashed_password = Column(String(255), nullable=False)
     full_name = Column(String(255), nullable=True)
+    role = Column(String(20), default="user", nullable=False)
     is_active = Column(Boolean, default=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
@@ -93,10 +94,29 @@ class Workspace(Base):
     # Relationships
     organization = relationship("Organization", back_populates="workspaces")
     documents = relationship("Document", back_populates="workspace", cascade="all, delete-orphan")
+    users = relationship("UserWorkspace", back_populates="workspace", cascade="all, delete-orphan")
 
     __table_args__ = (
         Index("idx_workspace_org_id", "organization_id"),
         Index("idx_workspace_is_active", "is_active"),
+    )
+
+
+class UserWorkspace(Base):
+    """Workspace ownership model."""
+    __tablename__ = "user_workspaces"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
+    workspace_id = Column(UUID(as_uuid=True), ForeignKey("workspaces.id"), nullable=False, index=True)
+    role = Column(String(20), default="owner", nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user = relationship("User")
+    workspace = relationship("Workspace", back_populates="users")
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "workspace_id", name="uq_user_workspace"),
     )
 
 
@@ -217,3 +237,22 @@ class AuditLog(Base):
         Index("idx_audit_created_at", "created_at"),
         Index("idx_audit_action", "action"),
     )
+
+
+class TokenUsage(Base):
+    """Persistent token usage records."""
+
+    __tablename__ = "token_usage"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    request_id = Column(String(64), nullable=True, index=True)
+    workspace_id = Column(String(64), nullable=True, index=True)
+    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    model = Column(String(50), nullable=False)
+    prompt_tokens = Column(Integer, nullable=False, default=0)
+    completion_tokens = Column(Integer, nullable=False, default=0)
+    total_tokens = Column(Integer, nullable=False, default=0)
+    estimated_cost_usd = Column(Float, nullable=False, default=0.0)
+    latency_ms = Column(Float, nullable=False, default=0.0)
+    mode = Column(String(20), nullable=False, default="retrieval")
+    context_chunks_used = Column(Integer, nullable=False, default=0)

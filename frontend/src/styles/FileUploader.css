@@ -1,50 +1,178 @@
 .file-uploader {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 10px;
 }
 
-.file-uploader-label {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  border: 2px dashed var(--border-color);
-  border-radius: 0.5rem;
+.upload-drop-zone {
+  position: relative;
+  border: 1px dashed var(--border-default);
+  border-radius: 18px;
+  padding: 24px 14px;
+  text-align: center;
   cursor: pointer;
-  transition: all 0.2s ease;
-  background-color: transparent;
+  transition: all 0.15s ease;
+  background: linear-gradient(180deg, var(--surface-muted), var(--surface));
+  overflow: hidden;
 }
 
-.file-uploader-label:hover {
-  border-color: var(--accent-color);
-  background-color: rgba(0, 102, 204, 0.05);
+.upload-drop-zone:hover,
+.upload-drop-zone.dragging {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.08), rgba(37, 99, 235, 0.02));
 }
 
-.file-uploader-label span {
+.upload-drop-zone.loading {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.upload-icon {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+  display: block;
+  transition: color 0.15s ease;
+}
+
+.upload-drop-zone:hover .upload-icon,
+.upload-drop-zone.dragging .upload-icon {
+  color: var(--accent);
+}
+
+.upload-label-text {
+  font-family: var(--font-sans);
+  font-size: 14px;
   font-weight: 500;
   color: var(--text-primary);
+  line-height: 1.6;
 }
 
-.file-uploader-input {
-  display: none;
+.upload-accepted {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.3px;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  display: block;
 }
 
-.file-uploader-input:disabled {
-  cursor: not-allowed;
+.upload-file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
 }
 
 .upload-status {
-  font-size: 0.9rem;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  background-color: #f0f7ff;
-  color: var(--accent-color);
-  margin: 0;
-  word-break: break-word;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  animation: fadeUp 0.2s var(--ease-out) both;
 }
 
 .upload-status.loading {
-  background-color: #fff9e6;
-  color: #f57f17;
+  color: var(--accent);
+  background: var(--accent-muted);
+  border: 1px solid rgba(37, 99, 235, 0.15);
+}
+
+.upload-status.success {
+  color: var(--success);
+  background: var(--success-muted);
+  border: 1px solid rgba(47, 133, 90, 0.2);
+}
+
+.upload-status.error {
+  color: var(--error);
+  background: var(--error-muted);
+  border: 1px solid rgba(194, 65, 12, 0.2);
+}
+
+.upload-spinner {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  flex-shrink: 0;
+}
+
+.upload-dots {
+  display: inline-flex;
+  gap: 1px;
+  margin-left: -3px;
+}
+
+.upload-dots span {
+  animation: uploadDots 1s ease-in-out infinite;
+}
+
+.upload-dots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.upload-dots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes uploadDots {
+  0%, 80%, 100% { opacity: 0.25; }
+  40% { opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.recent-uploads {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.recent-uploads-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.recent-upload-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: var(--surface-muted);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  gap: 6px;
+}
+
+.recent-upload-name {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.recent-upload-chunks {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
 }

@@ -1,5 +1,7 @@
-from fastapi import FastAPI
 import logging
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes.admin import router as admin_router
 from app.core.config import get_settings
@@ -7,7 +9,7 @@ from app.core.exceptions import register_exception_handlers
 from app.core.middleware import RequestContextMiddleware
 from app.core.runtime import AppRuntime
 from app.db.migrate import run_migrations
-from app.routes import chat_router, documents_router, health_router, workspaces_router
+from app.routes import auth_router, chat_router, documents_router, health_router, workspaces_router
 
 logger = logging.getLogger(__name__)
 
@@ -24,17 +26,22 @@ def create_app() -> FastAPI:
     app.state.runtime = runtime
     app.state.settings = settings
 
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     app.add_middleware(RequestContextMiddleware)
     register_exception_handlers(app)
 
-    # MVP RAG flow (PostgreSQL + FAISS + sentence-transformers)
     app.include_router(health_router)
     app.include_router(workspaces_router)
     app.include_router(documents_router)
     app.include_router(chat_router)
-
-    # Legacy admin/observability routes (optional)
     app.include_router(admin_router)
+    app.include_router(auth_router)
 
     @app.on_event("startup")
     def startup_event() -> None:

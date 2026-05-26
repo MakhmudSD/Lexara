@@ -1,45 +1,87 @@
 .workspace-selector {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 10px;
 }
 
-.workspace-selector h2 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text-primary);
+.workspace-input-wrap {
+  position: relative;
+}
+
+.workspace-name-display {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary, #1a1a1a);
+  margin-bottom: 4px;
 }
 
 .workspace-input {
-  padding: 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  font-size: 1rem;
+  width: 100%;
+  background: var(--surface-muted);
+  border: 1px solid var(--border-default);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
   color: var(--text-primary);
+  letter-spacing: 0.3px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.workspace-input::placeholder {
+  color: var(--text-tertiary);
 }
 
 .workspace-input:focus {
-  outline: none;
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+  border-color: var(--accent);
 }
 
-.start-chat-btn {
-  padding: 0.75rem;
-  background-color: var(--accent-color);
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
+.workspace-input.valid {
+  border-color: var(--success);
+  color: var(--text-primary);
+}
+
+.workspace-input.invalid {
+  border-color: var(--error);
+}
+
+.workspace-uuid-hint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary, #9ca3af);
+  margin-top: 6px;
+}
+
+.workspace-status {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.workspace-status.ok { color: var(--success); }
+.workspace-status.err { color: var(--error); }
+.workspace-status.hint { color: var(--text-tertiary); }
+
+.new-workspace-btn {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--accent);
+  border: 1px solid rgba(37, 99, 235, 0.22);
+  border-radius: 14px;
+  color: var(--text-inverse);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
+  transition: all 0.15s ease;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.18);
 }
 
-.start-chat-btn:hover:not(:disabled) {
-  background-color: #0052a3;
-}
-
-.start-chat-btn:disabled {
-  background-color: #999999;
-  cursor: not-allowed;
+.new-workspace-btn:hover {
+  background: #1d4ed8;
 }

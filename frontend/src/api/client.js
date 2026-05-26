@@ -1,18 +1,35 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const client = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 60000,
+  timeout: 90000,
 });
 
-// Add request interceptor to handle errors
+client.interceptors.request.use((config) => {
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 client.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error('API Error:', error.response?.data || error.message);
-    return Promise.reject(error);
+  res => res,
+  err => {
+    if (err.response?.status === 401) {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('authUser');
+      window.location.reload();
+    }
+    const msg = err.response?.data?.error?.message
+      || err.response?.data?.detail
+      || err.message
+      || 'Network error';
+    console.error('[api]', err.response?.status, msg);
+    return Promise.reject(err);
   }
 );
 

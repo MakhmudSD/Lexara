@@ -1,0 +1,2335 @@
+UO‘K  004(075)
+KBK  32.81ya72
+      I-74
+Mualliflar  guruhi:
+B. Boltayev,   M. Mahkamov  ,
+A. Azamatov, S. Rahmonqulova
+Taqrizchilar:
+Toshkent axborot texnologiyalari universiteti professori,
+pedagogika fanlari doktori F.M. Zokirova;
+Toshkent shahar Shayxontohur tumani 254-maktab
+informatika o4qituvchisi X. Komilova.
+ISBN 978-9943-01-436-7 © B. Boltayev va boshq., 2009, 2013, 2017 
+© «O‘ZBEKISTON» NMIU, 2009, 2013, 2017
+–  Savol  va  topshiriqlar
+Shartli  belgilar:
+–  Mashqlar
+–  Uyga vazifa
+Respublika maqsadli kitob jamg4armasi mablag4lari
+hisobidan chop etildi.
+
+3
+«Farzandlarimiz bizdan ko‘ra 
+bilimli, aqlli, dono va albatta 
+baxtli bo‘lishlari kerak».
+I.A. Karimov
+Aziz o‘quvchilar! Siz 5-sinf «Informatika va axborot texnologiyalari» 
+darsligi yordamida zamonaviy axborot texnologiyalari vositalaridan biri 
+bo‘lgan kompyuterdan foydalanish bo‘yicha dastlabki ko‘nikma va ma-
+lakalarga ega bo‘ldingiz. Shu bilan birga, kompyuter o‘qitish, hisoblash, 
+tasvirlash, tahrir qilish, dam olish hamda axborot bilan ishlash vositasi 
+ekanligi haqida ma’lumot oldingiz.
+Zamonaviy axborot texnologiyalari bilan ishlash bo‘yicha to‘liq mala-
+kaga ega bo‘lish har bir yosh avlodga zarur. Shu sababli, 6-sinf «Informa-
+tika» darslarida sizlarga zamonaviy kompyuterlar dasturiy ta’minotidan 
+biri bo‘lgan matn bilan ishlash dasturlarining vazifalari va imkoniyatlari 
+haqidagi bilimlar qiziqarli va ko‘rgazmali ko‘rinishda beriladi. 
+Ushbu darslik yordamida matn hosil qilish va hujjatlar tayyorlash, 
+tahrir qilish va bezak berish usullarini kompyuterda amaliy ishlar baja-
+rish asosida o‘rganasiz. 
+O‘ylaymizki, «Informatika va axborot texnologiyalari» fani sizlarda 
+kompyuter doimiy ko‘ makchingiz va mehnatingizni yengillashtiruvchi 
+vosita ekanligi haqida tasavvur qoldirishi bilan birga, amaliy ishlarni ba-
+jarishingizda yangi qirralarning ochilishiga turtki bo‘lib xizmat qiladi. 
+Aziz o‘quvchilar! Ushbu darslik, sizga, kompyuterda ishlab izlani-
+shingizda va tadqiqotchiga aylanishingizda yaqindan ko‘makdosh bo‘ladi, 
+deb umid qilamiz. 
+SO‘ZBOSHI
+4
+MATN  MUHARRIRLARI
+Aziz o‘quvchilar!  Siz klaviaturadan foydalanish va uning yorda-
+mida matn yozish imkoniyati bilan 5-sinfda tanishdingiz. O‘ylaymizki, 
+yozish nima uchun kerak degan savolga javobingiz ham tayyor. Bu 
+darsda kompyuter texnikasining yozuv san’atiga qo‘shgan hissasi va 
+imkoniyatlari haqida ma’lumot beriladi. Yana shuni yodda tutingki, 
+ishga tushirilgan dasturning ekranda ko‘rinib turgan va undan foyda-
+lanishga imkon bergan qismi uning interfeysi deb ataladi.
+Kalit so‘zlar: yozuv, matn muharrirlari, matn protsessorlari.
+YOZUV TARIXIDAN
+Tarixdan ma’lumki, axborotlarni saqlashning eng qadimiy usullaridan 
+biri yozuv hisoblanadi. Qadimgi odamlar yashagan g‘orlar devorlaridagi 
+rasm va yozuv buning yaqqol isbotidir. Yozuv san’ati asrlar davomida 
+deyarli o‘zgarmadi. Faqatgina yozish vositalari takomillashib bordi. 
+Tosh devor Toshlar Terilar Papirus
+Qog‘oz
+va pat
+Qog‘oz
+va pero
+Qog‘oz va
+ruchka
+Qog‘oz va
+mashinka
+1-dars
+5
+Yuqoridagi usulda tayyorlangan rasm yoki matnni o‘zgartirish kerak 
+bo‘ldi: nima qilish mumkin, qancha vaqt sarf bo‘ladi, qancha meh-
+nat sarf bo‘ladi, xarajat qanday?
+MATN  MUHARRIRLARI  HAQIDA  MA’LUMOT
+Kompyuterlar ishlab chiqilishi va rivojlanishi yozuv san’atini tubdan 
+o‘zgartirib yubordi. Matnlarni yozish, saqlash, qayta ishlash, qog‘ozga 
+chop etish kabi ishlarni bajarishga yo‘naltirilgan ko‘plab dasturlar ishlab 
+chiqildi. Bu dasturlar, asosan, ikki turga bo‘linadi:
+Masalan, e’tiboringizga havola etilgan ushbu darslik ham matn pro-
+tsessorida yozilgan bo‘lib, turli rasmlar, jadvallar, ranglar va boshqa 
+bezaklardan foydalanilganligini shu mavzudan ham ko‘rishingiz mumkin. 
+Har xil rusumdagi kompyuterlar uchun turli matn muharrirlari ishlab 
+chiqilgan. Bir rusumli kompyuter uchun o‘nlab matn muharrirlari ishlab 
+chiqilgan. Masalan, Windows operatsion sistemasining tarkibiga kiritil-
+gan Блокнот, WordPad va hokazo. Shuni bilingki, Блокнот, Word-
+Pad matn muharrirlari siz 5-sinfda o‘rgangan Paint yoki Калькулятор  
+dasturlari kabi ishga tushiriladi.
+Nomi yoki interfeysi turlicha bo‘lgani bilan matn muharrirlarida ish-
+lash jarayoni deyarli farq qilmaydi. Matn muharrirlarining asosiy element-
+lari bo‘lgan ish sohasi, yurgich va menyu quyidagi rasmda ko‘rsatilgan.
+
+6
+Ish sohasi . Matn muharriri «ish sohasi» deb ataladigan maxsus joy 
+ajratadi. Ish sohasi matn yozish uchun sahifa vazifasini bajaradi. Kiriti-
+layotgan matn ish sohasida aks etib boradi.
+Yurgich. Klaviaturadan kiritilayotgan belgi ish sohasining qayerida 
+aks etishini ko‘rsatib turadi. Yurgich, odatda, gorizontal yoki vertikal 
+chiziqcha ko‘rinishida bo‘ladi.
+Menyu satri. Maxsus buyruqlar va amallar majmuyi menyu deb ata-
+ladi. Ular yordamida matnlarni xotiradan o‘qish, xotiraga yozish, chop 
+etish kabi ishlar amalga oshiriladi.
+Matn muharrirlari, asosan, menyusi bilan bir-biridan farqlanadi. 
+Me nyudagi buyruq va amallar matn muharrirlarining imkoniyatlarini 
+belgilaydi. Ular qancha ko‘p bo‘lsa, matn muharrirlarining imkoniyatlari 
+shuncha yuqori bo‘ladi.
+Barcha matn muharrirlari quyidagi asosiy vazifalarni bajaradi: 
+1. Matn yozish uchun yangi fayl hosil qilish J
+2. Matnni xotiradan o‘qish  J
+3. Matnni xotirada saqlash  J
+(boshqa nomda, boshqa papkada) saqlash   J
+4. Matnni bosib chiqarish  J
+5. Matnni tahrirlash (belgilar, so‘zlar, satrlar, abzaslar o‘rnini almashtirish 
+yoki o‘chirish)
+Shriftlarni farqlantiruvchi xususiyatlariga quyidagilarni misol qilish 
+mumkin.
+
+7
+Shriftga oid bu xususiyatlar Format ( Формат) menyusining Shrift 
+(Шрифт) bo‘limidan tanlanadi.
+SAVOL VA TOPSHIRIQLAR
+1. Matn yozish tarixi haqida qisqa ma’lumot bering.
+2. Блокнот dasturini ishga tushiring va interfeysi haqida qisqa ma’lumot 
+yozing.
+3. Matn muharrirlarining asosiy vazifalarini aytib bering.
+4. Matn muharrirlarining asosiy elementlarini ayting.
+5. Windows ish stoli bilan Блокнот ish sohasi nimasi bilan farqlanadi?
+6. Matn muharrirlari va matn protsessorlari imkoniyatlari nimasi bilan 
+farqlanadi?
+7. Matn muharrirlarida menyu qanday vazifalarni bajaradi?
+8. Блокнот matn muharririning Файл menyusi buyruqlarining vazifa-
+sini izohlang.
+9. Chap ustundagi atamalarni o‘ng ustundagi mazmuniga mantiqan 
+moslab qo‘ying.
+Menyu satri matnni xotiradan o‘qish buyrug‘i
+Saqlash matn yozish uchun sahifa
+Ish sohasi matnni xotiraga yozish buyrug‘i
+Ochish ish sohasida belgi joyini aks ettiradi
+Yurgich maxsus buyruqlar va amallar majmuyi
+
+8
+MASHQLAR
+1. Блокнот matn muharririda vatanimiz madhiyasining birinchi to‘rt-
+ligini yozing. Matnni «Vatanim Madhiyasi» nomi bilan saqlang. 
+Shrift turini «Cooper» va shrift o‘lchamini 16 o‘lcham birligida tan-
+lang. Faylni joriy saqlang. 
+2. Блокнот matn muharririni ishga tushiring va «Vatanim Madhiya-
+si» nomli faylni oching. Matn davomida vatanimiz madhiyasining 
+naqarotini yozing. Format menyusining Shrift bo‘limi yordamida 
+o‘zingizga yoqqan matn ko‘rinishini belgilang. Tanlangan ko‘ri-
+nishning afzalliklarini izohlang.
+3. a) quyidagi matnni yozing va «Matn» nomi bilan saqlang:
+Matn – bu mazmunan va grammatik bog‘langan mulohazaning yoz-
+ma ko‘rinishidir. Matnga kiritilgan gaplar ma’lum bir tartibda joy-
+lashadi.
+b) matnni quyidagi ko‘rinishga keltirish uchun Shrift xususiyatlarini 
+o‘zgartiring:
+Matn – bu mazmunan va grammatik bog‘langan mulohazaning yozma ko‘rinishidir. 
+Matnga kiritilgan gaplar ma’lum bir tartibda joylashadi.
+4. Daftaringizga quyidagi savollarga javob berish asosida o‘zingiz ha-
+qingizda «Tarjimayi hol» sarlavhali besh abzasli matn yozing:
+a) ismi shari ﬁ ngiz, qachon va qayerda tug‘ilgansiz;
+b) 1-sinfga qaysi yili, nechanchi maktabga chiqqansiz, yashash man-
+zilingiz qanday;
+d) hozir nechanchi sinfda o‘qiyapsiz, qaysi fanlarga qiziqasiz;
+e) otangizning ismi shari ﬁ , qachon va qayerda tug‘ilgan, hozir qa-
+yerda ishlamoqda; 
+f) onangizning ismi shari ﬁ , qachon va qayerda tug‘ilgan, hozir qa-
+yerda ishlamoqda?
+MS WORD MATN PROTSESSORI INTERFEYSI
+Ona tili darsidan ma’lumki, har ﬂ ardan so‘zlar, so‘zlardan jumlalar, 
+jumlalardan gaplar, gaplardan abzaslar, abzaslardan esa matn hosil qi-
+linadi. So‘zlar o‘zaro bo‘sh joy bilan ajratiladi, gaplar nuqta, so‘roq 
+yoki undov belgisi bilan tugaydi. Gapning davomi sahifa kengligiga 
+sig‘masa yangi satr boshiga bo‘g‘in ko‘chirib o‘tkaziladi. Abzaslar, 
+odatda, yangi satrdan ma’lum bo‘sh joy qoldirib boshlanadi.
+2-dars
+9
+Kalit so‘zlar: matn protsessorlari, hujjat, format, shrift, so‘z, satr, 
+abzas, matn.
+MATN PROTSESSORLARI HAQIDA
+Matn protsessorlari matnning faqat mazmuni emas, balki tashqi 
+ko‘rinishi ham katta ahamiyatga ega bo‘lganda qo‘llaniladi. Masalan, 
+matnga turli rasm va jadvallar joylashtirish, belgilarning o‘lchami, rangi 
+va ko‘rinishlarini o‘zgartirish va hokazo.
+Matn protsessorlari, odatda, rasmiy hujjatlar tayyorlashda ko‘p qo‘l-
+laniladi. Matn protsessori yordamida tayyorlangan matn hujjat deb 
+yuritiladi.
+Turli matn protsessorlarida matnni bezatish uchun turli kodlar 
+qo‘llaniladi. Bunday hollarda hujjatlar har xil formatga ega deyiladi. 
+Shu sababli formatlangan matnli hujjatlarni  bir matn protsessoridan 
+boshqasiga olib o‘tishning har doim ham imkoniyati bo‘lmaydi.
+Yuqorida qayd etilganlarni hisobga olib matn ko‘rinishidagi axborot-
+larni qayta ishlash usullarini hozirgi kunda eng mukammal matn pro-
+tsessorlaridan biri bo‘lgan Microsoft Of ﬁ ce 2010 dasturlar majmuasiga 
+kiritilgan  Microsoft Word 2010 (qisqacha Word) matn protsessori miso-
+lida ko‘rib chiqamiz. U juda ko‘p amallarni bajara olishi bilan boshqa 
+matn protsessorlaridan ajralib turadi. MS Wordda buyruq va amallarning 
+bajarilishi sichqoncha yordamida tanlashga asoslangan.
+MS Word bir vaqtda bir nechta hujjat bilan ishlash imkoniyatiga ega. 
+Har bir hujjat sizga tanish bo‘lgan oynaning maxsus ish sohasida tash-
+kil etiladi. Oynalarning o‘lchami va joylashish tartibini foydalanuvchi 
+o‘z xohishiga qarab belgilab oladi.
+Microsoft Word matn protsessorining o‘zbek tilidagi varianti hozircha 
+mavjud emas. Shu bois uning ba’zi buyruq va ko‘rsatmalarining o‘zbek 
+tilidagi ifodasi bilan birga qavs ichida rus tilidagi ifodasini berib bora-
+miz. Shu bilan birga, MS Word 2010 dasturida buyruqlarni o‘zbek tilida 
+ifodalash imkoniyati borligini ta’kidlab o‘tish joiz.
+MS WORD DASTURINI ISHGA TUSHIRISH VA
+UNDA ISHNI TUGALLASH
+Microsoft Ofﬁ ce 2010 dasturlar majmuasining MS Word dasturini 
+ishga tushirish turli xil usulda amalga oshirilishi mumkin:
+# masalalar paneliga biriktirilgan bo‘lsa, 
+  piktogrammasi yorda-
+mida;
+10
+# Windows ish stolida hosil qilingan bo‘lsa,  
+  yorlig‘i yordami-
+da;
+# quyidagi tugmalarni ketma-ketlikda tanlash yordamida:
+Пуск 3 Программы (yoki Все  программы) 3 Microsoft Of ﬁ ce 3 
+3 Microsoft Word 2010
+Word dasturida ishni tugallash uchun 
+  piktogrammasini yoki fayl 
+menyusining Выход,, ya’ni Chiqish buyrug‘ini tanlash, yoki  Alt  +  F4  
+klavishlarini birga bosish yetarli.
+WORD INTERFEYSI
+Ishga tushirilgan MS Word dasturi interfeysida (quyidagi rasm) sar-
+lavha satri 1 , menyular satri 2 , tasma 3 , ish sohasi 4  va holat 
+satri 5  aks etadi.
+Sarlavha satrida Microsoft Word dasturida ishlanayotgan hujjatning 
+nomi, ish faoliyatida juda ko‘p qo‘llaniladigan tugmalarni o‘zida mu-
+jassamlashtira oladigan  tezkor panel 6 hamda 
+  tugmala-
+ri aks etadi. Odatda, hujjatga nom berilmagan bo‘lsa, sarlavha satrida 
+Документ1 (Hujjat1) nomi aks etib turadi.
+Menyular satridagi har bir menyu o‘ziga xos (yuqoridagi rasmda 
+shtrix chegarali to‘rtburchak ichida ko‘rsatilgan) tasma bilan bog‘lan-
+gan. Tasmalar matn protsessori bilan ishlashda qulaylik hamda imkon 
+beradigan tugmalarni o‘z ichiga olgan (Paint dasturi uskunalar panelini 
+eslang). Amaliy ishlarni bajarayotganingizda, asosan, quyidagi menyular 
+11
+tasmalaridan foydalanasiz: Fayl ( Файл), Bosh ( Главная), Joylashtirish 
+(Вставка), Sahifani belgilash ( Разметка страницы), Ko‘rinish ( Вид). 
+Ish sohasining kattaroq qismini ko‘rish zarur bo‘lsa, u holda 7  tugma 
+yordamida tasmani «yig‘ib» ham qo‘yish mumkin.
+Tasmalar, o‘z navbatida, qo‘llanadigan obyektiga hamda vazifasiga 
+mos nom bilan birlashtirilgan tugmalarning mantiqiy guruhlaridan ibo-
+rat. Masalan, yuqoridagi rasmda tasvirlangan Bosh (Главная ) menyusi 
+tasmasi Буфер обмена, Шрифт, Абзац, Стили va Редактирование 
+kabi mantiqiy guruhlardan iborat.
+Har bir menyu hujjat tayyorlashda muhim ahamiyatga ega. Ma-
+salan, tasmasi vertikal yo‘nalishda aks etadigan Fayl menyusi yor-
+damida ishlanayotgan hujjat fayli ustida quyidagi amallarni bajarish 
+mumkin:
+Holat satri foydalanuvchiga joriy sahifa, hujjatdagi jami sahifalar so-
+ni, matndagi so‘zlar miqdori, yozish tili va boshqalar haqida ma’lumot 
+beradi.
+HUJJATGA OID DASTLABKI ATAMALAR
+Avvalgi darsda shrift atamasi bilan tanishgan edingiz. Matn pro-
+tsessorlarida ishlaganda hujjatlarga oid quyidagi atamalarni ham bi-
+lish lozim.
+12
+So‘z SatrHoshiya
+HoshiyaBosh satr
+So‘z belgilar ketma-ketligi bo‘lib, ular bir-biridan probel, nuqta, ver-
+gul, nuqtali vergul, ikki nuqta, qavs, tire, uzun tire yoki qo‘shtirnoq kabi 
+belgilar bilan ajralib turadi. 
+Satr – bitta chiziqda yozilgan so‘zlar, har ﬂ ar yoki belgilar ketma-
+ketligi. Matn protsessorlari satr oxirida sig‘may qolgan so‘z yoki belgini 
+keyingi satrga avtomatik o‘tkazadi.
+Hoshiya – sahifa chetidagi toza saqlanadigan qism.
+Bosh satr – hoshiyadan chekinishi bo‘lgan satr.
+So‘z belgilar ketma-ketligi bo‘lib, ular bir-biridan probel, nuqta, vergul, 
+nuqtali vergul, ikki nuqta, qavs, tire, uzun tire yoki qo‘shtirnoq kabi belgilar 
+bilan ajralib turadi.
+Satr – bitta chiziqda yozilgan so‘zlar, har ﬂ ar yoki belgilar ketma-ketli-
+gi. Matn protsessorlari satr oxirida sig‘may qolgan so‘z yoki belgini keyingi 
+satrga avtomatik o‘tkazadi.
+Hoshiya – sahifa chetidagi toza saqlanadigan qism.
+Bosh satr – hoshiyadan chekinishi bo‘lgan satr.
+Abzas (nemischa: matnning bo‘limi) – bosh satri bo‘lgan satrlar ket-
+ma-ketligi. Bitta ﬁ kr haqidagi bir nechta gap alohida abzas ko‘rinishida 
+ifodalanadi. Abzaslar boshqalaridan chekinishi, yozuv stili (uslubi, masa-
+lan, oddiy, asosiy, Sarlavha1), intervali (satrlar orasining kengligi) bilan 
+farqlanishi mumkin. Yangi abzasga o‘tish yoki bo‘sh abzas (satr) qoldi-
+rish uchun  Enter  klavishi bosiladi. Bosh satr haqida yozilgan bitta gap 
+ham, abzas haqida yozilgan beshta gap ham abzasga misol bo‘ladi. 
+Matn – abzaslar to‘plami.
+Fragment (lotincha: bo‘lak) – san’at asari, matnning bo‘lagi.
+Sahifa – kitob yoki daftar varag‘ining bir tomoni. Matn protsessorla-
+rida sahifa bir bosma qog‘ozga mos keladi.
+Format (lotincha: shakl beraman) – o‘lcham, shrift shakli, chizma 
+ko‘rinishi, intervalni aniqlash yoki boshqa ko‘rinish berish. Yuqorida 
+keltirilgan shrift xususiyatlari shriftning formatiga misol bo‘ladi.
+Micr
+osoft Word dasturining xususiyatlaridan biri vorislik bo‘lib, 
+keyingi shrift avvalgi shriftni, keyingi abzas avvalgi abzasni, yangi 
+sahifa avvalgi sahifa formatlarini o‘zida to‘liq saqlab qoladi.
+13
+Matn protsessoridagi amallarning ba’zilari bilan Paint dasturi orqali 
+tanishgan edingiz. Shuning uchun hech bir qiyinchiliksiz amalda qo‘llay 
+olasiz. Nom berib saqlangan hujjat Word dasturida ham, odatda, Paint 
+dasturidagi kabi  Мои документы  (qisqa nomi  Документы  ) papka-
+sida saqlanadi.
+SAVOL VA TOPSHIRIQLAR
+1. Matn muharrirlariga nisbatan matn protsessorlarining afzalligi ni-
+mada?
+2. Matn protsessorida hosil qilingan matn qanday ataladi?
+3. Word matn protsessorini ishga tushirish usullarini amalda ko‘rsatib 
+bering.
+4. Word matn protsessorining interfeysi haqida qisqa ma’lumot be-
+ring.
+5. Word matn protsessorining sarlavha satrida nimalar aks etadi?
+6. Word matn protsessorining Fayl menyusi amallarini izohlang.
+7. Word matn protsessorida tasmalar qanday vazifani bajaradi?
+8. Word interfeysi rasmidan shrift, satr, abzas kabi tushunchalarga 
+misollar ko‘rsating.
+9. Shu darslikdan shrift, so‘z, satr, hoshiya, abzas kabi tushuncha-
+larga misollar ko‘rsating.
+10. Word matn protsessoridagi vorislik xususiyati haqida so‘zlab be-
+  ring.
+11. Word dasturida saqlangan hujjat qaysi papkaga joylashadi?
+MASHQLAR
+1. Chap ustundagi atamalar izohini o‘ng ustundan aniqlang.
+Shrift sahifa chetidagi toza saqlanadigan qism
+So‘z abzaslar to‘plami
+Satr alifbo harﬂ ari, raqamlar va turli belgilarning ko‘rinishlari
+Hoshiya ikki tomondan probel bilan ajratilgan belgilar ketma-ketligi 
+Bosh satr bosh satri bo‘lgan satrlar ketma-ketligi
+Abzas bitta chiziqda yozilgan so‘zlar, harﬂ ar yoki belgilar ketma-ketligi
+Matn hoshiyadan chekinishi bo‘lgan satr
+
+14
+2. Nuqtalar o‘rniga o‘ng ustundagi belgilardan mosini topib qo‘-
+ying.
+Word masalalar paneli … piktogrammasi yordamida ishga tushadi
+Word Windows ish stoli  … yorlig‘i yordamida ishga tushadi
+Word dasturida ishni tugallash uchun … piktogrammasi tanlanadi
+3. a) quyidagi matnni yozing va «Abzas» nomi bilan saqlang:
+«Gaplar faqat mavzu bilangina emas, balki asosiy g‘oyasi bilan 
+ham birlashtiriladi. Bitta ﬁ kr haqidagi bir nechta gap alohida abzas 
+ko‘rini shida ifodalanadi»;
+b) matnning birinchi gapida nechta shrift va so‘z borligini aniqlang;
+d) matnni quyidagi ko‘rinishga keltirish uchun Shrift xususiyatlarini 
+o‘zgartiring:
+Gaplar faqat mavzu bilangina emas, balki asosiy g‘oyasi bilan 
+ham birlashtiriladi. Bitta ﬁ kr haqidagi bir nechta gap alohida abzas 
+ko‘rinishida ifodalanadi.
+4. Uyda tayyorlagan «Tarjimayi hol» sarlavhali besh abzasli mat ningiz-
+ni Word matn protsessorida yozing. Ona tilidagi abzas tushun chasi 
+bilan Worddagi abzas atamasini taqqoslang. Hujjatni «Tarji mayi 
+hol1» nomi bilan saqlang.
+5. Quyidagi savollarga javob bergan holda daftaringizga ma’lumot 
+yozing: 
+a) akangiz, ukangiz, opangiz, singlingizning ismi shari ﬁ , ular qa chon 
+va qayerda tug‘ilgan, hozir qayerda ishlashmoqda yoki o‘qishmoqda; 
+b) fanlardan olgan baholaringiz. 
+HUJJAT HOSIL QILISH VA SAQLASH
+Wordda matnli hujjat hosil qilish va saqlashning usullari ko‘p 
+bo‘lib, ular vaziyatga qarab qo‘llaniladi. Bu usullarni eslab qolishingiz 
+uchun ozgina mashq qilishingiz kifoya.
+Kalit so‘zlar: hujjat hosil qilish, klaviatura holatlari, hujjatni saq-
+lash.
+3-dars
+15
+HUJJAT HOSIL QILISH
+Matnli hujjat tayyorlash uchun, avvalo, yangi sahifa (ish sohasi) ho-
+sil qilinadi. Microsoft Word matn protsessorida yangi sahifa hosil qilish, 
+masalan, quyidagilardan biri asosida amalga oshirilishi mumkin:
+1)  ishga tushirilgan dastur 
+  nomi bilan yangi hujjat hosil 
+qilishni taklif etadi;
+2)  Fayl menyusidan Hosil qilish ( Создать) buyrug‘i tanlanadi. Na-
+tijada matn terish uchun yangi sahifa hosil bo‘ladi. 
+Shu bilan matnli hujjat tayyorlash jarayoni boshlanadi. 
+Ma’lumki, matn gaplardan, gaplar so‘zlardan, so‘zlar esa har ﬂ ardan 
+tashkil topadi. Bundan tashqari, matnda tinish belgilari va maxsus belgi-
+lar ham ishlatiladi. Bu belgilarning hammasi klaviaturada mavjud. Shu 
+sababli mazkur klavishlarning klaviaturada joylashish tartibini qanchalik 
+yaxshi bilsangiz, matn terish ham shunchalik oson bo‘ladi. Buning uchun 
+kerakli belgili klavishlarni ketma-ket bosish kifoya. Bosilgan klavishga 
+mos belgi ish sohasining yurgich ko‘rsatib turgan yeriga yoziladi va yur-
+gich bir belgi o‘ngga suriladi. 
+Ba’zi klavishlar ustiga bir nechta belgi tasviri tushirilgan bo‘ladi 
+(5-sinf). Bu tasvirlar, odatda, yoki har ﬂ arni, yoki maxsus belgilarni ifo-
+dalaydi. Masalan: 
+Bu klavishlardan biri bosilganda, unda tasvirlangan harf yoki max-
+sus belgilardan qaysi biri hujjatda aks etishi klaviatura ishlayotgan til 
+holatiga bog‘liq. Klaviatura foydalanuvchi tomonidan tanlangan, ma-
+salan:
+til holatlaridan birida ishlayotgan bo‘lishi mumkin. Til holati, odatda, 
+Masalalar paneli ning o‘ng tomonida joylashgan til panelida aks etadi. 
+Til panelida yuqoridagi 3 til holatiga mos 
+  yoki 
+ , yoki 
+  tugma-
+laridan biri aks etib turadi.
+Til holatlaridan keragini tanlash quyidagi usullardan birida amalga 
+oshirilishi mumkin.
+16
+1-usul. Sichqoncha yordamida. Til 
+panelida aks etib turgan tugma tanlangan-
+da hosil bo‘lgan (chapdagi rasmdagi kabi) 
+tanlov ro‘yxatidan kerakli tugma tanlanadi.
+2-usul. Klavishlar yordamida. Til pa-
+nelida kerakli til holatiga mos tugma aks etguncha Alt (yoki Ctrl) klavi-
+shini bosib turgan holda Shift klavishini bosish kerakli marta takrorla-
+nadi.
+Klaviatura til holatlaridan tashqari « quyi registr» yoki «yuqori re-
+gistr» holatlaridan birida bo‘ladi. Kompyuter ishga tushirilganda, odatda, 
+klaviatura quyi registr holatida bo‘ladi.
+Quyi registr holatida klavish bosilganda til holatiga mos ravishda alif-
+boning kichik har ﬂ ari yoki klavishning quyi qismida aks etgan maxsus 
+belgi ekranga chiqariladi. 
+Masalan, quyi registrda: 
+klavishi bosilganda ekranga 
+chiqariladigan belgi
+klaviatura lotin alifbosi holatida: b
+klaviatura kirill alifbosi holatida: и
+klavishi bosilganda ekranga 
+chiqariladigan belgi
+klaviatura lotin alifbosi holatida: 3
+klaviatura kirill alifbosi holatida: 3 
+klavishi bosilganda ekranga 
+chiqariladigan belgi
+klaviatura lotin alifbosi holatida: /
+klaviatura kirill alifbosi holatida: .
+Belgilarni yuqori registr holatida ekranga chiqarish uchun Shift kla-
+vishini bosib turib kerakli klavishlar bosiladi. Demak, klaviatura yuqori 
+registr holatiga faqat Shift klavishi bosib turilganda o‘tadi. Agar  Shift 
+klavishi qo‘yib yuborilsa klaviatura quyi registr holatiga qaytadi. Yuqori 
+registrda til holatiga mos ravishda alifboning bosh har ﬂ ari yoki klavish-
+larning yuqori qismida aks etgan belgilar ekranga chiqariladi.
+Masalan, yuqori registrda: 
+klavishi bosilganda ekranga 
+chiqariladigan belgi
+klaviatura lotin alifbosi holatida: B
+klaviatura kirill alifbosi holatida: И
+klavishi bosilganda ekranga 
+chiqariladigan belgi
+klaviatura lotin alifbosi holatida: #
+klaviatura kirill alifbosi holatida: № 
+klavishi bosilganda ekranga 
+chiqariladigan belgi
+klaviatura lotin alifbosi holatida: ?
+klaviatura kirill alifbosi holatida: ,
+
+17
+Ba’zan matnning katta qismini faqat bosh har ﬂ arda yozishga to‘g‘ri 
+keladi. Bunday holda, odatda,  Caps Lock  klavishidan foydalaniladi. 
+Bu klavish bosilganda klaviaturaning o‘ng yuqori qismida Caps Lock 
+indikatori yonadi va klaviatura faqat bosh harﬂ arni kiritish holatiga 
+(yuqori registr holatiga emas! ) o‘tadi. Caps Lock  klavishi qaytadan 
+bosilsa, Caps Lock indikatori o‘chadi hamda klaviatura yana kichik harf-
+larni kiritish holatiga qaytadi. 
+Yuqori registrda yozish uchun  Shift  klavishini bosishni unut-
+mang!
+Faqat bosh harﬂ arni yozish kerak bo‘lganda  Caps Lock  klavishi-
+dan foydalaning!
+O‘zbek alifbosida  O‘, o‘, G‘ va g‘ harﬂ  arini yozish muammosi bor. 
+Bu harﬂ arni yozish uchun a) O, o, G, g har ﬂ aridan keragi yoziladi; 
+b) probel bosiladi va «‘» belgisi yoziladi; d) probel o‘chiriladi. Bu kabi 
+yozilgan O‘, o‘, G‘ va g‘ harﬂ ari qatnashgan o‘zbek tilidagi so‘zlar Word 
+dasturidagi so‘z atamasiga zid bo‘ladi. Chunki, o‘zbek tilidagi «bo‘g‘in» 
+so‘zi Word uchun 3 ta so‘zga aylanadi: «bo», «g» va «in».
+HUJJATNI SAQLASH
+Hosil qilingan hujjatni xotirada saqlab qo‘yish lozim. Buning uchun 
+hujjatni oxirigacha yozib bo‘lishni kutish shart emas. Odatda, matn kiriti-
+lishi boshlanishi bilan uni diskda saqlab, matn yozib bo‘linguncha vaqti-
+vaqti bilan joriy saqlab turish maqsadga muvo ﬁ q. Chunki, turli sabablar-
+ga ko‘ra kompyuter o‘chib qolishi mumkin. Bu holda diskda hujjatning 
+oxirgi marta saqlangan nusxasi qoladi.
+Aytib o‘tilganidek, hujjatni saqlash uchun, agar u birinchi marta saq-
+lanayotgan bo‘lsa, Fayl menyusidan Saqlash ( Сохранить) yoki «...kabi 
+saqlash» (Сохранить как …) buyrug‘i tanlanadi. Natijada Paint dasturi-
+dagi kabi ekranda Saqlash muloqot oynasi hosil bo‘ladi.
+Agar hujjat birinchi marta saqlanayotgan bo‘lsa, unga nom berish 
+shart. Buning uchun:
+¾ dastur tomonidan tavsiya etilgan, masalan, Документ1 yoki hujjat-
+ning birinchi satridagi matn qismi kabi nomda saqlash;
+¾ foydalanuvchi tomonidan berilgan hujjat mazmuniga mos (masa-
+lan, mavzuga oid: Ona Vatan – insho yoki Tavsifnomam yoki Laborato-
+2 # Informatika, 6-sinf
+18
+riya ishi1; hujjatni qo‘llash sohasiga oid: Ona tilidan insho1 yoki Hujjat-
+larim1 yoki Fizikadan lab1 kabi) nomda saqlash.
+Yangi saqlanayotgan hujjatga joriy papkada avval saqlab 
+qo‘yilgan hujjat nomi berilganda dasturning « Заменить» (Almash-
+tirilsin) takli ﬁ  qabul qilinsa, avvalgi hujjat o‘chib ketadi va o‘rniga 
+yangi hujjat yoziladi!
+Kerakli papka ( Папка) tanlanib, fayl nomi (masalan, « Informatika-
+referat») yoziladi va Saqlash ( 
+  ) tugmasi bosiladi. Navbat-
+dagi, ya’ni joriy saqlashda, Tezkor paneldagi 
+  saqlash tugmasini 
+bosish yoki fayl menyusidagi Saqlash buyrug‘ini tanlash kifoya.
+Agar avval saqlangan faylni boshqa nom bilan yoki boshqa pap-
+kada saqlash  lozim bo‘lsa, u holda Fayl menyusidan faqatgina «... kabi 
+saqlash» ( 
+  ) buyrug‘i tanlanadi.
+Yozayotgan hujjatingizni vaqti-vaqti bilan saqlab turish yodingiz-
+dan chiqmasin!
+MS Word dasturi ham belgilangan vaqtda hujjatni joriy saqlab tu-
+radi!
+SAVOL VA TOPSHIRIQLAR
+1. Word dasturida yangi hujjat hosil qilish uchun qanday amallar ba-
+jariladi?
+2. Qaysi menyu yordamida yangi hujjat uchun sahifa hosil qilinadi? 
+3. Yangi hujjat hosil qilish usullarini amalda ko‘rsatib bering.
+4. Klaviatura qanday holatlarda bo‘lishi mumkin?
+5. Klavish bosilganda undagi qaysi belgi ekranga chiqadi?
+6. Quyi registr va yuqori registr holatlarida ishlashni amalda ko‘rsating.
+7. Bosh harﬂ arni yozish uchun qo‘shimcha qaysi klavish bosiladi?
+8. Faqat bosh harﬂ arni yozish holatiga qaysi klavish yordamida o‘tiladi?
+9. Hujjatni saqlash usullarini amalda ko‘rsating.
+MASHQLAR
+1. Uyda tayyorlagan ma’lumotingizni «Tarjimayi hol1» sarlavhali huj-
+jat davomiga yozing. Hujjatni «Tarjimayi hol2» nomi bilan saqlang. 
+Dasturni yoping.
+
+19
+2. Microsoft Word dasturini ishga tushiring. Hujjatga «Klaviatura ishi» 
+nomini bering. Quyidagi matnni hosil qiling va dasturni yoping.
+№1: Hujjatlar = ҲУЖжатлар = DOCUMENTS = ДокуМЕНТЫ;
+№2: Yuqori ReGiStR <> Bo‘G‘In KO‘CHIRISH = БЎҒин 
+КЎЧириш.
+3. Microsoft Word dasturini ishga tushiring. Hujjatga «Microsoft Word» 
+matnini yozing. Hujjatni «Birinchi nomda saqlash» nomi bilan saq-
+lang. Dasturni yoping.
+4. «Birinchi nomda saqlash» nomli hujjatni ochib matn davomiga das-
+tur naqlini (2010) yozing va «Ikkinchi nomda saqlash» nomi bilan 
+joriy papkada saqlang. Dasturni yoping.
+5. «Ikkinchi nomda saqlash» nomli hujjatni ochib matn davomiga «da 
+saqlash usullari» matnini yozing. Hujjatni «Ikkinchi nomda boshqa 
+papkada saqlash» nomi bilan joriy papka ichida yangi «Boshqa pap-
+ka» nomli papka hosil qilib unda saqlang. Dasturni yoping.
+6. Daftaringizga «Mening oilam» nomli besh abzasli matn yozing. 
+Matn yozishdan avval har bir abzasda yoritiladigan mazmun haqida 
+reja tuzing. Tuzgan rejangiz ham daftaringizda aks etsin.
+WORDDA  MATN  YOZISH  QOIDALARI
+Matn protsessorlarida matn yozish uchun faqat klavishlarni bosish-
+ning o‘zi yetarli emas. Wordda matn avvaldan puxta o‘ylangan reja 
+asosida yoziladi. Masalan, siz yozgan «Tarjimayi hol» nomli matn 
+ham ma’lum bir savollarga javob berish orqali tayyorlandi. Biror 
+hujjat tayyorlashni rejalashtirishda hujjat ko‘rinishlarini, matn yozish 
+qoi dalarini, hujjatda harakatlanishni, tahrirlash imkoniyatlarini bilish 
+muhimdir.
+Kalit so‘zlar: hujjatning ko‘rinishlari, matn yozish qoidalari, huj-
+jatda harakatlanish.
+HUJJATNING  KO‘RINISH  HOLATLARI
+Hujjat bilan ishlash maqsadlaridan kelib chiqib Microsoft Word das-
+turi Ko‘rinish (Вид) tasmasi orqali hujjatni aks ettirishning bir necha 
+ko‘rish holatlarini tavsiya etadi:
+4-dars
+20
+Sahifani belgilash (Разметка  страницы) holatida (A-rasm) matn, ho-
+shiyalar, rasmlar va boshqa qismlar qog‘ozga chop etishga mo‘ljallan-
+gan sahifadagi kabi ko‘rinishda aks etadi.
+O‘qish holati (Режим  чтения) holatida hujjat o‘lchamlari ekran 
+o‘lchamlariga mos ravishda o‘zgaradi hamda ko‘p uskunalar aks etmay-
+di. Bu holat hujjatni o‘qishda ko‘zning kamroq toliqishini ta’minlashga 
+qaratilgan.
+Web-hujjat (Веб-документ) holati  hujjatni brauzer oynasidagi kabi 
+aks ettiradi. Bu holatdan brauzerlarda (masalan, Windows tarkibidagi In-
+
+21
+ternet Explorerda) ko‘rish uchun Web-sahifa va Web-hujjatlar tayyorla-
+ganda foydalanish qulay.
+Struktura ( Структура) holatida (B-rasm) hujjat sarlavhalari hujjat 
+strukturasidagi pog‘onasiga mos ravishda siljiydi. Bu holat matn tarki-
+bini ko‘rib turish, matn qismlarini nusxalash, ko‘chirib o‘tkazish yo‘li 
+bilan matnni qayta tashkil etishda qo‘llaniladi.
+Qoralama (Черновик) holati matnni kiritish, tahrirlash va format-
+lash uchun ko‘zda tutilgan. Bu holat matnga ko‘proq e’tibor berish zarur 
+bo‘lganda foydalaniladi. Qoralama holatida MS Wordning ba’zi element-
+lari aks etmaydi.
+Odatda, MS Word ishga tushirilganda Sahifani belgilash ko‘rish ho-
+lati aks etadi. Qulaylik uchun ko‘rish holatlarini tanlash imkoniyati holat 
+satriga kiritilgan.
+MATN YOZISH QOIDALARI
+Microsoft Word dasturida matndagi so‘zlar sahifaning o‘ng chegara-
+siga yetganda keyingi yozilgan so‘z yangi satrga avtomatik o‘tkaziladi.
+Yangi abzasga o‘tish uchun  Enter   klavishini bosish shart.
+• Har qanday tinish belgisidan keyin probel klavishi bosilishi shart, 
+tinish belgilaridan oldin probel bosilmaydi.
+• «Qat’iy probel »ni joylashtirish uchun  Ctrl ,  Shift ,  probel kla-
+vishlari birgalikda bosiladi. Qat’iy probel satr oxirida qatnashgan jumla 
+(masalan, A. Fozilov) ajralib qolmasligi uchun, ya’ni jumla bir satrda 
+joylashishi shart bo‘lganda ishlatiladi.
+• «Deﬁ s» (-) belgisi probellarsiz yoziladi, masalan: qovun-tarvuz, ki-
+yim-kechak.
+• «Tire» (–) ikki tomondan probellar bilan ajratiladi. Uni yozish 
+uchun Ctrl  va yordamchi klavishlar majmuyidan «tire» klavishlari birga-
+likda bosiladi. Masalan, «Bahrom Mahkamov – sin ﬁ mizdagi eng a’lochi 
+o‘quvchi».
+• «Uzun tire» (—) ikki tomondan probellar bilan ajratiladi. «Uzun 
+tire» yozish uchun  Ctrl ,  Alt  va yordamchi klavishlar majmuyidan 
+«tire» klavishlari birgalikda bosiladi. Masalan, «Yuksak ma’naviyat — 
+yengilmas kuch».
+• «Qat’iy tire »ni yozish uchun Ctrl , Shift  va  -  klavishlari bir-
+galikda bosiladi. Qat’iy tire satr oxirida yozilgan de ﬁ s qatnashgan so‘z 
+(masalan, 5-sinf) ajralib qolmasligi uchun, ya’ni bir satrda joylashishi 
+shart bo‘lganda ishlatiladi.
+22
+• «Yumshoq tire» yumshoq bo‘g‘in ko‘chirish deb ham atala-
+di. Matn yozish jarayonida Microsoft Word dasturi so‘zning satrga 
+sig‘magan qismini yangi satrga avtomatik bo‘g‘inga ajratib ko‘chiradi, 
+lekin bu o‘zbek tili grammatikasiga zid bo‘lishi mumkin, masalan, ata-
+shadi so‘zini atas-hadi kabi. Bu holda yurgichni atas-hadi so‘zida-
+gi «s» harﬁ  dan oldinga joylashtirib «yumshoq tire» kiritiladi, ya’ni  
+ Ctrl  va 0 raqami yonidagi   -   klavishlari birgalikda bosiladi. Natija-
+da atashadi so‘zi ata-shadi kabi bo‘g‘inlarga ajraladi. Agar tahrirlash 
+jarayonida «yumshoq tire» yordamida yozilgan so‘z to‘liqligicha satrga 
+sig‘adigan bo‘lsa (ya’ni, masalan, satrga atashadi so‘zidan oldin biror 
+so‘z qo‘shilsa yoki satrda atashadi so‘zidan oldin biror so‘z o‘chirilsa), 
+u holda yum shoq tire belgisi yordamida bo‘lingan bo‘g‘indagi tire belgisi 
+matnda mazkur xossaga ko‘ra aks etmaydi. Oddiy usulda, ya’ni foydala-
+nuvchi tomonidan tire joylashtirib bo‘g‘inga ajratish orqali yangi satrga 
+ko‘chirilgan so‘zlarda esa tire belgisi matnda aks etib qoladi.
+• Qavslar: (), tirnoqlar: ‘ ’  yoki qo‘shtirnoqlar: «» ichiga olingan 
+so‘zlar ulardan probellar bilan ajratilmaydi, masalan: «Windows XP».
+• Rim raqamlari ni yozish uchun I, V, X, L, C, M kabi lotin harﬂ  a-
+ridan foydalaniladi.
+HUJJATDA  HARAKATLANISH
+Microsoft Word dasturida yurgich tezkor klavishlar yordamida hujjat-
+da quyidagicha harakatlantiriladi:
+• bir satrdan ikkinchisiga   ↑  yoki  ↓  yo‘nalish klavishlari;
+• bir belgidan ikkinchisiga  → yoki ← yo‘nalish klavishlari; 
+• bir so‘zdan ikkinchisiga  Ctrl  klavishini bosib turgan holda  →  
+yoki  ←  klavishlarini bosish yordamida;
+• bir abzasdan ikkinchisiga  Ctrl  klavishini bosib turgan holda  ↑
+yoki  ↓  klavishlarini bosish yordamida;
+• bir sahifadan ikkinchisiga  PageUp  va  PageDn  klavishlari yorda-
+mida;
+• satr boshiga  Home , satr oxiriga  End  klavishlari yordamida; 
+• matn boshiga Ctrl + Home, matn oxiriga Ctrl + End klavishlari 
+yordamida.
+23
+Microsoft Word dasturida hujjatni «varaqlash», ya’ni oldingi yoki ke-
+yingi satrlarni hamda sahifalarni vertikal surgich yordamida ko‘rishning 
+quyidagi imkoniyatlari bor:
+bir  satr  yuqoriga  o4tish
+bir  satr  quyiga  o4tish
+bir  ekran yuqoriga  o4tish
+bir  sahifa  yuqoriga  o4tish
+bir  sahifa  quyiga   o4tish
+bir  ekran quyiga  o4tish
+Sichqoncha  ko4rsatki chi-
+ni 
+  belgisiga  yo4-
+nal tirib, chap  tugmasini 
+bosgan holda  sich qon-
+cha  oldinga  yoki or qaga  
+suriladi.
+Chapdagi amallarni bajarish uchun sichqoncha ko‘rsatkichini rasm-
+da ko‘rsatilgan joyga yo‘naltirib chap tugmasini bir marta bosish yetar-
+li. Bu amallarni bajarganda yurgich joyi o‘zgarmaydi.
+SAVOL VA TOPSHIRIQLAR
+1. Word dasturida hujjatni qanday ko‘rish holatlari bor?
+2. Word dasturi ishga tushirilganda hujjat qanday ko‘rish holatida aks 
+etadi?
+3. Wordda matn yozganda yangi abzasga qanday o‘tiladi?
+4. Wordda uzun tire yozilishini amalda ko‘rsatib bering.
+5. Qat’iy tire yozilishini amalda ko‘rsatib bering.
+6. 1950 va 1963 sonlarini Rim raqamlarida yozing va izohlang.
+7. Matn bo‘ylab yurgichni harakatlantirishni amalda ko‘rsatib bering.
+8. Matnni varaqlash uchun qanday usullar bor? 
+9. Matn varaqlanganda yurgich qanday harakatlanishini amalda ko‘rsatib 
+bering.
+10. Hujjatda sichqonchadagi g‘ildirakcha qanday vazifalarni bajaradi?
+11. Home, End, Ctrl+Home va Ctrl+End tezkor klavishlari yordamida 
+hujjatda harakatlanishni amalda ko‘rsatib bering.
+
+24
+MASHQLAR
+1. Chap ustundagi sahifa holatlari xususiyatlarini o‘ng ustundan aniq-
+lang.
+Sahifani  belgilash hujjat o‘lchamlari ekran o‘lchamlariga mos ravish-
+da o‘zgaradi.
+O‘qish hujjat sarlavhalari hujjat strukturasidagi pog‘onasiga 
+mos ravishda siljiydi.
+Struktura matn, hoshiyalar, rasmlar va boshqa qismlar 
+qog‘oz ga chop etishga mo‘ljallangan sahifadagi 
+kabi ko‘rinishda aks etadi.
+2. Uyda tayyorlagan ma’lumotingiz asosida «Mening oilam» sarlavha-
+li hujjat hosil qiling. Hujjatni «Mening oilam» nomi bilan saqlang. 
+Dasturni yoping.
+3. Word dasturida quyidagi matnni yozish jarayonida har bir so‘zdan 
+keyin «qat’iy probel» kiriting. Hujjatni «Qat’iy va yumshoq» nomi 
+bilan saqlang. Har bir so‘zni «yumshoq tire» yordamida bo‘g‘inga 
+ajrating. Natijani tahlil eting.
+«Betakrorimsan, yagonasan, ona Vatanim – O‘zbekistonim!», «Elim 
+deb, yurtim deb yonib yashash kerak!», «Ilmgohim – iftixorim!»
+4. Daftaringizga «Mening vatanim – O‘zbekiston» nomli besh abzasli 
+matn yozing. Matn 15 ta gapdan kam bo‘lmasin. Matn yozishdan 
+avval har bir abzasda yoritiladigan mazmun haqida reja tuzing. Tuz-
+gan rejangiz ham daftaringizda aks etsin.
+HUJJATLARNING ASOSIY PARAMETRLARI
+Word matn protsessorida ish boshlaganda avval hujjatning ko‘-
+rinishini ko‘z oldimizga keltirishimiz kerak. Chunki, hujjatning ko‘-
+rinishiga qarab qog‘oz o‘lchami, sahifa yo‘nalishi, satrlar orasidagi 
+masofa avvaldan belgilab olinadi.
+Kalit so‘zlar: sahifa parametrlari, shrift parametrlari, abzas para-
+metrlari.
+5-dars
+25
+HUJJAT PARAMETRLARI
+Biz hayotimizda turli-tuman hujjatlarga duch kelamiz. Masalan, 
+tug‘ilganlik haqida guvohnoma, tibbiy varaqa, tibbiy yoki o‘qishdan olin-
+gan ma’lumotnomalar, o‘quvchi tabeli va hokazo. Ular bir-biridan faqat 
+mazmuni bilan emas, balki boshqa jihatlari bilan, jumladan hujjatlarning 
+o‘lchamida ham farq qiladi. Turli hujjatlar turli o‘lchamdagi qog‘ozga 
+yozilganini ko‘p kuzatgansiz. Bundan tashqari, matn yozilganda sahifa-
+ning chap, o‘ng, yuqori va pastki qismidan turlicha masofa qoldiriladi. 
+Turli hujjatlarda satrlar orasidagi masofa ham har xil bo‘lishi mumkin. 
+Hujjatlarda bu kabi cheklanishlar juda ko‘p uchraydi.
+Matn protsessorlarida tayyorlanayotgan hujjatning turiga qarab sahi-
+fa parametrlari va matn parametrlari (shrift, abzas) belgilab olinadi. 
+Ular hujjat parametrlari (xususiyatlari) deb yuritiladi.
+SAHIFA PARAMETRLARI
+Hujjatning sahifa parametrlari, asosan, hujjatni chop etish maqsad-
+laridan kelib chiqib tanlanadi. Sahifa parametrlarini tanlashni ko‘rinishi 
+quyida aks ettirilgan Sahifani belgilash (Разметка  страницы) tasmasi 
+yordamida amalga oshirish qulay:
+Bu tasmaning Sahifa parametrlari  ( Параметры страницы) 
+bo‘limidagi Hoshiyalar (Поля) tanlov ro‘yxatidan hoshiya o‘lchamlarini 
+belgilash, Oriyentatsiya ( Ориентация) tanlov ro‘yxatidan sahifaning 
+(kitob yoki albom)  yo‘nalishini belgilash , O‘lcham ( Размер) tanlov 
+ro‘yxatidan qog‘oz o‘lchamlarini belgilash , Ustun ( Колонки) tanlov 
+ro‘yxatidan sahifadagi ustunlar sonini  belgilash mumkin:
+
+26
+Agar sahifaning to‘liq parametrlarini qarab chiqish zarur bo‘lsa, u 
+holda Sahifa parametrlari  ( Параметры страницы) muloqot oynasi 
+ochiladi. Bu muloqot oynasi Sahifani belgilash tasmasining Sahifa pa-
+rametrlari mantiqiy guruhidagi 
+  tugmasi yordamida ochiladi. Mulo-
+qot oynasining qatlamlaridan tanlangan parametrlar kuchga kirishi uchun 
+muloqot oynasidagi « OK» tugmasi (sichqoncha yordamida) tanlanadi 
+yoki Enter klavishi bosiladi. 
+Hoshiya kengligini gorizontal va vertikal chizg‘ich yordamida 
+o‘zgartirish imkoniyati ham bor. Chizg‘ichlar esa Ko‘rinish (Вид) tasma-
+sining Aks ettirish ( Показать) mantiqiy guruhidan Chizg‘ich (Линейка) 
+obyekti tanlangach aks etadi.
+Sahifani yanada go‘zal va qiziqarli ko‘rsatish uchun sahifa foni ran-
+gi va chegaralari o‘zgartirilishi mumkin. Buning uchun Sahifani belgi-
+lash (Разметка страницы) tasmasining Sahifa foni ( Фон страницы) 
+bo‘limidagi Sahifa rangi ( Цвет страницы) va Sahifalar chegaralari  
+(Границы страниц) imkoniyatlaridan foydalaniladi.
+MS Wordda sahifa foniga sidirg‘a rang tanlash yoki quyidagi kabi 
+turli Bo‘yash usullari (Способы заливки) qo‘llanishi mumkin:
+27
+Sahifa chegarasi uchun ham turli imkoniyatlar mavjud bo‘lib, odatda, 
+har xil turdagi, rangdagi va qalinlikdagi chiziqlar yoki rasmlardan foy-
+dalaniladi:
+   
+SHRIFT  PARAMETRLARI
+Shrift parametrlarining Shrift turi, o‘lchami va yozuv shakli bilan 
+avvalroq tanishdik. Shrift parametrlarini tanlashning ba’zi imkoniyat-
+lari Bosh ( Главная) tasmasining Shrift ( Шрифт) mantiqiy guruhida 
+jamlangan: 
+
+28
+ABZAS PARAMETRLARI
+Abzas parametrlarini tanlashning ba’zi imkoniyatlari Bosh ( Главная) 
+tasmasining Abzas (Абзац) mantiqiy guruhida jamlangan. Bu guruh tug-
+malari yordamida (1) abzas tekislanish usuli (chapdan, o‘rtadan, o‘ngdan, 
+sahifa kengligi bo‘yicha), (2) abzas satrlari oralig‘i  (bir, bir yarim, ikki, 
+minimum, aniq, ko‘proq), (3) abzas foni, (4) abzas chegarasi, abzasni 
+(5) markerlash yoki (6) tartiblash yoki (7) tabaqalashtirish, abzas (8) 
+chekinishini kamaytirish yoki (9) oshirish, belgilangan (10) matnni 
+(abzaslar to‘plamini!) tartiblash, (11) formatlashdagi ko‘rinmas belgi-
+larni aks ettirish mumkin.
+Abzas chekinishi va bosh satr chekinishini Gorizontal chizg‘ich 
+ko‘rsatkichlaridan foydalanib o‘rnatish qulay. Buning uchun gorizontal 
+chizg‘ichdagi chekinish ko‘rsatkichlari sichqoncha yordamida kerakli 
+yo‘nalishda suriladi.
+SAVOL VA TOPSHIRIQLAR
+1. Rasmiy hujjatlarga misollar keltiring.
+2. Hujjat va matn parametrlarini izohlang.
+3. Sahifa yo‘nalishini o‘zgartirishni amalda ko‘rsating.
+4. Hoshiyani belgilash usullarini amalda ko‘rsating.
+5. Sahifa fonining ikki turini tanlashni amalda ko‘rsating.
+6. Sahifa chegarasining ikki turini tanlashni amalda ko‘rsating.
+
+29
+7. Abzas chekinishini belgilash usullarini amalda ko‘rsating.
+8. Sizning kompyuteringizda qanday shrift turlari  bor?
+9. Shrift o‘lchamini o‘zgartirish usullarini amalda ko‘rsating.
+10. Birinchi harf qizil rangda yozilgan bo‘lsa, so‘zning keyingi har ﬂ ari
+    qanday rangda aks etadi?
+11. Satrlar orasidagi masofa qanday o‘zgartiriladi?
+MASHQLAR
+1. «Tarjimayi hol2» nomli hujjatda sahifa foni rangini, chegara chiziq-
+larini, gaplarning o‘lchamlarini, ranglarini, so‘zlarning shakllarini, 
+abzaslarning tekislanish usuli va chekinishlarini o‘zgartiring.
+2. «Mening oilam» nomli hujjatda sahifa parametrlaridan albom sahifa-
+sini tanlab, shriftning turli rang va o‘lchamlaridan foydalaning. Har 
+bir abzas uchun turli satrlar oralig‘i va abzas chekinishini tanlang.
+3. Yangi hujjat ochib quyidagi ko‘rinishdagi matnlarni hosil qiling va 
+«Vatanim» nomi bilan saqlang.
+4. Uyda tayyorlagan matningiz asosida «Mening vatanim – O‘zbekiston» 
+nomli hujjat tayyorlang. Matn mazmuniga mos ravishda abzaslarga 
+ajrating. Hujjatni «Mening vatanim – O‘zbekiston» nomi bilan saq-
+lang. 
+5. Daftaringizga «Mening do‘stlarim» nomli besh abzasli matn yozing. 
+Matn yozishdan avval har bir abzasda yoritiladigan mazmun haqida 
+reja tuzing. Tuzgan rejangiz ham daftaringizda aks etsin.
+6. Quyida berilgan o‘ng ustundagi parametrlarni chap ustundagi 
+atamalarga ta’sir etish imkoniyatiga mos ravishda daftaringizga 
+ko‘chiring.
+Sahifa rangi, o‘lcham, qalinlik, fon rangi, belgi oralig‘i, hoshiyadan che-
+kinish, yozuv turi, tekislanish, satrlar orasidagi masofa, masshtab, 
+chegara chizig‘i, bosh satr chekinishi, markerlash, ko‘rinmas bel-
+gilar, chizg‘ich, tekstura, tagchiziq, siljish
+Abzas
+So‘z
+Shrift
+
+30
+HUJJATLARNI TAHRIR QILISH
+Qo‘lda yoki yozuv mashinkasida yozilgan matnga tuzatish kiritish 
+mushkul. Aksariyat hollarda tuzatish kiritilgan matn qaytadan oqqa 
+ko‘chiriladi. Matn muharrirlari va matn protsessorlari esa matnlarga 
+ixtiyoriy tuzatishlar kiritish imkoniyatini beradi. Matnli hujjatga tuza-
+tishlar kiritish hujjatni tahrir qilish deyiladi. Masalan, hujjatni tahrir 
+qilish jarayonida biror belgi o‘chiriladi, almashtiriladi yoki joylashti-
+riladi, matnning ma’lum qismi o‘chiriladi, nusxasi ko‘chiriladi yoki 
+joyi almashtiriladi.
+Kalit so‘zlar: matnni tahrirlash, belgi qo‘shish va o‘chirish, blok, 
+nusxalash, ko‘chirish.
+MATNGA YANGI BELGI QO‘SHISH
+Matn yozilganda xatoliklarga yo‘l qo‘yilgan bo‘lishi yoki yozish ja-
+rayonida tez-tez ﬁ kr o‘zgarib turishi mumkin. Demak, umuman bexa-
+to yozilgan matnga ham tuzatishlar kiritiladi. Matnni tahrir qilishda eng 
+ko‘p bajariladigan ishlardan biri, bu – ortiqcha belgini o‘chirish yoki 
+tushib qolgan belgini oraga joylashtirishdir.
+Matnga yangi belgilarni kiritish quyidagicha bajariladi. 
+1. Yurgich matnning kerakli belgilar kiritilishi lozim bo‘lgan joyiga 
+o‘rnatiladi: 
+Matnni |xato yozish muhim 
+2. Kerakli belgilar klaviaturada teriladi:
+Matnni be|xato yozish muhim!
+MATN QISMINI BELGILASH
+Matnda belgilangan biror qism blok deyiladi. Odatda, blok fon beril-
+gan kabi rangi bilan ajralib qoladi. Matnda blok ajratish klaviatura yoki 
+sichqoncha yordamida amalga oshirilishi mumkin. Klaviatura yordamida 
+blok ajratish uchun:
+6-dars
+31
+Yurgich kerakli qismning (belgi, so‘z, 
+satr yoki abzas, sahifa) birinchi belgisi 
+oldiga joylashtiriladi
+Belgilanishi |kerak bo‘lgan qism. 
+Shift klavishini bosib turgan holda → 
+yo‘nalish klavishi matnning kerakli qis-
+mi belgilanguncha bosib turiladi
+Belgilanishi kerak bo‘lgan qism.
+Hujjatni to‘liq belgilash uchun tezkor  Ctrl  +   A    klavishlari bosiladi.
+Sichqoncha yordamida blok ajratishning asosiy usullari quyidagicha:
+Belgilanishi kerak bo‘lgan qism 
+ ustida sichqonchaning chap tugmasi 
+bosilgan holda harakatlantiriladi
+Sichqonchadan foydalanish. Matnning 
+belgilanishi  kerak bo‘lgan qismi. 
+So‘z belgilanishi uchun ko‘rsatkichi 
+so‘z ustiga olib borilgan sichqoncha 
+chap tugmasi 2 marta bosiladi
+Sichqonchadan foydalanish. Matnning 
+belgilanishi  kerak bo‘lgan qismi. 
+Abzas belgilanishi uchun ko‘r-
+satkichi abzas ustiga olib borilgan 
+sichqoncha chap tugmasi 3 marta 
+bosiladi
+Sichqonchadan foydalanish. Matnning 
+belgilanishi kerak bo‘lgan qismi.
+Gap belgilanishi uchun  Ctrl  kla-
+vishini bosib turgan holda ko‘rsatki-
+chi gap ustiga olib borilgan sichqon-
+cha chap tugmasi 1 marta bosiladi
+Sichqonchadan foydalanish. Matnning 
+belgilanishi  kerak bo‘lgan qismi.
+Blok ustida turli amallar (o‘chirish, nusxalash, ko‘chirib o‘tkazish, 
+formatlash va boshq.) bajarish mumkin.
+HUJJATDA O‘CHIRISH
+Matn yozish jarayonida xato yozilgan belgini o‘chirish zarur bo‘ladi. 
+Agar hujjatning so‘z, gap, satr yoki abzas kabi qismini o‘chirish lozim 
+bo‘lsa, bu qismni blokka olib  Delete  klavishini bosish kifoya.
+Matndagi bir yoki bir nechta belgini quyidagi usullardan birida 
+o‘chirish mumkin:
+
+32
+Yurgich o‘chirilishi kerak bo‘lgan 
+belgidan oldin joylashtirilsa, Delete 
+kla vishi bosiladi
+Yurgich o‘chirilishi kerak bo‘lgan 
+belgidan keyin joylashtirilsa, ← 
+Backspace  klavishi bosiladi
+Ba’zan, matnning biror qismini matnning boshqa joyiga ko‘chirib 
+o‘tkazish kerak bo‘ladi. Buning uchun: 
+1-usul. Kerakli qism blokka olinadi va Bosh ( Главная) tasmasi 
+Almashtirish buferi (Буфер обмена) guruhidan 
+  Qirqib olish tug-
+masi tanlanadi. Natijada qirqib olingan qism almashtirish buferi deb 
+ataluv chi yordamchi xotirada vaqtinchalik saqlanib qoladi. Endi qirqib 
+olingan qism joylashtirilishi kerak bo‘lgan joyga yurgich o‘rnatiladi va 
+Bosh ( Главная) tasmasi Almashtirish buferi (Буфер обмена) 
+  
+Joylashtirish (Вставить) tugmasi tanlanadi.
+2-usul. Kerakli qism blokka olinadi va sichqoncha chap tugmasini 
+bosib turgan holda kerakli joyga siljitib o‘tkaziladi. 
+HUJJATDA NUSXA KO‘CHIRISH
+Nusxa ko‘chirish uchun matnning nusxa ko‘chiriladigan qismi blokka 
+olinadi. Bosh ( Главная) tasmasi Almashtirish buferi (Буфер обмена) 
+guruhidan 
+  Nusxalash (Копировать) tugmasi tanlanadi. Natijada 
+belgilangan qism nusxasi almashtirish buferida saqlanib qoladi. Endi 
+nusxa joylashtirilishi kerak bo‘lgan joyga yurgich o‘rnatiladi va Bosh 
+(Главная) tasmasi Almashtirish buferi (Буфер обмена) guruhidan 
+  
+Joylashtirish ( Вставить) tugmasi tanlanadi.
+Microsoft Word dasturi joylashtirilayotgan nusxani bir necha usuldan 
+birida joylashtirishni tavsiya etadi:
+Nusxasi 
+olingan matn
+Formatni 
+saqlab qolish
+Formatlarni
+birlashtirish
+Faqat matnni 
+joylashtirish
+6-sinf MS Word 6-sinf MS Word 6-sinf MS W ord 6-sinf MS Word
+33
+HUJJATDA IZLASH VA ALMASHTIRISH
+Katta hajmdagi matnda biror so‘z (nom yoki jumla) izlab topilishi 
+va almashtirilishiga ko‘p vaqt sar ﬂ anadi. MS Word dasturida bu jara-
+yonni amalga oshirish qulay bo‘lishi uchun Izlash va almashtirish 
+(Найти и заменить) muloqot oynasi bor. Mazkur oynani chaqirish uchun 
+ Ctrl  +  F  tezkor klavishlar juftligini bosish yoki Bosh ( Главная) 
+me nyuning Tahrirlash ( Редактирование) mantiqiy guruhidan  Almash-
+tirish ( Заменить) tugmasini tanlash mumkin. Natijada Izlash (Найти), 
+Izlash va almashtirish ( Найти и заменить) hamda O‘tish ( Перейти) 
+qatlamlaridan iborat quyidagi ko‘rinishdagi muloqot oynasi ochiladi:
+Mazkur oynaning Найти: maydoniga izlanayotgan so‘z, Заменить  
+на: maydoniga almashtirilayotgan so‘z yoziladi. Endi maqsaddan 
+kelib chiqib Almashtirilsin (Заменить ), Barchasi almashtirilsin  
+(Заменить  все) yoki Keyingisi izlansin  ( Найти далее) tugmalaridan 
+foydalaniladi.
+SAVOL VA TOPSHIRIQLAR
+1. Matnni tahrir qilish deganda nimani tushunasiz?
+2. Matnni tahrir qilishda ishlatiladigan amallarni ayting.
+3. Matnga «tushib qolgan» belgilar qanday kiritiladi?
+4. Matndagi ortiqcha belgi qanday o‘chiriladi?
+5. Blok deganda nimani tushunasiz?
+6. Matn qismini blokka olish usullarini amalda ko‘rsating.
+7. Matnning belgilangan qismi ustida qanday amallar bajarish mumkin?
+8. Matnning belgilangan qismidan nusxa ko‘chirish nima va u qanday 
+amalga oshiriladi?
+3 # Informatika, 6-sinf
+34
+9. Satr, gap va matnni blokka olishning barcha usullarini amalda ko‘r-
+satib bering.
+10. Hujjatda yurgich oldidagi belgi qanday o‘chiriladi? Keyin turgan 
+belgi-chi?
+11. Hujjatning so‘z, gap, satr yoki abzas kabi qismi qanday o‘chiri ladi? 
+Amalda ko‘rsatib bering.
+12. Matndagi ko‘p marta qatnashgan so‘zni boshqa so‘zga qanday al-
+mashtirish mumkin? Amalda ko‘rsatib bering.
+13. Izlash va almashtirish ( Найти и заменить) muloqot oynasining 
+O‘tish ( Перейти) qatlami imkoniyatlarini mustaqil tahlil eting va 
+so‘zlab bering.
+MASHQLAR
+1. «Tarjimayi hol2» nomli hujjat qismlaridan nusxa ko‘chirib, «Mening 
+oilam» nomli hujjatni to‘ldiring.
+2. MS Word dasturini ishga tushiring. Quyidagi matnni yozib « Xato» 
+nomi bilan saqlang va dasturni yoping:
+Bis(2) karo(3) bush(1) – yigrima(2) bech(1)[10]. Koputirlan(5) 
+boquvshi(5) asiy(2) dastunin(2) naomi(1) – «Wundo(3) XP»[19]. 
+Pulz(2) eknlayiga(2) tavz(2) qouni(2) msol(1) qlich(2) mukin(1)[15]. 
+Anton(2) so‘zla(1): balaan(2) – pust(1), yqari(2) – quy(1), uzn(1) – 
+quyqa(2), dona(1) – yamoq(2), bog‘lam(2) – kasr(2)[22]. 
+3. MS Word dasturini ishga tushiring. « Xato» nomli hujjatni oching. 
+Matnda so‘zdan keyingi oddiy qavs ichida so‘zdagi xatolar soni, gap 
+oxiridagi kvadrat qavs ichida gapdagi xatolar soni ko‘rsatilgan. Huj-
+jatni « Xato-tahrir» nomi bilan qayta saqlang. Matnni tahrir qiling. 
+Hujjatni joriy saqlang. Dasturni yoping.
+4. Daftaringizdagi «Mening do‘stlarim» nomli matn davomiga do‘st-
+laringizning kelajak orzulari, qiziqishlari, egallamoqchi bo‘lgan 
+kasblari, o‘qigan badiiy kitoblari haqida ma’lumot qo‘shing. Zarur 
+bo‘lsa matnni tahrirlang.
+5. Quyidagi testlarni tahlil qiling va javobini aniqlang.
+1) MS Wordda so‘zga xos xususiyatlarni aniqlang.
+A) belgilar ketma-ketligi;
+B) ketma-ketliklar bir-biridan probel belgisi bilan ajralib turadi;
+D) ketma-ketliklar bir-biridan tire belgisi bilan ajralib turadi;
+E) barcha javob to‘g‘ri.
+2) MS Wordda yangi abzasga o‘tish uchun … klavishi bosiladi.
+A) Shift;          B) Enter;          D) Esc;          E) F1.
+
+35
+3) Blok deb nimaga aytiladi?
+A) matnda belgilangan 7 ta belgi;
+B) matnda belgilangan biror qism;
+D) matnning belgilangan 7 satri;
+E) matnning belgilangan 7 abzasi.
+HUJJATNI  FORMATLASH
+Avval aytilganidek, matn protsessorlarida hujjatning tashqi ko‘-
+rinishi go‘zal bo‘lishi uchun shrift turi, o‘lchami, rangi va abzas te-
+kislanishi, chegara chizish kabi bezaklar bilan boyitilishi mumkin. 
+Bu kabi amallarni bajarish hujjatni formatlash deyiladi. Formatlash 
+shriftga, matnga yoki abzasga qo‘llanilishi mumkin. Bu darsda for-
+matlashga oid amallar bilan tanishasiz.
+Kalit so‘zlar: matnni formatlash, abzasni formatlash, sahifa for-
+mati, sahifa tartib raqami.
+MATNNI  FORMATLASH
+Matndagi shriftning rangi, chizma ko‘rinishi, o‘lchami, yozuv shakli 
+va boshqa formatlari quyidagicha tanlanadi:
+1) formatlanishi kerak bo‘lgan qism belgilanadi, ya’ni blokka olinadi;
+2) quyidagi A yoki B bo‘limlarning biri qo‘llanadi:
+A) avval ko‘rilgan Bosh menyuning Shrift mantiqiy guruhidan kerak-
+li xususiyatlar tanlanadi;
+B) Shrift parametrlari muloqot oynasi imkoniyatlaridan foydalani-
+ladi. Bu muloqot oynasi Shrift mantiqiy guruhidagi 
+  belgisi yorda-
+mida ochiladi . Shrift muloqot oynasi Shrift ( Шрифт) va Qo‘shimcha 
+(Дополнительно) qatlamlaridan iborat.
+7-dars
+36
+Shrift parametrlari (xususiyatlari)
+1) shrift turi 2) shrift yozuv shakli
+3) shrift o‘lchami 4) shrift rangi
+5) tagchiziq ko‘rinishi 6) tagchiziq rangi
+7) shrift ko‘rinishi 8) matnga oid turli effektlar
+Shrift parametrlari muloqot oynasining Qo‘shimcha (Дополнительно) 
+qatlamida Belgilararo oraliq (Межзнаковый интервал) bo‘limi Mas-
+37
+shtab ( Масштаб), Oraliq (Интервал), Siljish (Смещение) kabi tanlov 
+maydonchalaridan iborat. Masshtab foizi belgining (shrift o‘lchamini 
+emas) sahifada aks etadigan ko‘lamini oshiradi yoki kamaytiradi. Ora-
+liq punkti belgilar orasidagi bo‘shliqni oshiradi yoki kamaytiradi. Sil-
+jish punkti  belgilarni satrga nisbatan yuqoriga yoki quyiga siljitadi. 
+Masalan:
+Masshtab: ikkala so‘z 100%, Oraliq: Oddiy 
+(Обычный)
+Shrift parametrlari
+Masshtab: birinchi so‘z 200%, ikkinchi so‘z 100% Shrift parametrlari
+Oraliq: birinchi so‘z Siyrak (Разреженный) 3 punkt Shrift  parametrlari
+Siljish: birinchi so‘z Yuqoriga (Вверх) 3 punkt Shrift parametrlari
+ABZASNI  FORMATLASH
+Abzasni formatlash uchun:
+1) yurgich shu abzasga joylashtiriladi;
+2) quyidagi A yoki B, yoki C bo‘limlarning biri qo‘llanadi:
+A) avval ko‘rilgan Bosh menyuning Abzas mantiqiy guruhidan ke-
+rakli xususiyatlar tanlanadi;
+B) Sahifani belgilash ( Разметка страницы) menyusining Abzas yoki 
+Bosh menyuning Uslublar ( Стили) mantiqiy guruhidan kerakli xususi-
+yatlar tanlanadi:
+
+38
+Xususiyatlar Tanlash joyi
+1)  abzas tekislanish usulini tanlash (chapdan, 
+o4rtadan, o4ngdan, sahifa   kengligi bo4yicha)
+2) matn darajasini o4zgartirish (oddiy, asosiy matn, 
+turli sarlavha darajalarini tanlash)
+3)  abzasning chap  hoshiyadan chekini shini 
+o4zgartirish
+4)  abzasning o4ng hoshiyadan chekini shini 
+o4zgartirish
+5)  bosh satrni abzasning qolgan satr lariga  nisbatan 
+chetlanish (chekinish yoki chiqish)  usulini tan-
+lash
+Chizg4ich
+6)  bosh satrni abzasning qolgan satr lariga  nisbatan 
+chetlanish masofasini tanlash
+Chizg4ich
+7)  abzasdan avval tashlanadigan oraliqni aniqlash 
+(punkt hisobida)
+8)  abzasdan keyin tashlanadigan oraliqni aniqlash 
+(punkt hisobida)
+9)  abzas satrlari oralig4ini tanlash (bir, bir  yarim, 
+ikki, minimum, aniq, ko4proq)
+10)  abzasga   avtomat ravishda   tartib be rish (ro4yxat 
+hosil qilish kabi) 
+C) Abzas parametrlari muloqot oynasi imkoniyatlaridan foydalanila-
+di. Bu muloqot oynasi Abzas mantiqiy guruhidagi 
+  belgisi yordamida 
+ochiladi. Muloqot oynasi abzasning to‘liq parametrlarini Abzas muloqot 
+oynasining 2 ta Chekinishlar va oraliqlar  ( Отступы и интервалы) va 
+Sahifadagi holati (Положение  на странице) qatlamlarida aks ettirgan. 
+SAHIFA TARTIB RAQAMI
+Sahifaning asosiy xususiyatlari avval ko‘rilgan edi. Sahifa xususiyat-
+laridan yana biri sahifa tartib raqamidir. Sahifalarga tartib raqami berish 
+uchun Joylashtirish (Вставка) tasmasi Kolontitullar (Колонтитулы) 
+39
+guruhining Sahifa tartib raqami (Номер  страницы) tugmasi tanlanadi. 
+Natijada tartib raqami joyi va formatini aniqlashga oid quyidagi takli ﬂ ar 
+aks etadi:
+Bu takli ﬂ ardan biri qabul qilinsa, turli formatdagi imkoniyatlar ochi-
+ladi. Odatda, sahifa tartib raqami sahifa quyisiga joylashtiriladi.
+SAVOL VA TOPSHIRIQLAR
+1. Hujjatni formatlash deganda nima tushuniladi?
+2. Matnning belgilangan qismidagi yozuv ko‘rinishini o‘zgartirishni 
+amalda ko‘rsating. 
+3. Matnning belgilangan qismi shrift o‘lchami va rangini o‘zgartirishni 
+amalda ko‘rsating. 
+4. Matnni formatlash deganda nima tushuniladi?
+5. Matnni formatlash imkoniyatlarini amalda ko‘rsatib bering.
+6. Abzas formatlanganda qanday xususiyatlari o‘zgaradi?
+7. Abzasni formatlash imkoniyatlarini amalda ko‘rsatib bering.
+8. Sahifaga turli ko‘rinishda ramkalar berish imkoniyatlarini amalda 
+ko‘rsatib bering.
+9. Sahifaga tartib raqami joylashtirish imkoniyatlarini amalda ko‘rsatib 
+bering.
+MASHQLAR
+1. «Mening vatanim – O‘zbekiston» nomli hujjatning sahifa, shrift 
+va abzas formatlarini o‘zgartiring. Matndagi barcha «O‘zbekiston» 
+so‘zlari zangori rangda aks etsin. Hujjatga sahifa tartib raqami joy-
+lashtiring.
+2. «Tarjimayi hol2» va «Mening oilam» nomli hujjatlarning formatini 
+o‘zgartiring. Har bir hujjat uchun alohida usulda sahifa tartib raqami 
+joylashtiring.
+
+40
+3. Quyidagi ko‘rinishda matn hosil qiling va hujjatni «Formatlash» 
+nomi bilan saqlang:
+Tayyor matn qismini formatlash uchun blokdan foydalanish mum-
+kin. Bu ning uchun matn qismi belgilanadi va kerakli formatlashlar ba-
+jariladi. Matn qismiga formatlashni qo‘llash uchun quyidagi imkoniyat-
+lardan ham foydalanish mumkin:
+a) so‘zni formatlash uchun yurgich so‘z ichiga joylashtirilishi yetarli;
+b) abzasni formatlash uchun yurgichni abzas ichiga joylashtirilishi 
+yetarli.
+4. Daftaringizga «Davlatimiz bayrog‘i tavsi ﬁ » nomli matn yozing. 
+Matn yozishdan avval reja yozing. Matn oxirida matndagi so‘zlarga 
+ta’sir ettiriladigan shrift va abzas xususiyatlari, sahifaga ta’sir ettiri-
+ladigan sahifa xususiyatlarini ko‘rsatib o‘ting.
+HUJJATNI  TAHRIRLASH  VA 
+FORMATLASHGA OID MASHQLAR
+1. Uyda tayyorlagan matningiz asosida «Mening do‘stlarim» nomli huj-
+jat tayyorlang. Matn mazmunini tahrir qiling va hujjat (sahifa, abzas, 
+shrift) formatini o‘zgartiring. Hujjatni «Men va do‘stlarim» nomi bi-
+lan qayta saqlang.
+2. Uyda tayyorlagan matningiz asosida «Davlatimiz bayrog‘i tavsi ﬁ » 
+nomli hujjat tayyorlang. Hujjatni tahrir qiling va rejangiz asosida 
+(sahifa, abzas, shrift) formatini o‘zgartiring.
+3. MS Wordda quyidagi mavzulardan biriga mos kichik hikoya yozing, 
+shu nomda saqlang, tahrir qiling va (sahifa, abzas, shrift) formatini 
+o‘zgartiring.
+a) «Assalom, Navro‘z!»
+b) «Oltin kuz».
+d) «Suv hayot manbayi».
+e) «Sog‘lom tanda sog‘ aql».
+4. Quyidagi mavzulardan birini tanlab, daftaringizga shu nomda matn 
+yozing. Matn oxirida matndagi so‘zlarga ta’sir ettiriladigan shrift va 
+8-dars
+41
+abzas xususiyatlari, sahifaga ta’sir ettiriladigan sahifa xususiyatlarini 
+ko‘rsatib o‘ting.
+a) «Mening maktabim».
+b) «Kitob bilim chirog‘i».
+d) «Maktab bilim o‘chog‘i».
+5. Quyidagi testlarni tahlil qiling va javobini aniqlang.
+1) MS Wordda matn yozish qoidalariga oid to‘g‘ri mulohazani toping.
+A) joriy satr oxiriga o‘tish uchun Home klavishi bosiladi;
+B) yangi abzasga o‘tish uchun ENTER klavishi bosiladi;
+D) joriy satr boshiga o‘tish uchun ENTER klavishi bosiladi;
+E) barcha javob to‘g‘ri.
+2) MS Wordda matn yozish qoidalariga oid to‘g‘ri mulohazani toping.
+A) qat’iy probel joylashtirish uchun Ctrl+Shift+Probel klavishlari 
+birgalikda bosiladi;
+B) deﬁ s belgisi probellarsiz yoziladi;
+D) uzun tireni ikki tomonidan probeller bilan ajratiladi;
+E) barcha javob to‘g‘ri.
+3) MS Word hujjatlarida satr oxiriga o‘tish qanday bajariladi?
+A) Ctrl+Home klavishlarini bosish orqali;
+B) Home klavishini bosish orqali; 
+D) End klavishi yordamida;
+E) Ctrl+End klavishlari yordamida.
+4) Hujjatni to‘liq belgilash qanday amalga oshiriladi?
+A) Ctrl+A klavishlari birgalikda bosiladi;
+B) Alt+A klavishlari birgalikda bosiladi;
+D) Ctrl+Alt+A klavishlari birgalikda bosiladi;
+E) Shift+A klavishlari birgalikda bosiladi.
+5) Wordda shrift formatiga nimalar kiradi?
+A) rangi;     B) o‘lchami;
+D) chizma ko‘rinishi;  E) barchasi.
+6) Shrift so‘zini qalin yozuvi ko‘rinishida berilgan javobni toping.
+A) Shrift;        B )  Shrift;       D) Shrift;       E) Shrift.
+7) Abzas satrlari orasidagi masofani tanlash qaysi tugma yordamida 
+amalga oshiriladi?
+A) 
+       B )  
+        D )  
+        E )  
+
+42
+HUJJATLARDA  RASMLAR  BILAN  ISHLASH
+Ayrim hujjatlarni tayyorlashda jadval va rasmlardan ham foydala-
+niladi. Gazeta, jurnal yoki kitob sahifalarida bunday holni ko‘p uchrat-
+gansiz. Jumladan, qo‘lingizdagi darslik sahifalarida ham turli rasm va 
+jadvallar mavjud. Turli chizma va rasmlar hujjatlarning ko‘rgazmali, 
+qiziqarli va tushunarli bo‘lishiga xizmat qiladi.
+Kalit so‘zlar: surat joylashtirish, rasm joylashtirish, rasm formati.
+RASM JOYLASHTIRISH IMKONIYATI
+Matn mazmunini boyitish maqsadida hujjatga rasmlar yoki fotosu-
+ratlar joylashtirish mumkin. Buning uchun avval yurgich rasm joylash-
+tirilishi kerak bo‘lgan joyga o‘rnatiladi, so‘ng Joylashtirish ( Вставка) 
+tasmasining Illustratsiyalar ( Иллюстрации) guruhiga murojaat qilinadi. 
+Rasmlar 2 xil manbadan joylashtirilishi mumkin: 
+MS Word kolleksiyasidan Surat (Картинка) tugmasi yordamida
+Rasm faylidan Rasm (Рисунок) tugmasi yordamida
+KOLLEKSIYADAGI  SURATNI  HUJJATGA
+JOYLASHTIRISH
+Kolleksiyadagi suratlarni hujjatga joy-
+lashtirish uchun Illustratsiyalar ( Ил-
+люстрации) guruhidagi Surat ( Кар тинка) 
+tugmasi tanlangach oynaning o‘ng qismida 
+surat va eskizlarni tanlash uchun vazifalar 
+sohasi ochiladi. 
+Odatda, vazifalar sohasining Obyektlar-
+ni qidirish ( Искать объекты) tanlov may-
+9-dars
+43
+donchasida Barcha multimedia fayllari  (Все файлы мультимедиа) aks 
+etib, dastur tomonidan joylashtirilishi ko‘zda tutilgan illustratsiyalar va 
+fotosuratlar tanlangan bo‘ladi:
+Vazifalar sohasidagi Boshlash ( Начать) tugmasi tanlanganda kollek-
+siyadan tanlangan turlarga mos barcha suratlar eskizlar ko‘rinishida aks 
+etadi. Surat joylashtirish uchun eskizlarni varaqlab, sichqoncha yordami-
+da keraklisi tanlanishi kifoya:
+
+44
+MS Word kolleksiyasidagi suratlar mavzular bo‘yicha guruhlar-
+ga bog‘langan bo‘lib, bu bog‘lanishni sichqoncha ko‘rsatkichi eskizga 
+yo‘naltirilganda aks etgan izohdan (yuqoridagi rasmda mavzu: дома, 
+здания, озера, реки) ko‘rish mumkin.
+Bu kabi guruhlash biror mavzu bo‘yicha rasmlarni izlash  imkoniyatini 
+beradi. Quyidagi rasm tanlov maydonchasiga kasb (профессия) mavzusi 
+kiritilishi asosidagi izlash natijasini aks ettirgan ( Искать: профессия):
+Tabiiyki, yuzdan ortiq suratlar ichidan keraklisini izlab topishni tez-
+lashtirish uchun ularni mavzular bo‘yicha ko‘rib chiqish maqsadga mu-
+voﬁ q.
+HUJJATGA  RASMNI  FAYLDAN  JOYLASHTIRISH
+Hujjatga xotiradagi (kompyuter asosiy xotirasidagi yoki tashqi xotira-
+lardagi) rasmli fayllar va fotosuratlar joylashtirish uchun Illustratsiyalar 
+(Иллюстрации) guruhining Rasm ( Рисунок) tugmasi tanlanadi. Ochil-
+gan Rasm joylashtirish (Вставка  рисунок) muloqot oynasi yordamida 
+kerakli fayl belgilanadi (Paint dasturida rasmni ochish imkoniyatlarini 
+eslang). Kerakli rasm fayli tanlangach, uni joylashtirish uchun muloqot 
+oynasidan Joylashtirilsin (Вставить) tugmasini tanlash yetarli.
+45
+HUJJATDAGI RASM FORMATINI O‘ZGARTIRISH
+Hujjatda rasm matn bilan uyg‘un joylashishi uchun ko‘p 
+hollarda rasmning o‘lchamlari va joylashish holatini, ya’ni 
+formatini o‘zgartirish lozim bo‘ladi. Hujjatga joylashtirilgan 
+rasm formatini o‘zgartirish uchun avval tegishli rasm sich-
+qoncha yordamida tanlanadi. Natijada belgilangan rasm atro ﬁ  
+(chegarasi) chiziq bilan o‘raladi. 
+U to‘g‘ri to‘rtburchak shaklida bo‘lib, uchlari va tomon-
+larining o‘rtalarida rasm o‘lchamini o‘zgartirish imkonini beruvchi nuq-
+talari bor. Sichqoncha ko‘rsatkichini ushbu nuqtalardan birining ustiga 
+olib kelib, chap tugmasi bosilgan holda biror tomonga siljitilsa, rasm 
+kichrayadi yoki, aksincha, kattalashadi. Belgilangan rasmdan nusxa 
+ko‘chirish yoki uni o‘chirish belgilangan matnlarni nusxalash va 
+o‘chirish kabi amalga oshiriladi.
+Wordda rasm chizilganda yoki belgilan-
+ganda dasturning Rasm bilan ishlash (Работа 
+с рисунками) kontekst-menyusi faollashadi. 
+Rasm bilan ishlash ( Работа с рисунками) 
+kontekst-menyusi quyidagi mantiqiy guruhlardan iborat:
+Guruhlar Ko‘rinishi
+O‘zgarishlar
+(Изменение)
+Rasmlar uslublari
+(Стили рисунков)
+Tartiblash
+(Упорядочить)
+O‘lcham
+(Размер)
+
+46
+¾ O‘zgarishlar ( Изменение) guruhi rasmning foniga, rang ravshan-
+ligi va to‘yinganligiga ta’sir etish imkoniyatini beradi.
+¾ Rasmlar uslublari ( Стили рисунков) guruhi rasm chegarasi va 
+aks etish uslublarini o‘zgartirish imkonini beradi.
+¾ Tartiblash ( Упорядочить) guruhi rasmni sahifada matnga va 
+boshqa rasmga nisbatan bog‘lanishi hamda joylashishini tanlash, rasmni 
+burish va akslantirish, bir nechta rasmni birlashtirish yoki birlashtiril-
+gan rasmlarni ajratish imkonini beradi. Masalan, guruhning Matn bilan 
+uyg‘unligi ( Обтекание текстом) tugmasi rasmni matnga nisbatan joy-
+lashtirishning quyidagi holatlarini sichqoncha yordamida tanlash imko-
+niyatini beradi: 
+Rasm matn 
+orasida
+(В тексте)
+Matn ramka 
+atroﬁ da 
+(Вокруг рамки)
+Matn rasm 
+konturi bo‘ylab 
+(По контуру)
+Matn o‘tib 
+ke tuvchi 
+(Сквозное)
+Matn rasmning
+yuqorisida
+va  quyisida 
+(Сверху и снизу)
+Rasm matnning 
+orqasida 
+(За текстом)
+Rasm matnning
+oldida 
+(Перед текстом)
+1 2 3 4 5 6 sinf
+1 2 3 4 5 6 
+sinf
+1 2 3 4 5 6 sinf
+Ta’kidlash joizki, matn orasida holatida rasm matnning ajralmas qis-
+mi (shrift) sifatida joylashadi. Uni sahifadagi satrlar bo‘ylab matnning bir 
+bo‘lagi sifatida siljitish mumkin. Qolgan holatlarda esa, rasm matndan 
+alohida bo‘lib, uni sahifaning istalgan yeriga joylashtirish mumkin.
+¾ O‘lcham ( Размер) guruhi rasm o‘lchamlarini o‘zgartirish, turli 
+shakllar ko‘rinishida qismini qirqish imkoniyatini beradi.
+1 2 3 
+4 5 6 
+  sinf
+5 6 
+sinf
+5 6 
+sinf
+1 2 3 4                 5 6 
+sinf
+1 2 3             41 2 3             4
+
+47
+SAVOL VA TOPSHIRIQLAR
+1. Matnli hujjatlarga nima uchun rasm joylashtiriladi?
+2. Hujjatlarga rasmlar qanday manbalardan joylashtiriladi?
+3. Hujjatlarda rasm joylashtirish kerak bo‘lgan joy qanday ko‘rsatiladi?
+4. Word matn protsessorida hujjatga rasm joylashtirish uchun qanday 
+amallar bajariladi?
+5. Word kolleksiyasidan rasmni « Архитектура» mavzusi bo‘yicha iz-
+lashni amalda ko‘rsating.
+6. Hujjatdagi rasm qanday belgilanadi?
+7. Hujjatdagi rasmdan nusxa ko‘chirish va joylashtirishni amalda ko‘r-
+sating.
+8. Hujjatdagi rasmni qanday qilib o‘chirish mumkin?
+9. Hujjatdagi rasm o‘lchamlari qanday o‘zgartiriladi?
+MASHQLAR
+1. «Mening oilam» mavzusida saqlangan hujjatga har bir oila a’zosini 
+egallagan kasbi yoki qiziqqan kasbiga mos rasmlar joylashtiring va 
+formatlarini o‘zgartiring. 
+2. «Men va do‘stlarim» nomi bilan saqlangan hujjatga mavzu mazmu-
+niga oid rasmlar joylashtiring va formatlarini o‘zgartiring.
+3. Wordda quyidagi ko‘rinishni hosil qiling va «Rasm formati» nomi 
+bilan saqlang. 
+4. Daftaringizga «Paintda rasm chizish» nomli matn yozing. Matnda 
+Paint dasturi imkoniyati, uskunalar panelidagi uskunalarning vazifasi 
+va ular hosil qiladigan shakllar aks etsin. Chizmalar rangini turlicha 
+tanlang.
+
+48
+HUJJATLARDA  SHAKLLAR  VA  CHIZMALAR
+Hujjat mazmunli va go‘zal bo‘lishi uchun matnga ba’zan shakl 
+yoki rasm joylashtirish lozim bo‘ladi. Agar u Word kolleksiyasida 
+bo‘lmasa-chi? U holda siz Paint dasturidan foydalanishingiz mumkin. 
+Lekin Word dasturining shakl va chizma chizish imkoniyatlari ham 
+borki, undan foydalanish ishingizni ancha osonlashtiradi. Bu darsdagi 
+ko‘pgina amallar sizga Paint dasturidan ma’lum bo‘lgani uchun ularni 
+bajarish qiyin bo‘lmaydi.
+Kalit so‘zlar: shakl joylashtirish, shakl formati, shakllarni birlash-
+tirish.
+CHIZISH  IMKONIYATLARI
+Biz avvalgi darslarda matnli hujjatlarga rasmlarni joylashtirishni 
+ko‘rib chiqdik. Murakkab bo‘lmagan chizmalarni matn protsessorining 
+imkoniyatlaridan foydalanib ham chizish mumkin. Bu ishni Joylashti-
+rish ( Вставка) tasmasining Illustratsiyalar ( Иллюстрации) guruhidagi 
+Shakllar ( Фигуры) bo‘limi ro‘yxati yordamida bajarish mumkin.
+Ochilgan ro‘yxatda quyidagi turdagi shakllarni joylashtirish imko-
+niyati mujassamlashtirilgan:
+Oxirgi qo‘llanilgan
+shakllar
+Chiziqlar To‘g‘ri 
+to‘rtburchaklar 
+Asosiy 
+shakllar
+Shaklli 
+strelkalar
+Formula uchun
+shakllar
+Blok-sxema Yulduzlar va tasmalar Shaklli havola
+10-dars
+Последние использованные фигуры Линии
+Основные фигуры
+Блок-схема Звезды и ленты Выноски
+Фигурные стрелки Фигуры для формул
+Прямоугольники
+49
+SHAKLNI  FORMATLASHNING  BA’ZI  IMKONIYATLARI
+MS Wordda shakl chizilganda yoki belgilanganda dasturning Chizish 
+vositalari-Format ( Средства рисования-Формат) kontekst-me nyusi fa-
+ollashadi. Agar Chizish vositalari kontekst-menyusi tanlansa, u holda 
+ochilgan tasmada sizga tanish bo‘lgan Tartiblash ( Упорядочить) va 
+O‘lcham ( Размер) guruhlariga qo‘shimcha shaklni formatlashga oid qu-
+yidagi guruhlar aks etadi:
+Guruhlar Ko‘rinishi
+Shakl joylashtirish
+(Вставка фигур)
+Shakllar uslublari
+(Стили фигур)
+WordArt uslublari
+(Стили WordArt)
+Matn (Текст)
+Shakl joylashtirish (Вставка фигур) guruhi yordamida keyingi shakl-
+larni joylashtirish mumkin bo‘ladi.
+Shakllar uslublari ( Стили фигур) guruhi shakl va uning ichida 
+matnning aks etish uslublarini o‘zgartirish, shakl ichi va chegarasini 
+bo‘yashning turli imkoniyatlarini beradi. 
+WordArt uslublari ( Стили WordArt) guruhi matnni manzarali rasm 
+ko‘rinishida aks ettirishga oid maxsus matn effektlarini qo‘llash imkoni-
+yatlarini beradi.
+4 # Informatika, 6-sinf
+50
+Matn (Текст) guruhi matnning shakl ichida joylashish yo‘nalishi va 
+vertikal tekislanish imkoniyatlarini beradi.
+SHAKL JOYLASHTIRISH VA FORMATNI O‘ZGARTIRISH
+Sahifaga shakl joylashtirish Paint dasturi kabi shakl tanlash, shaklni 
+joylashtirish va formatini o‘zgartirish kabi qadamlarni o‘z ichiga oladi. 
+Shakl joylashtirish, chizma chizish va joylashtirilgan shakl ko‘rinishini 
+o‘zgartirishning ba’zi imkoniyatlarini quyidagi jarayonda ko‘rib chiqa-
+miz.
+Bajarilayotgan harakatlar Natija
+1. Shakllar bo‘limi ro‘yxatidagi Asosiy 
+shakllar guruhidan Oy (Месяц) 
+  tugmasini tanlaymiz.
+Sichqoncha ko‘rsatkichi     +  
+ko‘rinishiga keladi.
+2. Sichqoncha ko‘rsatkichi chizma boshla-
+nishi kerak bo‘lgan nuqtaga yo‘naltirilgach 
+chap tugmasini bosib turamiz. Sichqonchani 
+siljitib, ko‘rsatkichini kerakli yo‘nalishda ha-
+rakatlantiramiz. Chizishni to‘xtatish uchun 
+sichqoncha tugmasini qo‘yib yuboramiz. 
+Shu shaklni yana 2 marta chizamiz (yoki 
+nusxalaymiz).
+3. 1-rasm va 3-rasmlardagi oy rasmlari 
+kengli gini o‘zgar tira miz. Buning 
+uchun rasmlar belgilanganda aks etgan 
+sariq romb shaklidagi markerga 
+ 
+sichqoncha ko‘rsat kichini yo‘naltirib, 
+sichqoncha chap tugmasini bosib turgan 
+holda 1-rasm uchun chapga, 2-rasm uchun 
+o‘ngga siljitamiz.
+4. 1-rasmni belgilab, Chizish vositala-
+ri-Format kontekst-menyu tasmasining 
+Shakl lar uslublari mantiqiy guruhidan 
+Shakl effektlari ( Эффекты фигур) 
+ 
+tugmasini tanlaymiz. Ochilgan ro‘yxatning 
+Relyef (Рельеф) tugmasi ro‘yxatidan Bur-
+chak (Угол) 
+  ko‘rinishini tanlaymiz. 
+
+51
+5. Yuqoridagi 4-banddagi usulda 2-rasm 
+uchun Ar deko (Ар деко) 
+  , 3-rasm uchun 
+esa Og‘ish ( Наклон) 
+  ko‘rinishini tan-
+laymiz.
+6. 3-rasmni belgilab Chizish vositalari - For-
+mat kontekst-menyu tasma sidagi Shakl ni 
+qoplash (Заливка фигуры) 
+  tug masi 
+ro‘yxatidan Rasm (Рисунок) tugmasini tan-
+laymiz. Ochilgan muloqot oynasidan biror 
+rasmni tanlab Joylashtirilsin ( Вста вить) 
+tugmasini tanlaymiz.
+7. 2-rasmni belgilab, Chizish vositala-
+ri-Format kontekst-menyu tasmasidagi 
+Shakl ni qoplash (Заливка фигуры) 
+  
+tugmasi ro‘yxatidan Tekstura ( Текстура) 
+tugmasini tanlaymiz. Ochilgan ro‘yxatdan 
+Suv tomchilari ( Водяные капли) tekstu-
+rasini tanlaymiz.
+8. 1-rasmni belgilab Chizish vositalari-For-
+mat kontekst-menyu tasmasidagi Shakl ni 
+qoplash ( Заливка фигуры) 
+  tugma-
+si ro‘yxatidan Gradiyent (Градиентная) 
+tugmasini tanlaymiz. Ochilgan ro‘yxatdan 
+Markazdan (Из центра) tugmasini tanlay-
+miz.
+Joylashtirilgan shakllarning matnga nisbatan joylashish holati rasm-
+lardagi kabi aniqlanadi.
+SHAKLLARNI  BIRLASHTIRISH
+Sahifaga joylashtirilgan bir necha shakldan chizma hosil qilish mum-
+kin. Lekin shakllarning joyi matnga nisbatan joylashish holatiga bog‘liq 
+ravishda o‘zgarib ketishi va chizma ko‘rinishi buzilishi mumkin. Chiz-
+ma ko‘rinishi buzilmasligi uchun, odatda, shakllar birlashtirilib, yaxlit 
+chizma hosil qilinadi. Masalan, «Uy» chizmasini quyidagicha hosil qilish 
+mumkin. 
+
+52
+1. Shakllar bo‘limi ro‘yxatidagi To‘g‘ri to‘rt-
+burchaklar guruhidan To‘g‘ri to‘rt burchak 
+(Прямоугольник)  tugmasini tanlaymiz va 
+to‘g‘ri to‘rtburchak chizamiz. Bu shakl Matn us-
+tida holatida chiziladi. 
+2. Chizish vositalari-Format  kontekst-menyu 
+tasmasidagi Shakl joylashtirish (Вст авка  фи-
+гур) mantiqiy guruhining Aso siy shakllar guruhi-
+dan T
+eng yonli uchburchak ( Равнобедренный 
+треугольник)  tugmasini tanlaymiz va uchbur-
+chak chizamiz. Bu shakl ham Matn ustida hola-
+tida chiziladi. 
+3. a) uchburchak shaklini yo‘nalish kla vishlari 
+yoki sichqoncha yordamida siljitib to‘g‘ri to‘rt-
+burchak shakli ustiga joylashtiramiz. 
+b) endi Shift klavishini bosgan holda sich qoncha 
+yordamida ikkala shaklni tanlaymiz.
+d) Chizish vositalari-Format  kontekst-menyu 
+tasmasidagi Tartiblash ( У
+ поря дочить) guruhi-
+ning Guruhlash ( Группи ровать) bo‘li midan 
+Guruhlash tugmasini tanlaymiz.
+Shakllarni yaxlit chizma ko‘rinishida birlashtirish uchun shakl-
+larning matnga nisbatan holati matn orasida bo‘lmasligi shart!
+SAVOL VA TOPSHIRIQLAR
+1. Word matn protsessorida shakllar chizish uchun qaysi tasmadan foy-
+dalaniladi?
+2. Word matn protsessorida qanday shakllar chizish mumkin?
+3. Word matn protsessorida to‘g‘ri chiziq chizish, qalinligi, rangi va 
+shtrix turini o‘zgartirishni amalda ko‘rsating.
+4. Word matn protsessorida to‘g‘ri to‘rtburchak chizish, bo‘yash, che-
+gara rangi va shtrix turini o‘zgartirishni amalda ko‘rsating.
+5. Wordda oval chizish va ichiga matn yozish, formatini o‘zgartirishni 
+amalda ko‘rsating.
+6. Wordda shakl ichini bo‘yash usullarini amalda ko‘rsating.
+7. Wordda chizmalarni akslantirish imkoniyatini amalda ko‘rsating.
+8. Wordda shakllar qanday buriladi? Amalda ko‘rsating.
+9. Wordda chizmalarni birlashtirish imkoniyatini amalda ko‘rsating.
+
+53
+MASHQLAR
+1. Chiziq va to‘rtburchak chizish amallaridan foydalanib Robot chiz-
+masini chizing.
+2. Chizish amallaridan foydalanib kompyuter chizmasini chizing.
+3. Quyidagi ko‘rinishdagi uy chizmasini hosil qiling.
+4. Nusxa ko‘chirish yordamida quyidagi ketma-ketlikda shakllarni hosil 
+qiling.
+5. «Paintda rasm chizish» nomli matningizdagi shakllarni MS Word 
+imkoniyatidan foydalanib chizing va «Paint va Word» nomi bilan 
+saqlang.
+6. Daftaringizga «Paint va Word imkoniyatlari» nomli sarlavha osti-
+da shu ikkala dastur shakl chizish imkoniyatlarini taqqoslovchi jad-
+val hosil qiling. Jadvalga shakllar chizib, dasturlarga mos ravishda 
+chizish «Oson» va «Qiyin» yoki «Mumkin emas» kabi javoblarni 
+yozing.
+
+54
+RASM  VA  CHIZMALARGA  OID AMALIY  DARS
+1. «Davlatimiz bayrog‘i tavsi ﬁ » nomi bilan saqlangan hujjatga bay-
+rog‘imiz rasmini (yulduzlarsiz) chizing va mos ranglar bilan bo‘yang.
+2. Wordda formatlash imkoniyati ta’sirida quyidagi jad valdagi A rasm-
+dan B va G rasmlarni hosil qiling va «Rasm va format» nomi bilan 
+saqlang.
+AB G
+3. «Kompyuter xonasi» nomli faqat rasmdan iborat hujjat hosil qiling, 
+albom sahifasi ko‘rinishiga o‘tkazing. Hujjatda kompyuter xonasi-
+ning deraza tomonidagi devor aks etgan rasmni Word imkoniyatla-
+ridan foydalanib chizing.
+4. Word imkoniyatlaridan foydalanib quyidagi rasmlarni chizing.
+11-dars
+
+55
+5. Daftaringizga «Jadvallar» nomli matn yozing. Matn mazmunida 
+o‘zingiz uchratgan (masalan, kundalik daftardagi yoki maktabdagi 
+dars jadvali, sinf jurnali) jadvallar ko‘rinishi va qisqa izohi aks etsin.  
+Jadvaldagi satrlar, rasm yoki matnlar rangini turlicha tanlang.
+6. Quyidagi testlarni tahlil qiling va javobini aniqlang.
+1) Rasm formatiga nimalar kiradi?
+A) o‘lchami;  B) joylashish holati;
+D) rangi;   E) barcha javoblar to‘g‘ri.
+2) Wordda rasmni matnda qanday holatlarda joylashtirish mumkin?
+A) matn orasida;  B) ramka atro ﬁ da;
+D) kontur bo‘ylab; E) barcha javoblar to‘g‘ri.
+3) Wordda aylana shaklini chizish uchun qaysi tugma va klavish 
+birgalikda ishlatiladi?
+A) Oval va  Ctrl  ;   B) Oval va  Shift   ;
+D) Egri chiziq va  Ctrl  ;  E) Egri chiziq va  Shift   .
+HUJJATLARDA  JADVALLAR  BILAN ISHLASH
+Amaliyotda hujjatlarga rasmlar bilan bir qatorda jadvallar ham 
+joylashtirishga to‘g‘ri keladi. Jadvallar turli-tuman bo‘lishi mumkin. 
+Masalan, maktabingizdagi dars jadvali, kundalik daftaringiz yoki sinf 
+jurnali sahifasi, biror futbol turniri jadvali va hokazo. Bu jadvallar-
+ning ko‘rinishi ham, mazmuni ham turlicha bo‘lgani bilan ularning 
+hammasi ma’lum miqdordagi ustun va satrlardan tashkil topgan.
+Kalit so‘zlar: jadval tushunchasi, jadval joylashtirish, jadvallar us-
+tida amallar.
+JADVAL HAQIDA TUSHUNCHA
+Ixtiyoriy jadval  n ta ustun va m ta satrdan iborat bo‘ladi. Ular, o‘z 
+navbatida, kataklardan tashkil topadi. Jadvalning asosiy elementi – bu 
+katak. Wordda katakni o‘ziga xos mikrohujjat deyish mumkin. Katakka 
+12-dars
+56
+matn yozish, uni formatlash, hatto rasmlar joylashtirish ham mumkin. 
+Misol sifatida Wordda hosil qilingan quyidagi 3 ta ustunli va 4 ta satrli, 
+kataklar soni 12 ta (3 · 4=12) bo‘lgan jadvalni keltiramiz:
+Tartib 
+raqami Rasmi Vazifasi
+1.
+ Ustiga harf, son va boshqa belgilar yozilgan klavish-
+lardan iborat, uning yordamida kompyuterga turli 
+ma’lumot va buyruqlar kiritiladi. 
+2.
+ Qurilma televizor ekraniga o‘xshash vazifani baja-
+radi, ya’ni chizilayotgan rasm, yozilayotgan harﬂ ar, 
+ko‘rilayotgan ﬁ lm unda namoyon bo‘lib boradi.
+3.
+ Kompyuterni qulay usulda boshqarish, ba’zi ishlarni 
+osongina bajarish uchun mo‘ljallangan qurilma.
+WORDDA JADVAL JOYLASHTIRISH
+Jadval joylashtirish uchun Joylashtirish ( Вставка) tasmasining Jad-
+val (Таблица) guruhidan Jadval 
+  tugmasi  tanlanadi. Ochilgan tan-
+lov oynasi quyidagi imkoniyatlarni tavsiya etadi:
+
+57
+Aytaylik, yuqoridagi 3 ta ustunli va 4 ta satrli (ya’ni, 3 x 4 jadval) 
+jadvalni hosil qilish kerak bo‘lsin. MS Wordda shu jadvalni hosil qilish 
+jarayonini ko‘rib chiqamiz.
+Bajarilayotgan harakatlar Ko‘rinishi
+1-usul. Jadval joylashtirish (Вставка 
+таблицы) bo‘limidan sichqoncha ko‘r-
+sat kichini 3 ta ustun va 4 ta satr ustida 
+siljitib (belgilab) tanlaymiz va chap tug-
+masini bosamiz. 
+2-usul. Jadval joylashtirilsin 
+(Вставить таблицу…) tugmasini tan-
+laymiz. Ochil gan Jadval joylashtirish 
+(Вставка таб лицы) muloqot oynasida 
+ustun sonini 3, satr sonini 4 kabi tanlay-
+miz.
+Natijada quyidagi ko4rinishdagi jadval hosil bo4ladi:
+WORD JADVALI USTIDA BA’ZI AMALLAR
+1.  Birinchi satr kataklariga, odatda, ustunlarda joylashgan ma’lumotlar 
+uchun sarlavhalar, birinchi ustunga esa tartib raqamlari yoziladi. Jadval 
+kataklari ma’lumotlar bilan to‘ldiriladi. Buning uchun yurgich sichqon-
+cha yordamida kerakli katakka joylashtiriladi va zaruratga qarab  Tab
+yoki yo‘nalish klavishlari yordamida boshqa kataklarga o‘tiladi.
+58
+Tartib raqami Rasmi Vazifasi
+1.
+ Ustiga harf, son va boshqa belgilar 
+yozilgan klavishlardan iborat, uning yor-
+damida kompyuterga turli ma’lumot va 
+buyruqlar kiritiladi. 
+2.
+ Qurilma televizor ekraniga o‘xshash 
+vazifani bajaradi, ya’ni chizilayot -
+gan rasm, yozilayotgan harﬂ ar, ko‘ri-
+layotgan ﬁ lm unda namoyon bo‘lib 
+boradi.
+3.
+ Kompyuterni qulay usulda boshqarish, 
+ba’zi ishlarni osongina bajarish uchun 
+mo‘ljallangan qurilma.
+2. Jadvaldagi ma’lumotlarning hajmiga qarab ustunlarning kengligi 
+o‘zgartiriladi. Buning uchun sichqoncha ko‘rsatkichi ustunlarning chega-
+ra chizig‘iga olib kelinadi. Sichqoncha ko‘rsatkichi 
+  ko‘rinishga kel-
+gach, chap tugmasi bosilgan holda kerakli tomonga siljitiladi. Natijada 
+jadvalimiz quyidagi ko‘rinishga keladi:
+Tartib 
+raqami
+Rasmi Nomi Vazifasi
+1.
+ Klaviatura Ustiga harf, son va boshqa belgilar yozil-
+gan klavishlardan iborat, uning yorda-
+mida kompyuterga turli ma’lumot va 
+buyruqlar kiritiladi. 
+2.
+ Monitor Qurilma televizor ekraniga o‘xshash 
+vazifani bajaradi, ya’ni chizilayot gan 
+rasm, yozilayotgan harﬂ ar, ko‘rilayotgan 
+ﬁ lm unda namoyon bo‘lib boradi.
+3.
+ Sichqoncha Kompyuterni qulay usulda boshqarish, 
+ba’zi ishlarni osongina bajarish uchun 
+mo‘ljallangan qurilma.
+59
+JADVAL  BILAN  ISHLASH  KONTEKST-MENYUSI
+Jadval katagiga yurgich joylashtirilgach Jadval bilan ishlash ( Ра-
+бота с таблицами) kontekst-menyusi faollashadi. Bu kontekst-menyu 
+2 ta Konstruktor ( Конструктор) va Maket ( Макет) tasmalari bilan 
+bog‘langan. 
+Konstruktor tasmasi katak ichini bo‘yash, jadval uslublarini, jad-
+val elementlari chegarasiga xos o‘zgartirishlarni tanlash, jadval chizish 
+hamda chiziqlarni o‘chirish imkoniyatlarini beradi:
+Guruhlar Ko‘rinishi
+Jadvallar uslublari 
+parametrlari
+(Параметры стилей 
+таблиц)
+Jadvallar uslubi
+(Стили таблиц)
+Jadval hoshiyasini 
+chizish
+(Рисования границ)
+Maket tasmasi Jadval xossalari ( Свойства таблицы) muloqot oy-
+nasini ochish, rangsiz kataklar chizig‘ini aks ettirish, jadvalga satr va 
+ustun qo‘shish yoki o‘chirish, jadval kataklari yoki satrlari, yoki ustunla-
+rini birlashtirish, katak o‘lchamlarini o‘zgartirish, kataklarni bo‘lish, ka-
+takdagi ma’lumotlarni tekislash uslubini va matn yo‘nalishini belgilash, 
+60
+ma’lumotlarni saralash, jadvaldagi sonli qiymatlar ustida formula asosida 
+hisob-kitob ishlarini bajarish imkoniyatlarini beradi.
+Jadval 
+(Таблица)
+Satrlar va ustunlar
+(Строки и столбцы)
+Birlashtirish
+(Объединение)
+Katak o‘lchami
+(Размер ячейки)
+Tekislash
+(Выранивание)
+Ma’lumotlar
+(Данные)
+Jadval kataklaridagi ma’lumotlarni alohida yoki birgalikda (blok-
+ka olib) formatlash mumkin. Bunda ma’lumotning joylashish usuli, 
+o‘lchamlari, chiziq rangi va ko‘rinishi, kataklar fonining rangi va bosh-
+qalar Konstruktor va Maket tasmalari yordamida osongina bajariladi.
+SAVOL VA TOPSHIRIQLAR
+1. Jadvalga misollar keltiring.
+2. Jadval elementlari haqida so‘zlab bering.
+3. Matnli hujjatlarga jadvallar nima uchun joylashtiriladi?
+4. Hujjatlarda jadval joylashtirish kerak bo‘lgan joy qanday ko‘rsatiladi?
+5. Wordda hujjatlarga jadval joylashtirish usullarini amalda ko‘rsatib 
+bering.
+6. Hujjatdagi jadvaldan qanday qilib nusxa ko‘chiriladi?
+7. Hujjatdagi jadvalni qanday qilib o‘chirish mumkin?
+8. Hujjatdagi jadval xususiyatlari qanday o‘zgartiriladi?
+9. Jadval katagiga nimalarni joylashtirish mumkin?
+10. Jadval ustunlari kengligi qanday o‘zgartiriladi?
+11. Jadval satrlari balandligi qanday o‘zgartiriladi?
+12. Jadvaldagi ma’lumotlar qanday tartiblanadi? Amalda ko‘rsating.
+13. Jadval satri, ustuni va kataklari fonini o‘zgartirishni amalda ko‘r-
+sating.
+
+61
+MASHQLAR
+1. «Mening oilam» nomli hujjat davomiga oila a’zolaringizning ismi 
+shariﬁ  va tug‘ilgan yili haqidagi ma’lumotlar yozilgan jadval joy-
+lashtiring. Bunda:
+a) jadvalga ma’lumotlarni avval tayyorlagan matningizdan nusxa 
+olib joylashtiring;
+b) ma’lumotlarni familiya bo‘yicha alifboning teskari tartibida sara-
+lang;
+d) jadvaldagi ma’lumotlarni tug‘ilgan yili bo‘yicha o‘sish tartibida 
+saralang;
+e) jadvaldagi ma’lumotlarni yoshi bo‘yicha kamayish tartibida sara-
+lang.
+2. Quyidagi ko‘rinishdagi jadvalni hosil qiling:
+Tartiblangan ro‘yxat Tartiblangan ro‘yxat Markerli ro‘yxat Markerli ro‘yxat
+1. Informatika
+2. Matematika
+3. Fizika
+A)  Informatika
+B)
+ Matematika
+C)  Fizika
+• Informatika
+• Matematika
+• Fizika
+9 Informatika
+9 Matematika
+9 Fizika
+3. «Kompyuter xonasi» nomli hujjat davomiga shu xonadagi mebel-
+larning nomlari, soni, ranglari aks etgan jadval joylashtiring. Bu 
+jadvaldan nusxa ko‘chiring va uni mebellarning nomlari bo‘yicha 
+saralang.
+4. Daftaringizga «Tarjimayi hol2» nomli hujjat davomiga qo‘shish 
+uchun avvalgi chorakda fanlardan olgan baholaringiz aks etgan jadval 
+chizing. Shu jadval o‘lchamidagi jadval chizing va unga fanlarning 
+nomlari bo‘yicha o‘sish tartibida saralangan ma’lumotlar yozing.
+JADVALLAR  USTIDA  AMALLAR
+Avvalgi darsda Wordda hujjatga jadval joylashtirish, jadval us-
+tunlari o‘lchamini o‘zgartirish va tartiblash kabi amallar bilan tanish-
+dingiz. Bu darsda jadvalga yangi satr yoki ustun qo‘shish, satr yoki 
+ustunni olib tashlash, jadval kataklarini birlashtirish va aksincha, jad-
+val kataklarini katakchalarga ajratish kabi amallarni bajarish usullari 
+bilan tanishasiz.
+13-dars
+62
+Kalit so‘zlar: jadval, satr va ustun qo‘shish,  satr va ustunni olib 
+tashlash, kataklarni birlashtirish, kataklarni bo‘lish.
+JADVALGA YANGI SATR YOKI USTUN QO‘SHISH
+Jadvalga yangi satr yoki ustun qo‘shish uchun avval yurgich qo‘shilishi 
+lozim bo‘lgan satr yoki ustunga qo‘shni satr yoki ustunga joylashtiriladi. 
+Maket menyusi tasmasining Satrlar va ustunlar (Строки  и столбцы) 
+guruhidan kerakli amal tanlanadi, masalan, agar satr yurgich joylashgan 
+satrdan yuqoriga qo‘shilishi kerak bo‘lsa, u holda Yuqoriga joylash-
+tirilsin (Вставить сверху) tugmasi, agar ustun yurgich joylashgan us-
+tundan chapga qo‘shilishi kerak bo‘lsa, u holda Chapga joylashtirilsin 
+(Вставить слева) tugmasi tanlanadi.
+JADVALDAN SATRLAR YOKI USTUNLARNI OLIB TASHLASH
+Ba’zan jadvaldagi ortiqcha satr yoki ustunni o‘chirish kerak bo‘ladi. 
+Lekin oddiy usulda ularni o‘chirib bo‘lmaydi. Shuning uchun quyidagi-
+cha amallar bajariladi.
+Avval yurgich o‘chirilishi kerak bo‘lgan satr yoki ustunga joylashtiri-
+ladi. Agar bir necha satr yoki ustun o‘chirilishi kerak bo‘lsa, satrlar yoki 
+ustunlar blokka olinadi. Maket tasmasining Satrlar va ustunlar (Строки 
+и столбцы) guruhidagi O‘chirilsin  ( Удалить) tugmasi ro‘yxatidan ke-
+rakli amal tanlanadi, masalan, agar satr o‘chirilishi kerak bo‘lsa, u holda 
+Satrlar o‘chirilsin ( Удалить строки) tugmasi tanlanadi.
+JADVAL KATAKLARINI BIRLASHTIRISH
+Amaliy ish jarayonida jadvalning bir necha satr va ustunidagi to‘g‘ri 
+to‘rtburchak shaklda blokka olinishi mumkin bo‘lgan kataklarni birlash-
+tirish zarur bo‘ladi.
+Kataklarni birlashtirish uchun quyidagi amallar ketma-ket bajariladi:
+Bajarilayotgan harakatlar Natijasi
+1. Birlashtirilishi kerak bo‘lgan kataklarni blokka 
+olamiz.
+2. Maket tasmasining Birlashtirish (Объеди-
+нение) guruhidagi Kataklar birlashtirilsin (Объ-
+единить ячейки) tugmasi tanlanadi.
+63
+JADVAL KATAKLARINI  BO‘LISH
+Jadval kataklarini kerakli sondagi katakchalarga bo‘lish quyidagicha 
+amalga oshiriladi.
+1. Yurgich kerakli katakka joylashtiriladi yoki kerakli satrlar va ustun-
+lar blokka olinadi.
+2. Maket tasmasining Birlashtirish (Объединение) guruhidagi Ka-
+taklar bo‘linsin ( Разбиение ячеек) tugmasi tanlanadi.
+3. Hosil bo‘lgan muloqot oynasiga hosil qilinishi kerak bo‘lgan ustun 
+va satrlar soni kiritiladi. Bunda hosil qilinishi kerak bo‘lgan satrlar soni 
+qo‘shni ustunlardagi satrlar sonidan ortiq bo‘lmasligi va qo‘shni ustun-
+lardagi satrlar sonining bo‘luvchisi bo‘lishi lozim.
+JADVALDA MATN YO‘NALISHI
+Jadvalda matn gorizontal yo‘nalishda chapdan o‘ngga, vertikal yo‘-
+nalishda yuqoridan pastga yoki pastdan yuqoriga yozilishi mumkin. Bu-
+ning uchun:
+1-usulda:
+1. Yurgich matn yoziladigan katakchaga joylashtiriladi.
+2. Maket tasmasining Tekislash (Выранивание) guruhidagi Matn 
+yo‘nalishi (Направление текста) tugmasi kerakli yo‘nalish aks etguncha 
+bir necha marta tanlanadi.
+2-usulda:
+1. Yurgich matn yoziladigan katakchaga joylashtiriladi.
+2. Sichqonchaning o‘ng tugmasini bosib, ekranga kontekst-menyu 
+chiqariladi.
+64
+3. Ekranda aks etgan jadvalga mos kontekst-menyudan Matn yo‘na-
+lishi ( Направление текста) amali tanlanadi. Natijada ekranda matn 
+yo‘nalishini tanlash muloqot oynasi aks etadi.
+4. Ekranda aks etgan muloqot oynasidan matnning kerakli yo‘nalishi 
+tanlanadi va Enter klavishi bosiladi yoki sichqoncha yordamida OK tug-
+masi tanlanadi.
+SAVOL VA TOPSHIRIQLAR
+1. Jadvallar ustida qanday amallar bajariladi?
+2. Jadvalga yangi satr yoki ustun qo‘shishni amalda ko‘rsatib be-
+ring.
+3. Jadvaldan ortiqcha ustun yoki satrlar qanday olib tashlanadi?
+4. Jadvalda blokka olish usullarini amalda ko‘rsating.
+5. Jadval kataklari qanday birlashtiriladi?
+6. Jadval kataklarini bo‘lishni amalda ko‘rsating.
+7. Jadval katagidagi matn yo‘nalishini o‘zgartirishni amalda ko‘rsa-
+ting.
+8. 2 x 3 jadval hosil qiling va ustunlarini turli ranglarda bo‘yang.
+9. Jadvaldagi ma’lumotlarni satrlar bo‘yicha turli ranglarga bo‘yang.
+MASHQLAR
+1. «Tarjimayi hol2» nomli hujjat davomiga avvalgi chorakda fanlardan 
+olgan baholaringiz aks etgan jadval joylashtiring. 
+2. Quyidagi ko‘rinishdagi jadvallarni hosil qiling.
+
+65
+Tartib raqami
+Familiyasi,
+ismi
+shariﬁ 
+Tug‘ilgan 
+yili
+Reyting ballari
+Yillik ball
+Manzili
+Izoh
+I yarim 
+yillik
+II yarim 
+yillik
+1-chorak
+2-chorak
+3-chorak
+4-chorak
+1.
+3. Daftaringizga «Formula va ifodalar» sarlavhasini yozing. Davomiga 
+berilgan vaqt va tezlikka asosan bosib o‘tilgan yo‘l formulasini, 2 ta 
+tenglama, 3 ta taqqoslashga oid ifoda yozing.
+WordART  OBYEKTI
+Worddagi hujjat yanada go‘zal bo‘lishi uchun unga so‘z yoki matn 
+qismini turli gra ﬁ k shakllarda tasvirlash imkonini beruvchi WordART 
+obyektini joylashtirish mumkin. Masalan, WordART obyekti referat, 
+maqolalarda nom yoki sarlavhalar yozishda ishlatiladi.
+Kalit so‘zlar: WordART obyekti, WordART kolleksiyasi,  Word-
+ART obyekti formati.
+14-dars
+5 # Informatika, 6-sinf
+66
+WordART KOLLEKSIYASI
+WordArt obyekti – bu manzarali rasm ko‘rinishidagi matn bo‘lib, 
+uning yordamida maxsus matn effektlarini qo‘llash mumkin. Masalan, 
+matnni og‘dirish, cho‘zish, matnni biror shakl ko‘rinishida joylashtirish 
+yoki matnni turli usullarda bo‘yash mumkin. Matnning kerakli joyiga sil-
+jitish yoki o‘lchamlarini o‘zgartirish orqali WordArt obyektiga e’tiborni 
+jalb etish mumkin. 
+Yurgich WordArt obyektini joylashtirish kerak bo‘lgan satrga 
+o‘rnatilgach Joylashtirish ( Вставка) tasmasining Matn ( Текст) guruhi-
+dagi 
+ (WordArt) tugmasi  tanlanadi. Ochilgan quyidagi kabi us-
+lublar ro‘yxatidan manzur bo‘lgan uslub tanlanadi, masalan, Градиентная 
+заливка – черная , контур – белый , тень снаружи:
+Natijada matn kiritish uchun quyidagi ko‘rinishda matn maydoni aks 
+etadi:
+
+67
+Bo‘yalib turgan matn maydoni o‘rniga kerakli matn kiritiladi. Masa-
+lan, Ona vatan O‘zbekistonim! Yashna O‘zbekiston!  Natijada belgila-
+nib turgan matn o‘chib, o‘rnida yangi terilgan matn aks etadi. 
+Hosil bo‘lgan WordArt obyektiga faollashgan Chizish vositalari-For-
+mat ( Средства рисования-Формат) kontekst-menyu tasmasi formatlash 
+imkoniyatlarini qo‘llash mumkin bo‘ladi. WordArt obyektiga yozilgan 
+matnga esa Matn yo‘nalishi ( Направление текста), Matn o‘lchami 
+(Размер текста) va Matn rangi ( Цвет текста), Bo‘yash usuli ( Заливка 
+текста), matnning aks etish shakli kabi formatlashlarni qo‘llash e’tiborni 
+tortadi.
+Quyidagi misolda WordArt obyekti matnining aks etish shakli tavsif-
+langan.
+1.  &Maktabimiz $ faxrimiz![ matnli WordArt obyektini joylashtiramiz.
+Maktabimiz $ faxrimiz!
+2. Matn aks etish shaklini o‘zgartiramiz. Buning uchun Chizish vosi-
+ta lari-Format ( Средства рисования-Формат) kontekst-menyu tasma si 
+WordArt uslublari (Стили  WordArt) guruhi 
+  Animatsiya ( Анима-
+ция) tugmasi ro‘yxatini ochib, quyidagi O‘zgartirilsin ( Преобразовать) 
+tugmasi ro‘yxatidan Halqa ( Кольцо) shaklini tanlab olamiz va o‘lcham-
+larini oshiramiz:
+
+68
+Natija  quyidagicha  aks etadi:
+SAVOL VA TOPSHIRIQLAR
+1. WordART obyekti qanday vazifani bajaradi?
+2. WordART obyekti qanday usullar bilan joylashtiriladi?
+3. WordArt uslublari ( Стили WordArt) guruhi qanday imkoniyatlar 
+beradi?
+4. WordART obyekti shaklini o‘zgartirishni amalda ko‘rsating.
+5. Informatika fanidan referat uchun muqova tayyorlang.
+6. WordARTda tayyorlangan obyektni erkin burishni amalda ko‘rsating.
+7. WordARTda tayyorlangan obyekt formatini o‘zgartirishni amalda 
+ko‘rsating.
+MASHQLAR
+1. «Mening vatanim – O‘zbekiston» nomli hujjat davomiga quyidagi 
+WordART obyektini joylashtiring. 
+2. «WordART» nomli hujjat hosil qiling. Unda quyidagi WordART 
+obyektini 5 ta nusxada hosil qiling. Har bir nusxaga turli formatlash 
+usullarini qo‘llang.
+3. Daftaringizdagi «Formula va ifodalar» sarlavhali matn davomiga ﬁ -
+zika fanidan o‘zingiz biladigan formulalarni yozing. Har bir formula 
+tagidan formulada qatnashgan kattaliklar izohini kiriting.
+
+69
+WORDDA  FORMULALAR  YOZISH
+Matematikadan yoki ﬁ zikadan darsliklaringizni varaqlasangiz turli 
+ko‘rinishdagi ifoda va formulalarni ko‘rasiz. Turli ifoda va formula-
+larni yozish uchun Word dasturining formulalar muharriri deb ata-
+luvchi imkoniyatidan foydalaniladi.
+Kalit so‘zlar: formula muharriri, formula joylashtirish,  formulani 
+tahrirlash.
+FORMULALAR  MUHARRIRINI  ISHGA  TUSHIRISH 
+Hujjatga maxsus belgilarni joylashtirish va formatlashning ba’zi im-
+koniyatlari yordamida sodda formulalar yozish mumkin. Murakkabroq 
+formulalar yozish uchun Joylashtirish ( Вставка) tasmasining Simvollar 
+(Символы) guruhidan Формула  (
+) tugmasi beradigan imkoni-
+yatlardan foydalaniladi. Biror formulani yozish uchun yurgich formula 
+joylashtirilishi lozim bo‘lgan satrga o‘rnatiladi va Формула (
+ )
+tugmasi tanlanadi. Natijada 
+  rasmidagi kabi for-
+mula uchun joy aks etadi. Menyular satrida esa Formula bilan ishlash-
+Konstruktor (Работа с формулами-Конструктор) kontekst-menyusi va 
+unga mos quyidagi tasma aks etadi:
+Formulalar muharriridan chiqish uchun sichqoncha ko‘rsatkichini ish 
+sohasining bo‘sh joyiga olib kelib sichqonchaning chap tugmasi bir mar-
+ta bosiladi.
+15-dars
+
+70
+FORMULALAR  MUHARRIRI  IMKONIYATLARI
+Formulalar muharririning imkoniyatlari juda keng. U bir necha gu-
+ruhdan iborat bo‘lib, har bir guruh yana ma’lum bir amallar belgilari 
+majmuyidan iborat bo‘limlarga bo‘lingan. Masalan, turli ko‘rinishdagi 
+munosabat belgilari, kasrlar va radikallar  belgilari, qavslar shablon-
+lari shular jumlasidandir:
+Simvollar
+(Символы) guruhida
+Strukturalar
+(Структуры) guruhida
+Strukturalar
+(Структуры) guruhida
+Strukturalar
+(Структуры) guruhida
+Strukturalar (Структуры) guruhida
+Shu amallar belgilaridan foydalanib quyidagilarni yozamiz (o‘zingiz 
+mustaqil yozib ko‘ring):
+13 1 1 6 3 1 5
+24 6 2 9 4 6 61. 12 13 2. 2 4 5 : 10 9 3.xx ⎛⎞+≤ − ⋅ + − ⋅ += ⎜⎟⎝⎠
+31 9 7 4 3 8 7 4
+5 5 10 10 5 7 9 9 94. 1 2 :1 1 : 5. 1 3 4 x =⎛⎞ ⎛ ⎞ ⎛ ⎞++ − − +⎜⎟ ⎜ ⎟ ⎜ ⎟⎝⎠ ⎝ ⎠ ⎝ ⎠
+Скобки
+Простая дробь
+Верхние и нижние индексы
+Наборы условий и стопки
+
+71
+Agar yozilgan formulada xatolik bo‘lsa, bu formulaga tuzatish kiritish 
+mumkin. Buning uchun sichqoncha ko‘rsatkichini yozilgan formula usti-
+ga olib kelib, chap tugmasi bir marta bosiladi. Natijada yurgich yozilgan 
+formula lavhasi ichiga joylashadi, menyular satrida esa Formula bilan 
+ishlash-Konstruktor (Работа с формулами-Конструктор) kontekst-
+menyusi va unga mos tasma aks etadi. Shundan keyin yurgichni kerakli 
+joyga sichqoncha yoki yo‘nalish klavishlari yordamida joylashtirish va 
+xatoni tuzatish mumkin bo‘ladi.
+SAVOL VA TOPSHIRIQLAR
+1. Wordda formulalar qanday yoziladi?
+2. Formulalar muharriri qanday ishga tushiriladi? Amalda ko‘rsating.
+3. Formulalar muharriridan qanday chiqiladi?
+4. Formulalar muharririda qanday bo‘limlar bor?
+5. Formuladagi xatolikni tuzatish jarayonini amalda ko‘rsating.
+6. Formula lavhasida qanday harakatlanish mumkin? Amalda ko‘rsating.
+7. Matndagi formuladan qanday nusxa ko‘chiriladi? Amalda ko‘rsating.
+MASHQLAR
+1. «Formula va ifodalar» nomli hujjat hosil qiling. Unga uyda tayyor-
+lagan formula, tenglama, tengsizlik, ifoda va izohlaringizni kiriting.
+2. «Formula va ifodalar» nomli hujjat davomiga quyidagilarni yozing.
+( )
+16 17 5
+27 27 27a) 100 56 95 48 b) 8 2 8 x−≠− − − =
+1 5 13 4 11 7 1
+8 12 24 7 12 12d) 6 : 14 3 3 2 e) νλψ⎛⎞ ⎛⎞−⋅ + − ⋅ ⋅ ⎜⎟⎜⎟ ⎝⎠⎝⎠ ∑
+5,f ) baho 5,
+⎧= ⎨≠⎩
+3. Daftaringizga «Kompyuter qurilmalari» sarlavhasini yozing. Davo-
+miga kompyuterning kiritish va chiqarish qurilmalari haqida matn 
+yozing. Matnni jadval va shakllar yordamida boyiting. 
+agar  barcha   javoblar  to4g4ri bo4lsa
+agar  javobda   xato bo4lsa
+
+72
+WORDDA  HUJJATNI  CHOP ETISH
+Nihoyat, tayyor hujjatni qog‘ozga chop etish vaqti yetdi. O‘zingiz 
+tayyorlagan rasmlar, chizmalar va jadvallarga boy hujjatlarni qo g‘oz-
+da qanday ko‘rinishda aks etishini ko‘rishni xohlasangiz bu mavzuni 
+chuqur o‘zlashtirib olishingiz zarur.
+Kalit so‘zlar: hujjatni chop etish, printer imkoniyati.
+Zamonaviy printerlar turli usulda chop etish imkoniyatiga ega. Ma-
+salan, qog‘ozning bitta sahifasiga hujjatning bir nechta sahifasini chop 
+etish, hujjatni buklet yoki kitobcha shaklida chop etish va hokazo. 
+Hujjatni chop etish parametrlarini o‘zgartirish uchun Fayl menyusi-
+ning Chop etish (Печать) bo‘limi tanlanadi. Natijada ekranga Chop etish 
+(Печать) lavhasi chiqadi. Chop etish lavhasi Printer ( Принтер), Sahi-
+16-dars
+73
+falar ( Страницы), Nusxalar ( Копии), Masshtab ( Масштаб), Qamrov 
+(Включить), Chop etish ( Напечатать) bandlaridan iborat. 
+Sahifalar bandida barchasi ( все), joriy ( текущая), tartib raqamla-
+ri ( номера) va ajratilgan qism ( выделенный фрагмент) ko‘rsatmalari 
+bo‘lib, ulardan biri sichqoncha yordamida tanlanadi. 
+Barchasi ko‘rsatmasi tanlansa, hujjat to‘lig‘icha (barcha sahifasi) chop 
+etiladi. Joriy ko‘rsatmasida joriy sahifa (yurgich turgan sahifa) chop eti-
+ladi. Tartib raqami ko‘rsatmasi tanlansa, unga tegishli oyna faollasha-
+di. Bu oynaga chop etilishi lozim bo‘lgan sahifalarning tartib raqamlari 
+yoziladi. Masalan, unga 1, 3, 5–12 yozilgan bo‘lsa, birinchi, uchinchi 
+hamda beshinchidan o‘n ikkinchigacha sahifalar chop etiladi. Ajratilgan 
+qism ko‘rsatmasini faqatgina matnning biror qismi belgilangandagina 
+tanlash mumkin. Bu holda hujjatning belgilangan qismi chop etiladi.
+Nusxalar bandida nusxalar soni (число копий) va nusxalar bo‘yicha 
+ajratish ( разобрать по копиям) ko‘rsatmalari bor. Ular hujjat necha 
+nusxada va qay tartibda chop etilishini ko‘rsatadi. Masalan, biror hujjat-
+ni 3 nusxada chop etish kerak bo‘lsin. U holda nusxalar soni oynasiga 
+3 raqami yoziladi. Nusxalar bo‘yicha ajratish ko‘rsatmasi belgilangan 
+bo‘lsa, avval hujjatning birinchi nusxasi to‘lig‘icha chop etiladi, keyin ik-
+kinchi nusxasi, so‘ngra uchinchi nusxasi chop etiladi. Agar bu ko‘rsatma 
+belgilanmagan bo‘lsa, avval hujjatning birinchi sahifasi 3 nusxada chop 
+etiladi, keyin ikkinchi sahifasi 3 nusxada chop etiladi va hokazo.
+Masshtab bandida qog‘ozning bir sahifasiga hujjatning nechta sahifasi 
+chop etilishi ko‘rsatiladi. Buning uchun varaqdagi sahifalar soni ( число 
+страниц на листе) oynasida taklif etilgan 1 sahifa (1 страница), 2 sahi-
+fa (2 страницы ), 4 sahifa (4 страницы ) va hokazo ko‘rsatmalardan biri 
+tanlanadi.
+Qamrov bandida barcha sahifalar ( Все страницы диапазона), toq 
+tartib raqamli sahifalar  ( Нечетные страницы), juft tartib raqam-
+li sahifalar ( Четные страницы) ko‘rsatmalaridan biri tanlanadi. Bar
+-
+cha sahifalar ko‘rsatmasi tanlansa, hujjat yoki uning belgilangan qis-
+mi to‘lig‘icha chop etiladi. Toq tartib raqamli sahifalar  ko‘rsatmasi 
+tanlansa, hujjatning faqat toq tartib raqamli sahifalari chop etiladi. Juft 
+tartib raqamli sahifalar  ko‘rsatmasi tanlansa, hujjatning faqat juft tartib 
+raqamli sahifalari chop etiladi.
+Printer bandida printer haqida ma’lumot hamda Xususiyatlar 
+(Свойства) tugmasi bor. Sichqoncha yordamida Xususiyatlar tugmasi 
+74
+bosilsa, ekranda printerning xususiyatlari lavhasi ochiladi. Shuni aytish 
+lozimki, printerlarning turiga qarab ularning xususiyatlari ham har xil 
+bo‘ladi. Shunga ko‘ra xususiyatlar lavhasining ko‘rinishi va undagi ax-
+borotlar ham turlicha bo‘ladi.
+Printerlar turli-tuman xususiyatlarga ega bo‘lib, quyida biz ular-
+ning hujjatni kitobcha shaklida chop etish xususiyati bilan tanishamiz. 
+Ta’kidlash joizki, hamma printerlar ham bunday xususiyatga ega emas. 
+Shu sababli kitobcha shaklida chop etish xususiyatini «HP LaserJet 
+1300» rusumli printer misolida ko‘ramiz. Mazkur printerning xususi-
+yatlari lavhasi quyidagi rasmda keltirilgan. Lavha bir nechta bo‘limdan 
+iborat bo‘lib, hujjatni kitobcha shaklida chop etish uchun Yakuniy ishlov 
+(Оконч. обработка) bo‘limiga kiriladi. 
+Undagi Hujjat parametrlari  ( Параметры документа) bandidan Ik-
+kala tomoniga chop etish ( Печать на обоих сторонах) ko‘rsatmasi tan-
+lanadi. Buklet maketida ( Макет буклета) taklif etilgan ko‘rsatmalardan 
+Chap tomondan muqovalash (Переплет по левому краю) ko‘rsatmasi 
+
+75
+tanlanadi. OK tugmasi bosilsa, yana Chop etish lavhasiga qaytiladi. Bu 
+lavhadagi OK tugmasi bosilsa, hujjat chop etila boshlaydi. Avval hujjat-
+ning bir qismi (yarmi) qog‘ozning bir tara ﬁ ga chop etiladi. Chop etilgan 
+qog‘ozlar tartibini buzmagan holda yana printerga joylansa, hujjatning 
+qolgan qismi qog‘ozning orqa tomoniga chop etiladi. Chop etib bo‘lingan 
+qog‘oz varaqlarini tekislab, ikkiga buklasangiz kitobcha hosil bo‘ladi.
+Hujjatni kitobcha shaklida chop etishda ehtiyojga qarab, o‘ng tomon-
+dan yoki yuqoridan muqovalash ham mumkin. Buning uchun buklet ma-
+ketida tegishli ko‘rsatma tanlanadi.
+SAVOL VA TOPSHIRIQLAR
+1. Qaysi tugma yordamida hujjatni chop etish mumkin?
+2. Hujjatning joriy sahifasini chop etish qanday amalga oshiriladi?
+3. Hujjatning ketma-ket kelmagan bir nechta sahifasini bir yo‘la chop 
+etish mumkinmi?
+4. Hujjatning faqat belgilangan qismini chop etish qanday amalga 
+oshiriladi?
+5. Hujjatning faqat juft yoki toq tartib raqamli sahifalarini chop etish 
+qanday amalga oshiriladi?
+6. Hujjatni 5 nusxada chop etish uchun qanday amallarni bajarish ke-
+rak?
+7. Hujjatni kitob shaklida chop etish uchun bajariladigan amallar ket-
+ma-ketligini aytib bering.
+MASHQLAR
+1. Quyidagi hujjatlardan birini 2 nusxada chop eting.
+a) «Mening vatanim – O‘zbekiston»;
+b) «Mening oilam»;
+d) «Tarjimayi hol2».
+2. Ikki sahifalik biror hujjatni ikki tomonlama chop etish usulidan foy-
+dalanib qog‘ozning ikkala tomoniga chiqaring.
+3. Bilimingizni takrorlash va mustahkamlash uchun yil davomida olgan 
+ma’lumotlaringizni Word dasturi beradigan imkoniyatlar (jadvallar, 
+matnlarning turli ko‘rinishlari, chizmalar va hokazo) ko‘rinishida 
+daftaringizda aks ettiring.
+
+76
+TAKRORLASHGA  DOIR  TOPSHIRIQLAR
+Aziz o‘quvchilar! Yil davomida amaliy ish jarayonida juda keng 
+qo‘llaniladigan matn protsessori bilan ishladingiz. Endi o‘tgan davr 
+ichida olgan bilimlaringiz va amaliy ko‘nikmalaringizni sinab ko‘rish 
+vaqti keldi.
+Quyida keltirilgan savollarga javob bering.
+1. Matn muharrirlari va matn protsessorlari nimasi bilan farqlanadi?
+2. Qanday matn muharrirlarini bilasiz?
+3. Qanday matn protsessorlarini bilasiz?
+4. Matn protsessorlari qanday imkoniyatlarga ega?
+5. Hujjat tahrir qilinganidan so‘ng u qanday saqlanadi?
+6. Blok deganda nimani tushunasiz?
+7. Matnda belgilangan biror qism qanday nomlanadi?
+8. Matndagi ortiqcha belgilar qanday o‘chiriladi?
+9. Matndagi bir nechta satrlar qanday o‘chiriladi?
+10. Word matn protsessorida chizilgan to‘rtburchakning ichki qismi-
+ni bo‘yash qanday amalga oshiriladi?
+11. Word matn protsessorida chizilgan oval shakli chizig‘ini va ichki 
+qismini bo‘yash uchun qanday amallar bajariladi?
+Quyida keltirilgan topshiriqlarni bajaring.
+1. Matndagi biror so‘z yoki satrni boshqa satrga ko‘chirish jarayoni-
+ni misollarda ko‘rsating. 
+2. Matnning belgilangan qismidan nusxa ko‘chirishni misollar yorda-
+mida tushuntiring.
+3. Matnning belgilangan qismini formatlashni misollar yordamida tu-
+shuntirib bering.
+4. Hujjatda kompyuter xonasi bitta devorining jihozlanishini Word 
+imkoniyatlaridan foydalanib aks ettiring. 
+5. Tabiat manzarasini aks ettiruvchi rasm chizing.
+6. Word imkoniyatlaridan foydalanib quyidagi hujjatni tayyorlang.
+17-dars
+77
+1-topshiriq.
+2-topshiriq.
+
+78
+MUNDARIJA
+So‘zboshi ............................................................................................................... 3
+1-dars. Matn muharrirlari ..................................................................................... 4
+2-dars. MS Word matn protsessori interfeysi ...................................................... 8
+3-dars. Hujjat hosil qilish va saqlash ................................................................. 14
+4-dars. Wordda matn yozish qoidalari ............................................................... 19
+5-dars. Hujjatlarning asosiy parametrlari ........................................................... 24
+6-dars. Hujjatlarni tahrir qilish ........................................................................... 30
+7-dars. Hujjatni formatlash ................................................................................. 35
+8-dars. Hujjatni tahrirlash va formatlashga oid mashqlar .................................. 40
+9-dars. Hujjatlarda rasmlar bilan ishlash ............................................................ 42
+10-dars. Hujjatlarda shakllar va chizmalar ......................................................... 48
+11-dars. Rasm va chizmalarga oid amaliy dars ................................................. 54
+12-dars. Hujjatlarda jadvallar bilan ishlash ........................................................ 55
+13-dars. Jadvallar ustida amallar ........................................................................ 61
+14-dars. WordART obyekti ................................................................................ 65
+15-dars. Wordda  formulalar yozish................................................................... 69
+16-dars. Wordda hujjatni chop etish .................................................................. 72
+17-dars. Takrorlashga doir topshiriqlar .............................................................. 76
+UO‘K  004(075)
+KBK  32.81ya72
+Informatika va axborot texnologiyalari:  umumiy o‘rta ta’lim 
+maktablarining 6-sinf o‘quvchilari uchun darslik/B. Boltayev, M. Mah-
+kamov, A. Azamatov, S. Rahmonqulova. – T.: «O‘zbekiston» NMIU, 
+2017. – 80 b.
+I. Boltayev B.
+ISBN 978-9943-01-436-7
+I-74
+O‘quv nashri
+Bahodir Boltayev,   Muxtor  Mahkamov ,
+Axat Azamatov, Sayyora Rahmonqulova
+INFORMATIKA
+VA
+AXBOROT TEXNOLOGIYALARI
+Umumiy o‘rta ta’lim maktablarining 6-sinf o‘quvchilari
+uchun darslik
+Qayta ishlangan, to‘ldirilgan uchinchi nashri
+Muharrir  B. Xudoyorova
+Rassom  B. Ibragimov
+Badiiy muharrir  H. Qutluqov
+Texnik muharrir  B. Karimov
+Musahhih  S. Salohutdinova
+Kichik muharrir  G. Yeraliyeva
+Sahifalovchi  F . Hasanova
+Nashriyot litsenziyasi AI № 158. 14.08.09.
+Bosishga 2017-yil 27-aprelda ruxsat etildi. Ofset qog‘ozi.
+Bichimi 70×1001/16. «Tayms» garniturada ofset bosma usulida bosildi.
+Kegli 12; 10. Shartli bosma tabog‘i 6,50. Nashr tabog‘i 6,43. 
+474 300 nusxada chop etildi. Buyurtma №17-271.
+O‘zbekiston Matbuot va axborot agentligining 
+«O‘zbekiston» nashriyot-matbaa ijodiy uyi.100011, Тoshkent, Navoiy ko‘chasi, 30.
+Telefon: (371) 244-87-55, 244-87-20. Faks: (371) 244-37-81, 244-38-10. 
+e-mail: uzbekistan@iptd-uzbekistan.uz, 
+www.iptd-uzbekistan.uz
+Darslik ijaraga berilib, o‘quv yili yakunida qaytarib olinganda yuqori-
+dagi jadval sinf rahbari tomonidan quyidagi baholash mezonlariga 
+asosan to‘ldiriladi:
+Darslik holatini ko‘rsatuvchi jadval
+№
+O‘quvchining 
+ismi,
+familiyasi
+O‘quv 
+yili
+Darslikning 
+olingandagi 
+holati
+Sinf
+rahbarining 
+imzosi
+Darslikning 
+topshirilgandagi 
+holati
+Sinf rah-
+barining 
+imzosi
+1.
+2.
+3.
+4.
+5.
+6.
+Yangi Darslikning birinchi marotaba foydalanishga berilgandagi holati.
+Yaxshi Muqova butun, darslikning asosiy qismidan ajralmagan. Barcha varaqlari 
+mavjud, yirtilmagan, ko‘chmagan, sahifalarida yozuv va chiziqlar yo‘q.
+Qoniqarli Muqova ezilgan, birmuncha chizilib, chetlari yedirilgan, darslikning asosiy 
+qismidan ajralish holati bor, foydalanuvchi tomonidan qoniqarli ta’mirlangan. 
+Ko‘chgan varaqlari qayta ta’mirlangan, ayrim sahifalarga chizilgan.
+Qoniqarsiz Muqova chizilgan, yirtilgan, asosiy qismidan ajralgan yoki butunlay yo‘q, 
+qoniqarsiz ta’mirlangan. Sahifalari yirtilgan, varaqlari yetishmaydi, chizib, 
+bo‘yab tashlangan. Darslikni tiklab bo‘lmaydi.
+UO‘K  004(075)
+KBK  32.81ya72
+Informatika va axborot texnologiyalari:  umumiy o‘rta ta’lim 
+maktablarining 6-sinf o‘quvchilari uchun darslik/B. Boltayev, M. Mah-
+kamov, A. Azamatov, S. Rahmonqulova. – T.: «O‘zbekiston» NMIU, 
+2017. – 80 b.
+I. Boltayev B.
+ISBN 978-9943-01-436-7
+I-74
+O‘quv nashri
+Bahodir Boltayev,   Muxtor  Mahkamov ,
+Axat Azamatov, Sayyora Rahmonqulova
+INFORMATIKA
+VA
+AXBOROT TEXNOLOGIYALARI
+Umumiy o‘rta ta’lim maktablarining 6-sinf o‘quvchilari
+uchun darslik
+Qayta ishlangan, to‘ldirilgan uchinchi nashri
+Muharrir  B. Xudoyorova
+Rassom  B. Ibragimov
+Badiiy muharrir  H. Qutluqov
+Texnik muharrir  B. Karimov
+Musahhih  S. Salohutdinova
+Kichik muharrir  G. Yeraliyeva
+Sahifalovchi  F . Hasanova
+Nashriyot litsenziyasi AI № 158. 14.08.09.
+Bosishga 2017-yil 27-aprelda ruxsat etildi. Ofset qog‘ozi.
+Bichimi 70×1001/16. «Tayms» garniturada ofset bosma usulida bosildi.
+Kegli 12; 10. Shartli bosma tabog‘i 6,50. Nashr tabog‘i 6,43. 
+58 070 nusxada chop etildi. Buyurtma №17-272.
+O‘zbekiston Matbuot va axborot agentligining 
+«O‘zbekiston» nashriyot-matbaa ijodiy uyi.100011, Тoshkent, Navoiy ko‘chasi, 30.
+Telefon: (371) 244-87-55, 244-87-20. Faks: (371) 244-37-81, 244-38-10. 
+e-mail: uzbekistan@iptd-uzbekistan.uz, 
+www.iptd-uzbekistan.uz

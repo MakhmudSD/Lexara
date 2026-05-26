@@ -54,6 +54,19 @@ class FaissVectorStore:
         self.base_dir.mkdir(parents=True, exist_ok=True)
         self._indexes: dict[str, _WorkspaceIndex] = {}
 
+    def validate_dimensions(self) -> None:
+        for index_path in self.base_dir.glob("*.index"):
+            index = faiss.read_index(str(index_path))
+            if index.d != self.dimension:
+                raise AppError(
+                    500,
+                    "faiss_dimension_mismatch",
+                    (
+                        f"FAISS index '{index_path.name}' has dimension {index.d}, "
+                        f"but Settings.embedding_dimension is {self.dimension}."
+                    ),
+                )
+
     def add_embeddings(
         self,
         workspace_id: str,
@@ -141,6 +154,15 @@ class FaissVectorStore:
         mapping_path = self._mapping_path(workspace_id)
         if index_path.exists() and mapping_path.exists():
             index = faiss.read_index(str(index_path))
+            if index.d != self.dimension:
+                raise AppError(
+                    500,
+                    "faiss_dimension_mismatch",
+                    (
+                        f"FAISS index for workspace {workspace_id} has dimension {index.d}, "
+                        f"but Settings.embedding_dimension is {self.dimension}."
+                    ),
+                )
             mapping = json.loads(mapping_path.read_text(encoding="utf-8"))
             chunk_ids = mapping.get("chunk_ids", [])
             workspace_index = _WorkspaceIndex(

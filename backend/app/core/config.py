@@ -56,6 +56,13 @@ class Settings:
     redis_url: str | None = None
     embedding_cache_ttl_seconds: int = 60 * 60 * 24  # 24 hours
     retrieval_cache_ttl_seconds: int = 60 * 5  # 5 minutes
+    jwt_secret_key: str = "change-me-in-production-32-chars-min"
+    jwt_algorithm: str = "HS256"
+    jwt_expire_hours: int = 24
+    chat_temperature: float = 0.2
+    chat_top_p: float = 0.9
+    chat_max_tokens: int = 600
+    chat_frequency_penalty: float = 0.1
 
     @property
     def openai_configured(self) -> bool:
@@ -85,4 +92,11 @@ def get_settings() -> Settings:
         redis_url=os.getenv("REDIS_URL", None),
         embedding_cache_ttl_seconds=int(os.getenv("EMBEDDING_CACHE_TTL", str(60 * 60 * 24))),
         retrieval_cache_ttl_seconds=int(os.getenv("RETRIEVAL_CACHE_TTL", str(60 * 5))),
+        jwt_secret_key=os.getenv("JWT_SECRET_KEY", "change-me-in-production-32-chars-min"),
+        jwt_algorithm=os.getenv("JWT_ALGORITHM", "HS256"),
+        jwt_expire_hours=int(os.getenv("JWT_EXPIRE_HOURS", "24")),
+        chat_temperature=float(os.getenv("CHAT_TEMPERATURE", "0.2")),
+        chat_top_p=float(os.getenv("CHAT_TOP_P", "0.9")),
+        chat_max_tokens=int(os.getenv("CHAT_MAX_TOKENS", "600")),
+        chat_frequency_penalty=float(os.getenv("CHAT_FREQUENCY_PENALTY", "0.1")),
     )

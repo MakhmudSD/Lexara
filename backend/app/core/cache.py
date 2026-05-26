@@ -1,77 +1,69 @@
-"""Redis cache helper with graceful fallback to in-memory null cache."""
-from __future__ import annotations
+"""Thread-safe in-memory TTL caches used by backend services."""
 
-import json
-import logging
-from typing import Any, Optional
-from hashlib import sha256
-
-from app.core.config import get_settings
-
-logger = logging.getLogger(__name__)
+import threading
+import time
+from typing import Any
 
 
-class NullCache:
-    def get(self, key: str) -> Optional[str]:
-        return None
+class TTLCache:
+    """Thread-safe in-memory cache with TTL expiry."""
 
-    def set(self, key: str, value: Any, ex: int | None = None):
-        return None
+    def __init__(self, maxsize: int = 512, ttl: int = 300):
+        self._cache: dict[str, tuple[Any, float]] = {}
+        self._lock = threading.Lock()
+        self._maxsize = maxsize
+        self._ttl = ttl
 
-
-class RedisCache:
-    def __init__(self, redis_client):
-        self.client = redis_client
-
-    def get(self, key: str) -> Optional[str]:
-        try:
-            value = self.client.get(key)
-            if value is None:
+    def get(self, key: str) -> Any | None:
+        """Get cache value if present and not expired."""
+        with self._lock:
+            if key not in self._cache:
                 return None
-            if isinstance(value, bytes):
-                return value.decode('utf-8')
+            value, expires_at = self._cache[key]
+            if time.monotonic() > expires_at:
+                del self._cache[key]
+                return None
             return value
-        except Exception as e:
-            logger.exception("Redis GET failed: %s", e)
-            return None
 
-    def set(self, key: str, value: Any, ex: int | None = None):
-        try:
-            if not isinstance(value, (str, bytes)):
-                value = json.dumps(value)
-            self.client.set(key, value, ex=ex)
-        except Exception as e:
-            logger.exception("Redis SET failed: %s", e)
+    def set(self, key: str, value: Any, ttl: int | None = None) -> None:
+        """Set cache value with optional custom TTL."""
+        with self._lock:
+            if len(self._cache) >= self._maxsize:
+                oldest = min(self._cache, key=lambda k: self._cache[k][1])
+                del self._cache[oldest]
+            self._cache[key] = (value, time.monotonic() + (ttl or self._ttl))
 
+    def invalidate(self, key: str) -> None:
+        """Delete one cache key if present."""
+        with self._lock:
+            self._cache.pop(key, None)
 
-_cache = None
+    def clear(self) -> None:
+        """Clear all cache keys."""
+        with self._lock:
+            self._cache.clear()
 
-
-def get_cache() -> Any:
-    global _cache
-    if _cache is not None:
-        return _cache
-
-    settings = get_settings()
-    redis_url = getattr(settings, 'redis_url', None)
-    if not redis_url:
-        logger.info('No REDIS_URL configured, using NullCache')
-        _cache = NullCache()
-        return _cache
-
-    try:
-        import redis
-        redis_client = redis.from_url(redis_url, decode_responses=False)
-        # Try ping
-        redis_client.ping()
-        _cache = RedisCache(redis_client)
-        logger.info('Connected to Redis at %s', redis_url)
-    except Exception as e:
-        logger.exception('Failed to connect to Redis (%s). Using NullCache. Error: %s', redis_url, e)
-        _cache = NullCache()
-    return _cache
+    @property
+    def size(self) -> int:
+        """Return number of keys in cache."""
+        return len(self._cache)
 
 
-def cache_key_for_text(prefix: str, model: str, text: str) -> str:
-    h = sha256(text.encode('utf-8')).hexdigest()
-    return f"{prefix}:{model}:{h}"
+_embedding_cache = TTLCache(maxsize=1024, ttl=86400)
+_retrieval_cache = TTLCache(maxsize=256, ttl=300)
+_workspace_cache = TTLCache(maxsize=128, ttl=60)
+
+
+def get_embedding_cache() -> TTLCache:
+    """Return embedding cache singleton."""
+    return _embedding_cache
+
+
+def get_retrieval_cache() -> TTLCache:
+    """Return retrieval cache singleton."""
+    return _retrieval_cache
+
+
+def get_workspace_cache() -> TTLCache:
+    """Return workspace cache singleton."""
+    return _workspace_cache

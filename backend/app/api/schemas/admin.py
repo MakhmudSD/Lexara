@@ -64,3 +64,56 @@ class HealthResponse(BaseModel):
     total_logs: int
     total_requests: int
     total_retrievals: int
+
+
+class TokenUsageResponse(BaseModel):
+    request_id: str
+    workspace_id: str | None = None
+    timestamp: str
+    model: str
+    prompt_tokens: int
+    completion_tokens: int
+    total_tokens: int
+    estimated_cost_usd: float
+    latency_ms: float
+    mode: str
+    context_chunks_used: int
+
+
+class TokenSummaryResponse(BaseModel):
+    total_requests: int
+    total_tokens: int
+    total_cost_usd: float
+    by_workspace: dict
+    by_model: dict
+    avg_latency_ms: float
+
+
+class ConversationResponse(BaseModel):
+    request_id: str
+    workspace_id: str | None = None
+    timestamp: str
+    question: str
+    answer: str | None = None
+    mode: str
+    sources: list[str]
+    top_score: float | None = None
+    history_turns: int
+    latency_ms: float | None = None
+
+
+class UserAdminResponse(BaseModel):
+    user_id: str
+    email: str
+    full_name: str
+    role: str
+    is_active: bool
+    created_at: str
+
+
+class UserRoleUpdate(BaseModel):
+    role: str = Field(..., pattern="^(user|admin)$")
+
+
+class UserStatusUpdate(BaseModel):
+    is_active: bool

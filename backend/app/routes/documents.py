@@ -6,13 +6,24 @@ from sqlalchemy.orm import Session
 from app.core.dependencies import get_db, get_runtime
 from app.core.exceptions import AppError
 from app.core.runtime import AppRuntime
+from app.core.cache import get_retrieval_cache
 from app.schemas.document import DocumentUploadResponse
 from app.services.document_processing import process_text_document
+from app.services.file_parsers.docx_parser import parse_docx_bytes
+from app.services.file_parsers.pdf_parser import parse_pdf_bytes
+from app.services.file_parsers.txt_parser import parse_txt_bytes
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
-ALLOWED_EXTENSIONS = {".txt"}
-ALLOWED_CONTENT_TYPES = {"text/plain", "application/octet-stream"}
+ALLOWED_EXTENSIONS = {".txt", ".pdf", ".docx"}
+ALLOWED_CONTENT_TYPES = {
+    ".txt": {"text/plain", "application/octet-stream"},
+    ".pdf": {"application/pdf"},
+    ".docx": {
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/octet-stream",
+    },
+}
 
 
 @router.post("/upload", response_model=DocumentUploadResponse, status_code=201)
@@ -28,11 +39,14 @@ def upload_document(
         raise AppError(
             400,
             "unsupported_file_type",
-            "Only .txt files are supported in this MVP.",
+            "Only .txt, .pdf, and .docx files are supported.",
         )
 
-    content_type = file.content_type or "text/plain"
-    if content_type not in ALLOWED_CONTENT_TYPES and not content_type.startswith("text/"):
+    content_type = (file.content_type or "application/octet-stream").lower()
+    allowed_content_types = ALLOWED_CONTENT_TYPES[extension]
+    if content_type not in allowed_content_types and not (
+        extension == ".txt" and content_type.startswith("text/")
+    ):
         raise AppError(
             400,
             "unsupported_content_type",
@@ -45,14 +59,9 @@ def upload_document(
     if len(file_bytes) > runtime.settings.max_upload_size_bytes:
         raise AppError(400, "file_too_large", "Uploaded file exceeds the maximum allowed size.")
 
-    try:
-        raw_text = file_bytes.decode("utf-8")
-    except UnicodeDecodeError as exc:
-        raise AppError(
-            400,
-            "invalid_text_encoding",
-            "Text file must be UTF-8 encoded.",
-        ) from exc
+    raw_text = _parse_uploaded_file(extension, file_bytes)
+    if not raw_text.strip():
+        raise AppError(400, "empty_document", "The uploaded document did not contain extractable text.")
 
     document = process_text_document(
         db,
@@ -64,6 +73,7 @@ def upload_document(
         file_bytes=file_bytes,
         raw_text=raw_text,
     )
+    get_retrieval_cache().clear()
 
     return DocumentUploadResponse(
         id=document.id,
@@ -83,3 +93,15 @@ def _file_extension(filename: str) -> str:
     if dot_index == -1:
         return ""
     return filename[dot_index:].lower()
+
+
+def _parse_uploaded_file(extension: str, file_bytes: bytes) -> str:
+    parsers = {
+        ".txt": parse_txt_bytes,
+        ".pdf": parse_pdf_bytes,
+        ".docx": parse_docx_bytes,
+    }
+    parser = parsers.get(extension)
+    if parser is None:
+        raise AppError(400, "unsupported_file_type", "Unsupported uploaded file type.")
+    return parser(file_bytes)

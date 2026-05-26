@@ -15,8 +15,10 @@ class AppRuntime:
 
     @classmethod
     def create(cls, settings: Settings) -> "AppRuntime":
+        vector_store = FaissVectorStore(settings=settings)
+        vector_store.validate_dimensions()
         return cls(
             settings=settings,
-            vector_store=FaissVectorStore(settings=settings),
+            vector_store=vector_store,
             observability=InMemoryObservabilityStore(settings=settings),
         )

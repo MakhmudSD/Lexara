@@ -1,16 +1,17 @@
-"""Retrieval-only query flow: embed question → FAISS search → load chunks."""
+"""Retrieval flow: embed question → FAISS search → load chunks."""
 
 from __future__ import annotations
 
+import hashlib
 from uuid import UUID
 
 from sqlalchemy.orm import Session
 
+from app.core.cache import get_retrieval_cache
 from app.core.config import Settings
-from app.core.exceptions import AppError
 from app.crud import document as document_crud
 from app.crud.workspace import get_workspace_or_404
-from app.schemas.chat import ChatQueryResponse, RetrievedChunk
+from app.schemas.chat import RetrievedChunk
 from app.services.embeddings import embed_query
 from app.services.vector_store import FaissVectorStore
 
@@ -23,8 +24,13 @@ def query_workspace(
     workspace_id: UUID,
     question: str,
     top_k: int,
-) -> ChatQueryResponse:
+) -> list[RetrievedChunk]:
+    """Query one workspace and return ranked chunks."""
     get_workspace_or_404(db, workspace_id)
+    cache_key = f"retrieval:{workspace_id}:{hashlib.md5(question.encode()).hexdigest()}:{top_k}"
+    cached = get_retrieval_cache().get(cache_key)
+    if cached is not None:
+        return cached
 
     query_embedding = embed_query(question, settings)
     hits = vector_store.search(
@@ -33,12 +39,7 @@ def query_workspace(
         top_k=top_k,
     )
     if not hits:
-        return ChatQueryResponse(
-            workspace_id=workspace_id,
-            question=question,
-            top_k=top_k,
-            chunks=[],
-        )
+        return []
 
     chunk_ids = [UUID(hit.chunk_id) for hit in hits]
     db_chunks = document_crud.get_chunks_by_ids(db, chunk_ids)
@@ -53,15 +54,12 @@ def query_workspace(
             RetrievedChunk(
                 chunk_id=chunk.id,
                 document_id=chunk.document_id,
+                filename=chunk.document.filename if getattr(chunk, "document", None) is not None else None,
                 chunk_index=chunk.chunk_index,
                 text=chunk.text,
                 score=hit.score,
             )
         )
 
-    return ChatQueryResponse(
-        workspace_id=workspace_id,
-        question=question,
-        top_k=top_k,
-        chunks=retrieved,
-    )
+    get_retrieval_cache().set(cache_key, retrieved)
+    return retrieved

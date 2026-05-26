@@ -6,7 +6,7 @@ from app.api.schemas.chat import ChatDebugResponse, ChatRequest, ChatResponse, C
 from app.core.exceptions import AppError
 from app.core.runtime import AppRuntime
 from app.observability.models import PipelineStepEntry, RetrievalHistoryEntry, RetrievalResultEntry
-from app.services.embedding_service import generate_embedding
+from app.services.embeddings import embed_query
 from app.services.llm_service import generate_answer
 from app.services.retrieval_service import retrieve_top_chunks
 
@@ -48,7 +48,7 @@ async def handle_chat(
     latency: dict[str, float] = {}
 
     embedding_started = time.perf_counter()
-    question_embedding = generate_embedding(payload.question, runtime.settings)
+    question_embedding = embed_query(payload.question, runtime.settings)
     embedding_latency = round((time.perf_counter() - embedding_started) * 1000, 3)
     latency["embedding"] = embedding_latency
     pipeline_steps.append(
@@ -154,7 +154,7 @@ async def handle_chat(
     )
 
     generation_started = time.perf_counter()
-    answer = generate_answer(
+    answer, _usage = await generate_answer(
         question=payload.question,
         context_chunks=[match.text for match in matches],
         settings=runtime.settings,

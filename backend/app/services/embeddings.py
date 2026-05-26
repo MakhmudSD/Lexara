@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from functools import lru_cache
+import hashlib
 
 import numpy as np
 
+from app.core.cache import get_embedding_cache
 from app.core.config import Settings
 from app.core.exceptions import AppError
 
@@ -44,5 +46,11 @@ def embed_texts(texts: list[str], settings: Settings) -> list[list[float]]:
 
 def embed_query(question: str, settings: Settings) -> list[float]:
     """Generate a single normalized embedding for a user question."""
-    results = embed_texts([question], settings)
-    return results[0]
+    cache = get_embedding_cache()
+    key = f"emb:{settings.local_embedding_model}:{hashlib.sha256(question.encode('utf-8')).hexdigest()}"
+    cached = cache.get(key)
+    if cached is not None:
+        return cached
+    result = embed_texts([question], settings)[0]
+    cache.set(key, result)
+    return result
