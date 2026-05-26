@@ -15,14 +15,16 @@ def run_migrations() -> None:
     """Run all pending Alembic migrations."""
     settings = get_settings()
 
-    alembic_cfg = Config("alembic.ini")
+    import os
+    alembic_ini = os.path.join(os.path.dirname(__file__), "../../../alembic.ini")
+    alembic_cfg = Config(alembic_ini)
     alembic_cfg.set_main_option(
         "sqlalchemy.url",
         settings.database_url.replace("+asyncpg", "")
     )
     command.upgrade(alembic_cfg, "head")
     init_sentry(settings.sentry_dsn, settings.environment)
-    run_startup_cleanup()
+#    run_startup_cleanup()
     logger.info("database_migrations_completed")
 
 
