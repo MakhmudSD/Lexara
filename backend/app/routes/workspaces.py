@@ -55,6 +55,7 @@ def quick_create_workspace(
             id=uuid4(),
             name="Default Organization",
             slug="default",
+            owner_id=uuid4(),
             is_active=True,
         )
         db.add(org)
