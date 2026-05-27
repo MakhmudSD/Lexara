@@ -49,8 +49,8 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
 
   const tierConfig = {
     high:   { color: '#16a34a', bg: '#f0fdf4', label: `${Math.round(topScore * 100)}% match` },
-    medium: { color: '#d97706', bg: '#fffbeb', label: `${Math.round(topScore * 100)}% match · verify sources` },
-    low:    { color: '#dc2626', bg: '#fef2f2', label: `Low match · document may not contain this answer` },
+    medium: { color: '#d97706', bg: '#fffbeb', label: `${Math.round(topScore * 100)}% match · ${t('verify_sources')}` },
+    low:    { color: '#dc2626', bg: '#fef2f2', label: t('low_match') },
   };
 
   if (isLoading) {
@@ -99,7 +99,7 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
                   <div className="typing-dot" />
                   <div className="typing-dot" />
                 </div>
-                <div className="thinking-text">Lexara is thinking…</div>
+                <div className="thinking-text">{t('thinking')}</div>
               </div>
             ) : (isStreaming ? <span className="cursor" aria-hidden="true" /> : null)
           )
@@ -129,10 +129,27 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
           )}
 
           {tier === 'low' && (
-            <p style={{ fontSize: 11, color: '#dc2626', marginTop: 6, lineHeight: 1.5 }}>
-              The retrieved passages have low similarity to your question.
-              The answer above may not accurately reflect your documents.
-            </p>
+            <div style={{ marginTop: 6, lineHeight: 1.5 }}>
+              <p style={{ fontSize: 11, color: '#dc2626' }}>
+                {t('low_match_warning')}
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowSources(true)}
+                style={{
+                  marginTop: 4,
+                  padding: 0,
+                  border: 'none',
+                  background: 'transparent',
+                  color: '#dc2626',
+                  fontSize: 11,
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                }}
+              >
+                {t('verify_sources')}
+              </button>
+            </div>
           )}
 
           {showSources && (
