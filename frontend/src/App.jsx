@@ -156,14 +156,6 @@ function App() {
               style={authUser.role !== 'admin' ? { display: 'none' } : undefined}
             >
               <span className="nav-dot" />
-              {t('monitor')}
-            </button>
-            <button
-              className={`nav-button ${page === 'admin' ? 'active' : ''}`}
-              onClick={() => { if (authUser.role === 'admin') { navigate('admin'); window.location.hash = 'admin'; } }}
-              style={authUser.role !== 'admin' ? { display: 'none' } : undefined}
-            >
-              <span className="nav-dot" />
               Admin
             </button>
           </div>
@@ -210,7 +202,7 @@ function App() {
             onWorkspaceNameChange={setWorkspaceName}
           />
         )}
-        {page === 'admin' && authUser.role === 'admin' && <AdminPage />}
+        {page === 'admin' && authUser.role === 'admin' && <AdminPage onGoAsk={() => goAppSection('chat')} />}
         {page === 'app' && currentPage === 'mypage' && <MyPage authUser={authUser} onLogout={() => { setAuthUser(null); navigate('landing'); }} />}
       </div>
     </div>

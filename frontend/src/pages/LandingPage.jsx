@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { LexaraLogo } from '../assets/LexaraLogo';
+import { useTranslation } from '../i18n/useTranslation';
 
 const faqItems = [
   ['How fast is indexing?', 'Most PDFs and DOCX files are searchable in seconds after upload.'],
@@ -10,9 +11,17 @@ const faqItems = [
 ];
 
 export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) {
+  const { t, lang, setLang, languageOptions } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState(0);
   const [pricingModal, setPricingModal] = useState(null);
+
+  const featureCards = [
+    ['01', 'landing_feature_upload_title', 'Upload. Instantly indexed.', 'PDF, DOCX, TXT parsing with chunking and local embeddings.', 'Optimized for fast first-query time.'],
+    ['02', 'landing_feature_ask_title', 'Ask anything, naturally.', 'Grounded responses with references and retrieval fallback mode.', 'Low-latency streaming responses.'],
+    ['03', 'landing_feature_conversation_title', 'Conversations, not sessions.', 'Context-aware answers with short memory for continuity.', 'Built for multi-turn work.'],
+    ['04', 'landing_feature_usage_title', 'Every token accounted for.', 'Track model usage, token counts, cost, and latency.', 'Admin visibility for production ops.'],
+  ];
 
   useEffect(() => {
     document.body.style.overflow = 'auto';
@@ -151,8 +160,26 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
             <a href="#features" onClick={(event) => scrollToSection(event, 'features')} style={{ color: '#6b6560', textDecoration: 'none', fontSize: 14 }}>Features</a>
             <a href="#pricing" onClick={(event) => scrollToSection(event, 'pricing')} style={{ color: '#6b6560', textDecoration: 'none', fontSize: 14 }}>Pricing</a>
             <a href="#faq" onClick={(event) => scrollToSection(event, 'faq')} style={{ color: '#6b6560', textDecoration: 'none', fontSize: 14 }}>FAQ</a>
-            <button onClick={onSignIn} style={{ border: '1px solid rgba(0,0,0,0.14)', background: '#fff', borderRadius: 10, padding: '8px 14px', cursor: 'pointer' }}>Sign in</button>
-            <button onClick={onSignUp} style={{ border: 'none', background: '#2356d8', color: '#fff', borderRadius: 10, padding: '8px 14px', cursor: 'pointer' }}>Get started</button>
+            <button onClick={onSignIn} style={{ border: '1px solid rgba(0,0,0,0.14)', background: '#fff', borderRadius: 10, padding: '8px 14px', cursor: 'pointer' }}>{t('landing_cta_secondary')}</button>
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value)}
+              style={{
+                border: '1px solid rgba(0,0,0,0.12)',
+                borderRadius: 8,
+                padding: '6px 10px',
+                fontSize: 13,
+                background: 'transparent',
+                cursor: 'pointer',
+              }}
+            >
+              {languageOptions.map((option) => (
+                <option key={option.code} value={option.code}>
+                  {option.flag} {option.code.toUpperCase()}
+                </option>
+              ))}
+            </select>
+            <button onClick={onSignUp} style={{ border: 'none', background: '#2356d8', color: '#fff', borderRadius: 10, padding: '8px 14px', cursor: 'pointer' }}>{t('landing_cta_primary')}</button>
           </div>
         </div>
       </nav>
@@ -161,11 +188,11 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
         <canvas id="lexara-hero-canvas" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.35, pointerEvents: 'none' }} />
         <div data-reveal style={{ ...reveal, position: 'relative', zIndex: 2 }}>
           <div style={{ display: 'inline-flex', padding: '6px 10px', borderRadius: 999, background: '#fff', border: '1px solid rgba(0,0,0,0.08)', fontSize: 12, marginBottom: 20 }}>Early access · 50 free queries</div>
-          <h1 style={{ fontSize: 68, lineHeight: 0.95, letterSpacing: '-0.03em', margin: '0 0 16px' }}>Your documents, finally answerable.</h1>
-          <p style={{ maxWidth: 500, color: '#6b6560', fontSize: 18, lineHeight: 1.5, margin: '0 0 24px' }}>Upload any document. Ask questions in your language. Get answers with the exact source passage — in seconds.</p>
+          <h1 style={{ fontSize: 68, lineHeight: 0.95, letterSpacing: '-0.03em', margin: '0 0 16px' }}>{t('landing_headline')}</h1>
+          <p style={{ maxWidth: 500, color: '#6b6560', fontSize: 18, lineHeight: 1.5, margin: '0 0 24px' }}>{t('landing_subhead')}</p>
           <div style={{ display: 'flex', gap: 12 }}>
-            <button onClick={onSignUp} style={{ border: 'none', background: '#2356d8', color: '#fff', borderRadius: 12, padding: '12px 18px', cursor: 'pointer', boxShadow: '0 10px 24px rgba(35,86,216,0.24)' }}>Start free</button>
-            <button onClick={onSignIn} style={{ border: '1px solid rgba(0,0,0,0.14)', background: 'transparent', borderRadius: 12, padding: '12px 18px', cursor: 'pointer' }}>Sign in</button>
+            <button onClick={onSignUp} style={{ border: 'none', background: '#2356d8', color: '#fff', borderRadius: 12, padding: '12px 18px', cursor: 'pointer', boxShadow: '0 10px 24px rgba(35,86,216,0.24)' }}>{t('landing_cta_primary')}</button>
+            <button onClick={onSignIn} style={{ border: '1px solid rgba(0,0,0,0.14)', background: 'transparent', borderRadius: 12, padding: '12px 18px', cursor: 'pointer' }}>{t('landing_cta_secondary')}</button>
           </div>
           <div style={{ marginTop: 10, color: '#8a847c', fontSize: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
             <span>🔒 Private</span><span>·</span><span>⚡ Fast</span><span>·</span><span>📄 Cited sources</span>
@@ -200,19 +227,18 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
       </div>
 
       <section id="features" style={{ maxWidth: 1120, margin: '0 auto', padding: '36px 24px', display: 'grid', gap: 12, gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
-        {[
-          ['01', 'Upload. Instantly indexed.', 'PDF, DOCX, TXT parsing with chunking and local embeddings.', 'Optimized for fast first-query time.'],
-          ['02', 'Ask anything, naturally.', 'Grounded responses with references and retrieval fallback mode.', 'Low-latency streaming responses.'],
-          ['03', 'Conversations, not sessions.', 'Context-aware answers with short memory for continuity.', 'Built for multi-turn work.'],
-          ['04', 'Every token accounted for.', 'Track model usage, token counts, cost, and latency.', 'Admin visibility for production ops.'],
-        ].map(([num, title, body, detail], i) => (
+        {featureCards.map(([num, titleKey, fallbackTitle, body, detail], i) => {
+          const translatedTitle = t(titleKey);
+          const title = translatedTitle === titleKey ? fallbackTitle : translatedTitle;
+          return (
           <div key={num} data-reveal style={{ ...reveal, transitionDelay: `${i * 60}ms`, background: i % 2 ? '#fff' : '#fdfbf7', border: '1px solid rgba(0,0,0,0.08)', borderRadius: 14, padding: 20 }}>
             <div style={{ fontFamily: 'var(--font-mono)', color: '#2356d8', marginBottom: 10 }}>{num}</div>
             <h3 style={{ margin: '0 0 8px' }}>{title}</h3>
             <p style={{ margin: '0 0 8px', color: '#6b6560' }}>{body}</p>
             <div style={{ fontSize: 13, color: '#8a847c' }}>{detail}</div>
           </div>
-        ))}
+          );
+        })}
       </section>
 
       <section id="pricing" style={{ background: '#1a1814', color: '#fff', padding: '44px 24px' }}>

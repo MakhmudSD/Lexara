@@ -9,7 +9,7 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [loginError, setLoginError] = useState('');
   const [forgotModal, setForgotModal] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotStatus, setForgotStatus] = useState('');
@@ -18,10 +18,9 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
   const [showReset, setShowReset] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleLogin = async () => {
     setLoading(true);
-    setError('');
+    setLoginError('');
     try {
       const data = await login(email.trim(), password);
       localStorage.setItem('authToken', data.access_token);
@@ -40,13 +39,7 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
         created_at: data.created_at,
       });
     } catch (err) {
-      if (err.response?.status === 401) {
-        setError(t('login_invalid_credentials'));
-      } else if (!err.response) {
-        setError(t('connection_error'));
-      } else {
-        setError(err.response?.data?.error?.message || 'Login failed');
-      }
+      setLoginError('Invalid email or password. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -105,17 +98,24 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
           <p>Sign in to your workspace</p>
         </div>
         <div className="auth-card">
-          <form className="auth-form" onSubmit={handleSubmit}>
+          <form className="auth-form" onSubmit={(event) => {
+            event.preventDefault();
+            handleLogin();
+          }}>
             <div className="auth-field">
               <label className="auth-label" htmlFor="login-email">Email</label>
               <input
                 id="login-email"
-                className={`auth-input ${error ? 'error' : ''}`}
+                className={`auth-input ${loginError ? 'error' : ''}`}
                 type="email"
                 placeholder="you@company.com"
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                  setLoginError('');
+                }}
                 disabled={loading}
+                autoComplete="email"
                 required
               />
             </div>
@@ -126,17 +126,25 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
               </div>
               <input
                 id="login-password"
-                className={`auth-input ${error ? 'error' : ''}`}
+                className={`auth-input ${loginError ? 'error' : ''}`}
                 type="password"
                 placeholder="••••••••"
                 value={password}
-                onChange={(event) => setPassword(event.target.value)}
+                onChange={(event) => {
+                  setPassword(event.target.value);
+                  setLoginError('');
+                }}
                 disabled={loading}
+                autoComplete="current-password"
                 required
               />
+              {loginError && (
+                <p style={{ color: '#dc2626', fontSize: 13, marginTop: 8, textAlign: 'center' }}>
+                  {loginError}
+                </p>
+              )}
             </div>
-            {error && <div className="auth-error">{error}</div>}
-            <button type="submit" className="auth-btn" disabled={loading}>
+            <button type="button" className="auth-btn" disabled={loading} onClick={handleLogin}>
               {loading && <span className="auth-btn-spinner" />}
               <span>{loading ? 'Signing in…' : 'Sign in'}</span>
             </button>

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import ChatMessage from '../components/ChatMessage';
 import FileUploader from '../components/FileUploader';
 import WorkspaceSelector from '../components/WorkspaceSelector';
+import { LexaraIcon } from '../assets/LexaraLogo';
 import { useTranslation } from '../i18n/useTranslation';
 import { streamChat } from '../api/chat';
 import '../styles/ChatPage.css';
@@ -27,12 +28,6 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
   const retryWorkspaceCreation = useCallback(() => {
     workspaceSelectorRef.current?.retryWorkspaceCreation?.();
   }, []);
-
-  const samplePrompts = [
-    t('sample_prompt_topics'),
-    t('sample_prompt_summary'),
-    t('sample_prompt_detail'),
-  ];
 
   const loadSession = useCallback((sessionId) => {
     const session = sessions.find((item) => item.id === sessionId);
@@ -366,15 +361,56 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
             </div>
           )}
           {!connectionError && isEmpty && (
-            <div className="empty-state">
-              <div className="empty-state-icon">✦</div>
-              <div className="empty-state-text">
-                {workspaceId ? t('workspace_active_prompt') : t('workspace_missing_prompt')}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              gap: 24,
+              padding: 48,
+            }}>
+              <LexaraIcon size={48} style={{ opacity: 0.15 }} />
+              <div style={{ textAlign: 'center' }}>
+                <h2 style={{
+                  fontSize: 22,
+                  fontWeight: 600,
+                  letterSpacing: -0.5,
+                  color: 'var(--lexara-text)',
+                  marginBottom: 8,
+                }}>
+                  {workspaceName ? `Ask about ${workspaceName}` : 'Name your project to begin'}
+                </h2>
+                <p style={{
+                  fontSize: 14,
+                  color: 'var(--lexara-text-secondary)',
+                  maxWidth: 320,
+                  lineHeight: 1.6,
+                }}>
+                  {workspaceName
+                    ? 'Upload a document, then ask anything in plain language.'
+                    : 'Create a project on the left to get started.'}
+                </p>
               </div>
-              {workspaceId && (
-                <div className="empty-prompt-list">
-                  {samplePrompts.map((prompt, index) => (
-                    <button key={index} className="empty-prompt" onClick={() => sendMessage(prompt)}>
+              {workspaceName && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
+                  {['What are the main topics?', 'Summarize this document', 'What are the key conclusions?'].map((prompt) => (
+                    <button
+                      key={prompt}
+                      onClick={() => setInput(prompt)}
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: 100,
+                        border: '1px solid var(--lexara-border)',
+                        background: 'var(--lexara-white)',
+                        fontSize: 13,
+                        color: 'var(--lexara-text-secondary)',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s',
+                      }}
+                      onMouseEnter={(event) => { event.currentTarget.style.borderColor = 'var(--lexara-blue)'; }}
+                      onMouseLeave={(event) => { event.currentTarget.style.borderColor = 'var(--lexara-border)'; }}
+                    >
                       {prompt}
                     </button>
                   ))}

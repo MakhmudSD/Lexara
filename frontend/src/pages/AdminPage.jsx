@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 import { getDocuments, getHealth, getLogs, getRequests, getRetrievals } from '../api/admin';
 import { deleteUser, getConversations, getTokenSummary, getTokenUsage, getUsers, updateUserRole, updateUserStatus } from '../api/usage';
 import { useTranslation } from '../i18n/useTranslation';
@@ -80,13 +80,11 @@ function HealthPanel({ data }) {
   );
 }
 
-function EmptyUsersState({ t, filtered }) {
+function EmptyUsersState({ message }) {
   return (
     <div className="admin-empty-state">
       <div className="admin-empty-icon">◌</div>
-      <div className="admin-empty-message">
-        {filtered ? t('admin_no_users_match') : t('admin_no_users')}
-      </div>
+      <div className="admin-empty-message">{message}</div>
     </div>
   );
 }
@@ -311,6 +309,7 @@ function UsersPanel({
   onSearchChange,
   roleFilter,
   onRoleFilterChange,
+  loading,
 }) {
   const sourceUsers = Array.isArray(users) ? users : [];
   const filteredUsers = sourceUsers.filter((user) => {
@@ -335,6 +334,18 @@ function UsersPanel({
     await deleteUser(user.user_id);
     await onReload();
   };
+
+  if (loading) {
+    return (
+      <div className="admin-skeleton-wrap">
+        <div className="admin-skeleton-row" />
+        <div className="admin-skeleton-row" />
+        <div className="admin-skeleton-row" />
+        <div className="admin-skeleton-row" />
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="users-toolbar">
@@ -355,8 +366,10 @@ function UsersPanel({
         </label>
       </div>
 
-      {!filteredUsers.length ? (
-        <EmptyUsersState t={t} filtered={Boolean(sourceUsers.length)} />
+      {!sourceUsers.length ? (
+        <EmptyUsersState message="No users found" />
+      ) : !filteredUsers.length ? (
+        <EmptyUsersState message={t('admin_no_users_match')} />
       ) : (
         <div className="admin-table-wrap">
           <table className="admin-table">
@@ -463,7 +476,7 @@ function ConversationsPanel({ data, expandedRow, onToggleRow, t }) {
   );
 }
 
-export default function AdminPage() {
+export default function AdminPage({ onGoAsk }) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('users');
   const [data, setData] = useState({});
@@ -474,45 +487,54 @@ export default function AdminPage() {
   const [userRoleFilter, setUserRoleFilter] = useState('all');
   const [conversationScoreFilter, setConversationScoreFilter] = useState('all');
 
-  const refreshUsers = async () => {
+  const loadUsers = useCallback(async () => {
     const response = await getUsers();
-    const users = Array.isArray(response) ? response : response?.users || response?.data || [];
+    console.log('users response:', response);
+    const users = Array.isArray(response)
+      ? response
+      : Array.isArray(response?.users)
+        ? response.users
+        : Array.isArray(response?.data)
+          ? response.data
+          : [];
     setData((prev) => ({ ...prev, users }));
-  };
+    return users;
+  }, []);
+
+  const loadActiveTab = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const fetchers = {
+        health: getHealth,
+        usage: async () => ({
+          summary: await getTokenSummary(),
+          usage: await getTokenUsage(),
+        }),
+        conversations: getConversations,
+        users: loadUsers,
+        documents: getDocuments,
+        requests: getRequests,
+        logs: getLogs,
+        retrievals: getRetrievals,
+      };
+
+      const result = await fetchers[activeTab]();
+      if (activeTab !== 'users') {
+        setData((prev) => ({ ...prev, [activeTab]: result }));
+      }
+    } catch (err) {
+      setError(activeTab === 'users'
+        ? 'Failed to load users'
+        : err.response?.data?.error?.message || err.message || 'Fetch failed');
+    } finally {
+      setLoading(false);
+    }
+  }, [activeTab, loadUsers]);
 
   useEffect(() => {
-    const fetchTab = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const fetchers = {
-          health: getHealth,
-          usage: async () => ({
-            summary: await getTokenSummary(),
-            usage: await getTokenUsage(),
-          }),
-          conversations: getConversations,
-          users: refreshUsers,
-          documents: getDocuments,
-          requests: getRequests,
-          logs: getLogs,
-          retrievals: getRetrievals,
-        };
-        if (activeTab !== 'users') {
-          const result = await fetchers[activeTab]();
-          setData((prev) => ({ ...prev, [activeTab]: result }));
-        } else {
-          await fetchers.users();
-        }
-      } catch (err) {
-        setError(err.response?.data?.error?.message || err.message || 'Fetch failed');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTab();
-  }, [activeTab]);
+    loadActiveTab();
+  }, [activeTab, loadActiveTab]);
 
   const conversations = Array.isArray(data.conversations) ? data.conversations : [];
   const conversationTotals = conversations.reduce(
@@ -555,6 +577,10 @@ export default function AdminPage() {
 
   return (
     <div className="admin-page">
+      <div className="admin-header-note">
+        <span>Admin panel · Your personal workspaces are in Ask →</span>
+        <button type="button" onClick={onGoAsk || (() => {})}>Open Ask</button>
+      </div>
       <div className="admin-tabs">
         {TABS.map((tab) => (
           <button
@@ -573,12 +599,28 @@ export default function AdminPage() {
 
       <div className="admin-content">
         {error && (
-          <div style={{ marginBottom: 16, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--error)', display: 'flex', gap: 6, alignItems: 'center' }}>
-            <span>⚠</span> {error}
+          <div style={{ marginBottom: 16, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--error)', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span>⚠</span>
+            <span>{error}</span>
+            {activeTab === 'users' && (
+              <button
+                type="button"
+                onClick={loadActiveTab}
+                style={{
+                  border: '1px solid rgba(0,0,0,0.12)',
+                  background: '#fff',
+                  borderRadius: 8,
+                  padding: '6px 10px',
+                  cursor: 'pointer',
+                }}
+              >
+                Retry
+              </button>
+            )}
           </div>
         )}
 
-        {loading ? (
+        {loading && activeTab !== 'users' ? (
           <div className="admin-skeleton-wrap">
             <div className="admin-skeleton-row" />
             <div className="admin-skeleton-row" />
@@ -636,15 +678,16 @@ export default function AdminPage() {
                 />
               </>
             )}
-            {activeTab === 'users' && (
+            {activeTab === 'users' && !error && (
               <UsersPanel
                 users={data.users}
-                onReload={refreshUsers}
+                onReload={loadActiveTab}
                 t={t}
                 search={userSearch}
                 onSearchChange={setUserSearch}
                 roleFilter={userRoleFilter}
                 onRoleFilterChange={setUserRoleFilter}
+                loading={loading}
               />
             )}
             {activeTab === 'documents' && <DocumentsPanel data={data.documents} t={t} />}

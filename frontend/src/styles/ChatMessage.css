@@ -40,6 +40,7 @@
   border: 1px solid rgba(37, 99, 235, 0.24);
   color: var(--text-inverse);
   border-bottom-right-radius: var(--radius-sm);
+  border-top-right-radius: 0;
   padding: 14px 18px;
   box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
 }

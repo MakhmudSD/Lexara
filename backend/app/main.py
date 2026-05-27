@@ -13,6 +13,11 @@ from app.db.migrate import run_migrations
 from app.routes import auth_router, chat_router, documents_router, health_router, workspaces_router
 
 logger = logging.getLogger(__name__)
+ALLOWED_ORIGINS_DEFAULT = (
+    "https://lexara-top.vercel.app,"
+    "http://localhost:5173,"
+    "http://127.0.0.1:5173"
+)
 
 
 def create_app() -> FastAPI:
@@ -27,13 +32,17 @@ def create_app() -> FastAPI:
     app.state.runtime = runtime
     app.state.settings = settings
 
+    allowed_origins = os.getenv("ALLOWED_ORIGINS", ALLOWED_ORIGINS_DEFAULT).split(",")
+    allowed_origins = [origin.strip() for origin in allowed_origins if origin.strip()]
+
     app.add_middleware(RequestContextMiddleware)
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(","),
+        allow_origins=allowed_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+        expose_headers=["*"],
     )
     register_exception_handlers(app)
 
@@ -59,6 +68,10 @@ def create_app() -> FastAPI:
     @app.on_event("shutdown")
     def shutdown_event() -> None:
         logger.info("Shutting down backend...")
+
+    @app.get("/cors-check")
+    def cors_check() -> dict[str, object]:
+        return {"allowed_origins": allowed_origins, "status": "ok"}
 
     return app
 

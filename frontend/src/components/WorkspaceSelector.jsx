@@ -27,8 +27,9 @@ function WorkspaceSelector({
   }));
 
   const shortWorkspaceId = workspaceId ? `${workspaceId.slice(0, 8)}…` : '';
+  const normalizedName = nameInput.trim();
   const nameError = (() => {
-    if (!nameInput) return null;
+    if (!normalizedName) return null;
     if (nameInput.trim().length < 2) return t('name_too_short');
     if (nameInput.trim().length > 40) return t('name_too_long');
     if (!NAME_RE.test(nameInput.trim())) return t('name_invalid_chars');
@@ -36,7 +37,7 @@ function WorkspaceSelector({
   })();
 
   const persistName = async () => {
-    const normalized = nameInput.trim();
+    const normalized = normalizedName;
     if (!workspaceId) return;
     if (!normalized) return;
     if (nameError) {
@@ -57,11 +58,23 @@ function WorkspaceSelector({
   };
 
   const handleGenerate = async () => {
+    if (!normalizedName) {
+      setCreateError('Please enter a project name first');
+      return;
+    }
+    if (normalizedName.length < 2) {
+      setCreateError('Project name must be at least 2 characters');
+      return;
+    }
+    if (!NAME_RE.test(normalizedName)) {
+      setCreateError(t('name_invalid_chars'));
+      return;
+    }
     setCreating(true);
     setCreateError('');
     setSaveStatus('');
     try {
-      const workspace = await quickCreateWorkspace('My Workspace');
+      const workspace = await quickCreateWorkspace(normalizedName);
       setNameInput(workspace.name);
       onWorkspaceChange(workspace.id);
       onWorkspaceNameChange(workspace.name);
@@ -69,8 +82,7 @@ function WorkspaceSelector({
       localStorage.setItem('workspaceName', workspace.name);
       setSaveStatus(t('workspace_saved'));
     } catch (err) {
-      const msg = err.response?.data?.error?.message || err.message || t('create_workspace_failed');
-      setCreateError(msg);
+      setCreateError('Could not create project. Please check your connection.');
       onConnectionError?.();
     } finally {
       setCreating(false);
@@ -89,6 +101,7 @@ function WorkspaceSelector({
             setSaveStatus('');
             setCreateError('');
           }}
+          onFocus={() => setCreateError('')}
           onBlur={persistName}
           onKeyDown={(event) => {
             if (event.key === 'Enter') {
@@ -104,12 +117,18 @@ function WorkspaceSelector({
         {workspaceId && <div className="workspace-uuid-hint">{t('workspace_id_hint')}{shortWorkspaceId}</div>}
       </div>
 
-      {nameError && <div className="workspace-status err">✗ {nameError}</div>}
+      {nameError && <div className="workspace-status" style={{ color: '#b45309', fontSize: 11 }}>✗ {nameError}</div>}
       {!!saveStatus && <div className={`workspace-status ${saveStatus.startsWith('✓') ? 'ok' : 'err'}`}>{saveStatus}</div>}
-      {createError && <div className="workspace-status err">✗ {createError}</div>}
-      {!workspaceId && !createError && <div className="workspace-status hint">{t('paste_uuid_or_generate')}</div>}
+      {createError && <div className="workspace-status" style={{ color: '#b45309', fontSize: 11 }}>✗ {createError}</div>}
+      {!workspaceId && !normalizedName && !createError && <div className="workspace-status hint">Please enter a project name first</div>}
+      {!workspaceId && normalizedName && !createError && <div className="workspace-status hint">{t('paste_uuid_or_generate')}</div>}
 
-      <button className="new-workspace-btn" onClick={handleGenerate} disabled={creating}>
+      <button
+        className="new-workspace-btn"
+        onClick={handleGenerate}
+        disabled={creating || !normalizedName}
+        style={{ opacity: creating || !normalizedName ? 0.5 : 1 }}
+      >
         {creating ? t('creating_workspace') : t('generate_workspace')}
       </button>
     </div>
