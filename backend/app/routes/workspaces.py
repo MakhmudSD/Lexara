@@ -1,12 +1,14 @@
 from uuid import UUID
 import random
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_db
 from app.core.exceptions import AppError
 from app.crud import workspace as workspace_crud
+from app.crud.organization import get_org_by_slug
 from app.schemas.workspace import (
     WorkspaceCreate,
     WorkspaceListResponse,
@@ -16,9 +18,14 @@ from app.schemas.workspace import (
 )
 
 router = APIRouter(prefix="/workspaces", tags=["workspaces"])
+org_workspace_router = APIRouter(prefix="/orgs/{org_slug}/workspaces", tags=["workspaces"])
 
 ADJECTIVES = ["swift", "clear", "smart", "deep", "bright", "sharp", "calm", "nova", "keen", "bold", "pure", "lean", "vast", "prime"]
 NOUNS = ["vault", "lens", "deck", "lab", "desk", "hub", "base", "core", "flow", "mind", "grid", "arc", "beam", "node"]
+
+
+class WorkspaceNamePayload(BaseModel):
+    name: str = Field(..., min_length=1, max_length=255)
 
 
 def _friendly_name() -> str:
@@ -33,6 +40,13 @@ def _validate_workspace_name(name: str) -> str:
     if any(character in forbidden for character in normalized):
         raise AppError(400, "invalid_workspace_name", "Workspace name contains invalid characters.")
     return normalized
+
+
+def _resolve_org(org_slug: str, db: Session) -> UUID:
+    org = get_org_by_slug(db, slug=org_slug)
+    if org is None:
+        raise HTTPException(status_code=404, detail=f"Organization '{org_slug}' not found.")
+    return org.id
 
 
 @router.post("/quick", response_model=WorkspaceResponse, status_code=201)
@@ -100,3 +114,31 @@ def list_workspaces(
         workspaces=[WorkspaceResponse.model_validate(item) for item in workspaces],
         total=len(workspaces),
     )
+
+
+@org_workspace_router.get("", response_model=WorkspaceListResponse)
+def list_org_workspaces(
+    org_slug: str = Path(...),
+    db: Session = Depends(get_db),
+) -> WorkspaceListResponse:
+    org_id = _resolve_org(org_slug, db)
+    workspaces = workspace_crud.list_workspaces(db, organization_id=org_id)
+    return WorkspaceListResponse(
+        workspaces=[WorkspaceResponse.model_validate(workspace) for workspace in workspaces],
+        total=len(workspaces),
+    )
+
+
+@org_workspace_router.post("", response_model=WorkspaceResponse, status_code=201)
+def create_org_workspace(
+    body: WorkspaceNamePayload,
+    org_slug: str = Path(...),
+    db: Session = Depends(get_db),
+) -> WorkspaceResponse:
+    org_id = _resolve_org(org_slug, db)
+    workspace = workspace_crud.create_workspace(
+        db,
+        organization_id=org_id,
+        name=body.name,
+    )
+    return WorkspaceResponse.model_validate(workspace)

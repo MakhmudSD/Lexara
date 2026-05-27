@@ -246,10 +246,22 @@ async def generate_answer(
 ) -> tuple[str, TokenUsageData]:
     """Generate one final answer from retrieved context."""
     if not settings.openai_api_key:
-        raise AppError(
-            500,
-            "missing_openai_api_key",
-            "OPENAI_API_KEY is not configured on the server.",
+        fallback_answer = (
+            "LLM answer generation is not configured. "
+            "Set OPENAI_API_KEY in your environment to enable answers. "
+            "The relevant document chunks have been retrieved and are shown in sources."
+        )
+        return (
+            fallback_answer,
+            TokenUsageData(
+                model=settings.chat_model,
+                prompt_tokens=0,
+                completion_tokens=0,
+                total_tokens=0,
+                estimated_cost_usd=0.0,
+                latency_ms=0.0,
+                context_chunks_used=0,
+            ),
         )
 
     messages, estimated_prompt_tokens, context_chunks_used = build_messages(

@@ -40,3 +40,6 @@ frontend/dist/
 # TODO.md is intentionally committed
 frontend/.env.production
 frontend/.env.local
+__pycache__/
+*.pyc
+*.pyo

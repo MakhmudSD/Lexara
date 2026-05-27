@@ -11,13 +11,15 @@ from app.core.middleware import RequestContextMiddleware
 from app.core.runtime import AppRuntime
 from app.db.migrate import run_migrations
 from app.routes import auth_router, chat_router, documents_router, health_router, workspaces_router
+from app.routes.workspaces import org_workspace_router
 
 logger = logging.getLogger(__name__)
-ALLOWED_ORIGINS_DEFAULT = (
-    "https://lexara-top.vercel.app,"
-    "http://localhost:5173,"
-    "http://127.0.0.1:5173"
-)
+ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://lexara-top.vercel.app",
+    "http://127.0.0.1:5173",
+]
 
 
 def create_app() -> FastAPI:
@@ -32,22 +34,24 @@ def create_app() -> FastAPI:
     app.state.runtime = runtime
     app.state.settings = settings
 
-    allowed_origins = os.getenv("ALLOWED_ORIGINS", ALLOWED_ORIGINS_DEFAULT).split(",")
-    allowed_origins = [origin.strip() for origin in allowed_origins if origin.strip()]
+    env_origins = [origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "").split(",") if origin.strip()]
+    allowed_origins = list(dict.fromkeys([*ALLOWED_ORIGINS, *env_origins]))
 
     app.add_middleware(RequestContextMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins,
         allow_credentials=True,
-        allow_methods=["*"],
+        allow_origin_regex=r"https://.*\.vercel\.app",
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allow_headers=["*"],
-        expose_headers=["*"],
+        expose_headers=["X-Request-ID"],
     )
     register_exception_handlers(app)
 
     app.include_router(health_router)
     app.include_router(workspaces_router)
+    app.include_router(org_workspace_router)
     app.include_router(documents_router)
     app.include_router(chat_router)
     app.include_router(admin_router)

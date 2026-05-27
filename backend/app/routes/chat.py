@@ -48,31 +48,8 @@ async def chat_query(
         top_k=payload.top_k,
     )
 
-    if not runtime.settings.openai_api_key:
-        duration_ms = round((time.perf_counter() - started_at) * 1000, 3)
-        # Conversation logging is opt-in by default. In production, add a
-        # user-consent flag and exclude PII per your privacy policy.
-        # Under GDPR/PDPA: users must consent before conversation content is stored.
-        runtime.observability.add_conversation(
-            ConversationEntry(
-                request_id=request_id,
-                workspace_id=str(payload.workspace_id),
-                question=payload.question,
-                answer=None,
-                mode="retrieval",
-                sources=[chunk.filename or str(chunk.document_id) for chunk in retrieved_chunks],
-                top_score=retrieved_chunks[0].score if retrieved_chunks else None,
-                history_turns=len(payload.history or []),
-                latency_ms=duration_ms,
-            )
-        )
-        return ChatQueryResponse(
-            answer=None,
-            sources=retrieved_chunks,
-            mode="retrieval",
-        )
-
     answer = None
+    mode = "retrieval" if not retrieved_chunks else "rag"
     if retrieved_chunks:
         answer, usage = await generate_answer(
             payload.question,
@@ -138,7 +115,7 @@ async def chat_query(
                 workspace_id=str(payload.workspace_id),
                 question=payload.question,
                 answer="",
-                mode="rag",
+                mode="retrieval",
                 sources=[],
                 top_score=None,
                 history_turns=len(payload.history or []),
@@ -149,7 +126,22 @@ async def chat_query(
     return ChatQueryResponse(
         answer=answer,
         sources=retrieved_chunks,
-        mode="rag",
+        mode=mode,
+    )
+
+
+@router.post("", response_model=ChatQueryResponse)
+async def chat_root(
+    payload: ChatQueryRequest,
+    db: Session = Depends(get_db),
+    runtime: AppRuntime = Depends(get_runtime),
+    request_id: str = Depends(get_request_id),
+) -> ChatQueryResponse:
+    return await chat_query(
+        payload=payload,
+        db=db,
+        runtime=runtime,
+        request_id=request_id,
     )
 
 

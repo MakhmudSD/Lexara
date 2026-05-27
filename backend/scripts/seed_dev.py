@@ -29,6 +29,7 @@ def main() -> None:
             print(f"USER_ID={existing.id}")
             if org:
                 print(f"ORGANIZATION_ID={org.id}")
+                print(f"ORG_SLUG={org.slug}")
             return
 
         user = User(
@@ -55,6 +56,7 @@ def main() -> None:
         print("Seeded development tenant:")
         print(f"USER_ID={user.id}")
         print(f"ORGANIZATION_ID={organization.id}")
+        print(f"ORG_SLUG={organization.slug}")
     finally:
         db.close()
 
