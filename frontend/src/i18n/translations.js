@@ -161,6 +161,10 @@ export const translations = {
     admin_request: 'Request',
     admin_top_k: 'Top-K',
     admin_results: 'Results',
+    suggestion_chip_1: 'What are the main topics?',
+    suggestion_chip_2: 'Summarize this document',
+    suggestion_chip_3: 'What are the key conclusions?',
+    suggestion_chip_4: 'List the most important facts',
   },
   ko: {
     app_name: 'Lexara',
@@ -324,6 +328,10 @@ export const translations = {
     admin_request: '요청',
     admin_top_k: '상위 K',
     admin_results: '결과',
+    suggestion_chip_1: '주요 주제는 무엇인가요?',
+    suggestion_chip_2: '문서를 요약해주세요',
+    suggestion_chip_3: '핵심 결론은 무엇인가요?',
+    suggestion_chip_4: '가장 중요한 사실을 나열해주세요',
   },
   ru: {
     app_name: 'Lexara',
@@ -487,6 +495,10 @@ export const translations = {
     admin_request: 'Запрос',
     admin_top_k: 'Top-K',
     admin_results: 'Результаты',
+    suggestion_chip_1: 'Каковы основные темы?',
+    suggestion_chip_2: 'Кратко изложите документ',
+    suggestion_chip_3: 'Каковы ключевые выводы?',
+    suggestion_chip_4: 'Перечислите важнейшие факты',
   },
   uz: {
     app_name: 'Lexara',
@@ -647,6 +659,10 @@ export const translations = {
     admin_request: 'So‘rov',
     admin_top_k: 'Top-K',
     admin_results: 'Natijalar',
+    suggestion_chip_1: 'Asosiy mavzular nima?',
+    suggestion_chip_2: 'Hujjatni xulosalang',
+    suggestion_chip_3: 'Asosiy xulosalar qanday?',
+    suggestion_chip_4: 'Eng muhim faktlarni keltiring',
   },
   ja: {
     app_name: 'Lexara',
@@ -771,6 +787,10 @@ export const translations = {
     admin_request: 'リクエスト',
     admin_top_k: 'Top-K',
     admin_results: '結果',
+    suggestion_chip_1: '主なトピックは何ですか？',
+    suggestion_chip_2: 'この文書を要約してください',
+    suggestion_chip_3: '主な結論は何ですか？',
+    suggestion_chip_4: '最も重要な事実を列挙してください',
   },
 };
 

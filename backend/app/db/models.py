@@ -271,3 +271,38 @@ class PasswordResetToken(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     user = relationship("User", back_populates="password_reset_tokens")
+
+class Conversation(Base):
+    __tablename__ = "conversations"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    workspace_id = Column(UUID(as_uuid=True), nullable=True, index=True)
+    title = Column(String(255), nullable=True)
+    is_active = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow,
+                        onupdate=datetime.utcnow, nullable=False)
+    turns = relationship("ConversationTurn", back_populates="conversation",
+                         cascade="all, delete-orphan",
+                         order_by="ConversationTurn.turn_index")
+
+
+class ConversationTurn(Base):
+    __tablename__ = "conversation_turns"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    conversation_id = Column(UUID(as_uuid=True),
+                              ForeignKey("conversations.id"),
+                              nullable=False, index=True)
+    turn_index = Column(Integer, nullable=False)
+    question = Column(Text, nullable=False)
+    answer = Column(Text, nullable=False)
+    sources = Column(JSON, default=[], nullable=False)
+    latency_ms = Column(Float, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    conversation = relationship("Conversation", back_populates="turns")
+
+    __table_args__ = (
+        UniqueConstraint("conversation_id", "turn_index",
+                         name="uq_conversation_turn"),
+    )
