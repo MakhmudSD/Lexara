@@ -30,7 +30,7 @@ def rebuild_faiss_from_db(db: Session, settings: Settings) -> int:
             texts = [c.text for c in chunks]
             chunk_ids = [str(c.id) for c in chunks]
             embeddings = embed_texts(texts, settings)
-            store.add_vectors(
+            store.add_embeddings(
                 workspace_id=str(ws.id),
                 chunk_ids=chunk_ids,
                 embeddings=embeddings,
