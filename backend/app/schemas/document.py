@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 class DocumentUploadResponse(BaseModel):
     id: UUID
     workspace_id: UUID
-    organization_id: UUID
+    organization_id: UUID | None = None
     filename: str
     content_type: str
     file_size_bytes: int
