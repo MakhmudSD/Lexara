@@ -25,27 +25,25 @@ def run_migrations() -> None:
 #    run_startup_cleanup()
     logger.info("database_migrations_completed")
     try:
-        from app.core.config import get_settings
-        from app.db import SessionLocal
-        from app.services.faiss_rebuild import rebuild_faiss_from_db
-        _db = SessionLocal()
-        _settings = get_settings()
-        n = rebuild_faiss_from_db(_db, _settings)
+        from app.services.faiss_rebuild import rebuild_faiss_from_db as _rebuild
+        from app.db import SessionLocal as _SessionLocal
+        from app.core.config import get_settings as _get_settings
+        _db = _SessionLocal()
+        n = _rebuild(_db, _get_settings())
         _db.close()
         logger.info(f"FAISS rebuild complete: {n} workspaces indexed")
-    except Exception as e:
-        logger.warning(f"FAISS rebuild skipped: {e}")
+    except Exception as _e:
+        logger.warning(f"FAISS rebuild skipped: {_e}")
     try:
-        from app.core.config import get_settings
-        from app.db import SessionLocal
-        from app.services.faiss_rebuild import rebuild_faiss_from_db
-        _db = SessionLocal()
-        _settings = get_settings()
-        n = rebuild_faiss_from_db(_db, _settings)
+        from app.services.faiss_rebuild import rebuild_faiss_from_db as _rebuild
+        from app.db import SessionLocal as _SessionLocal
+        from app.core.config import get_settings as _get_settings
+        _db = _SessionLocal()
+        n = _rebuild(_db, _get_settings())
         _db.close()
         logger.info(f"FAISS rebuild complete: {n} workspaces indexed")
-    except Exception as e:
-        logger.warning(f"FAISS rebuild skipped: {e}")
+    except Exception as _e:
+        logger.warning(f"FAISS rebuild skipped: {_e}")
 
 
 def run_startup_cleanup() -> None:

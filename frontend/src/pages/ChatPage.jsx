@@ -394,7 +394,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
               </div>
               {workspaceName && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
-                  {['What are the main topics?', 'Summarize this document', 'What are the key conclusions?'].map((prompt) => (
+                  {[t('suggested_q1') || 'What are the main topics?', t('suggested_q2') || 'Summarize this document', t('suggested_q3') || 'What are the key conclusions?'].map((prompt) => (
                     <button
                       key={prompt}
                       onClick={() => setInput(prompt)}
