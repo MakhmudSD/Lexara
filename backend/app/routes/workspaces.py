@@ -48,37 +48,12 @@ def quick_create_workspace(
     workspace to it.  Intended for MVP / local dev use — Phase 3 auth
     will replace this with user-scoped org resolution.
     """
-    # Find or create a default org so the frontend never needs to manage org IDs
-    org = db.query(Organization).filter(Organization.is_active.is_(True)).first()
-    if org is None:
-        from uuid import uuid4
-        # Get the real user ID from the auth token
-        user_id = uuid4()  # fallback
-        if authorization and authorization.startswith("Bearer "):
-            try:
-                settings = get_settings()
-                claims = decode_access_token(authorization.split(" ", 1)[1], settings)
-                from uuid import UUID as _UUID
-                user_id = _UUID(claims["sub"])
-            except Exception:
-                pass
-        org = Organization(
-            id=uuid4(),
-            name="Default Organization",
-            slug="default",
-            owner_id=user_id,
-            is_active=True,
-        )
-        db.add(org)
-        db.commit()
-        db.refresh(org)
-
     requested_name = (payload.name or "").strip()
     workspace_name = _friendly_name() if not requested_name or requested_name == "My Workspace" else requested_name
 
     workspace = workspace_crud.create_workspace(
         db,
-        organization_id=org.id,
+        organization_id=None,
         name=workspace_name,
     )
     return WorkspaceResponse.model_validate(workspace)
