@@ -92,7 +92,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
           ? {
               ...s,
               messages: newMessages,
-              title: newMessages.find((m) => m.role === 'user')?.content.slice(0, 40) || s.title,
+              title: newMessages.find((m) => m.role === 'user')?.content?.slice(0, 40) || s.title,
             }
           : s
       ));
@@ -307,7 +307,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
           {!hasWorkspaceName && <div className="input-hint">{workspaceId ? t('upload_disabled_hint') : t('select_project_first')}</div>}
         </div>
 
-          <div className="sidebar-section">
+        <div className="sidebar-section">
           <div className="sidebar-label">{t('conversations')}</div>
           <button className="new-chat-btn" onClick={createNewSession}>
             + {t('new_conversation')}

@@ -49,8 +49,9 @@
 }
 
 .message-text {
-  white-space: pre-wrap;
+  white-space: normal;
   word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .cursor {
@@ -124,6 +125,32 @@
   color: var(--lexara-text-secondary);
 }
 
+.message-text ol {
+  margin: 8px 0 8px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.message-text li {
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.message-text strong {
+  font-weight: 600;
+  color: var(--lexara-text);
+}
+
+.message-text p {
+  margin: 0 0 8px;
+  line-height: 1.65;
+}
+
+.message-text p:last-child {
+  margin-bottom: 0;
+}
+
 .message-timestamp {
   margin-top: 4px;
   display: block;
@@ -195,6 +222,13 @@
   font-style: italic;
   margin-top: 4px;
   padding-left: 4px;
+}
+
+.confidence-high-note {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--lexara-text-tertiary);
+  font-family: var(--font-mono);
 }
 
 .sources-grid {

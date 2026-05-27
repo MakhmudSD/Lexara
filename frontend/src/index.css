@@ -1,46 +1,62 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
 
 :root {
-  /* Lexara Brand Tokens */
+  /* Brand */
   --lexara-blue: #2356d8;
   --lexara-blue-hover: #1a45c0;
-  --lexara-blue-light: #eff2ff;
-  --lexara-bg: #f8f6f1;
+  --lexara-blue-light: #eef2ff;
+  --lexara-blue-subtle: rgba(35, 86, 216, 0.08);
+
+  /* Backgrounds */
+  --lexara-bg: #f7f5f0;
+  --lexara-bg-secondary: #f0ede8;
   --lexara-text: #1a1814;
-  --lexara-text-secondary: #5a5650;
-  --lexara-border: rgba(0,0,0,0.08);
+  --lexara-text-secondary: #6b6560;
+  --lexara-text-tertiary: #a09890;
+  --lexara-border: rgba(0, 0, 0, 0.07);
+  --lexara-border-strong: rgba(0, 0, 0, 0.12);
   --lexara-white: #ffffff;
+  --lexara-surface: rgba(255, 255, 255, 0.7);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.10), 0 4px 8px rgba(0, 0, 0, 0.04);
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
 
   /* Legacy variables (kept for compatibility) */
   --page-bg: var(--lexara-bg);
   --surface: var(--lexara-white);
-  --surface-muted: #fcfbf8;
-  --surface-strong: #f1ede5;
-  --surface-hover: #f4f0e8;
+  --surface-muted: var(--lexara-bg-secondary);
+  --surface-strong: #e7e2d8;
+  --surface-hover: #efebe2;
   --border-subtle: var(--lexara-border);
   --border-default: rgba(0, 0, 0, 0.14);
-  --border-strong: rgba(35, 86, 216, 0.22);
+  --border-strong: var(--lexara-border-strong);
   --text-primary: var(--lexara-text);
   --text-secondary: var(--lexara-text-secondary);
-  --text-tertiary: #8c847b;
+  --text-tertiary: var(--lexara-text-tertiary);
   --text-inverse: var(--lexara-white);
   --accent: var(--lexara-blue);
   --accent-muted: var(--lexara-blue-light);
-  --accent-soft: rgba(35, 86, 216, 0.16);
+  --accent-soft: var(--lexara-blue-subtle);
   --success: #2f855a;
   --success-muted: rgba(47, 133, 90, 0.12);
   --error: #c2410c;
   --error-muted: rgba(194, 65, 12, 0.12);
   --warning: #b7791f;
-  --font-sans: 'DM Sans', sans-serif;
-  --font-mono: 'DM Mono', monospace;
+  --font-sans: 'DM Sans', 'Inter', system-ui, sans-serif;
+  --font-mono: 'DM Mono', 'Fira Code', monospace;
   --font-serif: 'Instrument Serif', serif;
-  --radius-sm: 3px;
-  --radius-md: 10px;
-  --radius-lg: 18px;
+  --transition: 150ms ease-out;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --shadow-soft: 0 14px 40px rgba(34, 28, 20, 0.06);
-  --shadow-card: 0 6px 18px rgba(34, 28, 20, 0.05);
+  --shadow-soft: var(--shadow-md);
+  --shadow-card: var(--shadow-sm);
 }
 
 *, *::before, *::after {
@@ -63,6 +79,9 @@ html, body, #root {
 
 body {
   overflow-x: hidden;
+  background:
+    radial-gradient(circle at top left, rgba(35, 86, 216, 0.04), transparent 24%),
+    linear-gradient(180deg, #fbfaf7 0%, var(--lexara-bg) 100%);
 }
 
 ::selection {
@@ -70,10 +89,10 @@ body {
   color: var(--text-primary);
 }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 999px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+::-webkit-scrollbar-thumb { background: var(--lexara-border-strong); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--lexara-text-tertiary); }
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(6px); }

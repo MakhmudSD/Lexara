@@ -4,6 +4,59 @@
   gap: 10px;
 }
 
+.workspace-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.workspace-empty {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px dashed var(--lexara-border);
+  background: rgba(255, 255, 255, 0.65);
+  color: var(--lexara-text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.workspace-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-left: 3px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.workspace-item:hover {
+  background: var(--lexara-bg);
+}
+
+.workspace-item.active {
+  background: var(--lexara-blue-light);
+  border-color: var(--lexara-blue);
+  border-left-color: var(--lexara-blue);
+}
+
+.workspace-item-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--lexara-text);
+}
+
+.workspace-item-id {
+  font-size: 10px;
+  color: var(--lexara-text-secondary);
+  font-family: var(--font-mono);
+}
+
 .workspace-input-wrap {
   position: relative;
 }
@@ -11,35 +64,36 @@
 .workspace-name-display {
   font-size: 14px;
   font-weight: 500;
-  color: var(--text-primary, #1a1a1a);
+  color: var(--lexara-text);
   margin-bottom: 4px;
 }
 
 .workspace-input {
   width: 100%;
-  background: var(--surface-muted);
-  border: 1px solid var(--border-default);
+  background: var(--lexara-white);
+  border: 1px solid var(--lexara-border);
   border-radius: 14px;
   padding: 12px 14px;
   font-family: var(--font-mono);
   font-size: 12px;
-  color: var(--text-primary);
+  color: var(--lexara-text);
   letter-spacing: 0.3px;
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .workspace-input::placeholder {
-  color: var(--text-tertiary);
+  color: var(--lexara-text-tertiary);
 }
 
 .workspace-input:focus {
-  border-color: var(--accent);
+  border-color: var(--lexara-blue);
+  box-shadow: 0 0 0 3px var(--lexara-blue-subtle);
 }
 
 .workspace-input.valid {
   border-color: var(--success);
-  color: var(--text-primary);
+  color: var(--lexara-text);
 }
 
 .workspace-input.invalid {
@@ -49,7 +103,7 @@
 .workspace-uuid-hint {
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--text-tertiary, #9ca3af);
+  color: var(--lexara-text-tertiary);
   margin-top: 6px;
 }
 
@@ -63,25 +117,37 @@
   gap: 4px;
 }
 
-.workspace-status.ok { color: var(--success); }
-.workspace-status.err { color: var(--error); }
-.workspace-status.hint { color: var(--text-tertiary); }
+.workspace-status.ok {
+  color: var(--success);
+}
+
+.workspace-status.err {
+  color: var(--error);
+}
+
+.workspace-status.hint {
+  color: var(--lexara-text-tertiary);
+}
 
 .new-workspace-btn {
   width: 100%;
   padding: 12px 14px;
-  background: var(--accent);
-  border: 1px solid rgba(37, 99, 235, 0.22);
+  background: var(--lexara-blue);
+  border: 1px solid rgba(35, 86, 216, 0.22);
   border-radius: 14px;
-  color: var(--text-inverse);
+  color: var(--lexara-white);
   font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
-  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.18);
+  box-shadow: 0 10px 24px rgba(35, 86, 216, 0.18);
 }
 
-.new-workspace-btn:hover {
-  background: #1d4ed8;
+.new-workspace-btn:hover:not(:disabled) {
+  background: var(--lexara-blue-hover);
+}
+
+.new-workspace-btn:disabled {
+  cursor: not-allowed;
 }

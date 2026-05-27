@@ -1,13 +1,12 @@
 from uuid import UUID
 import random
 
-from fastapi import APIRouter, Depends, Header, Query
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_db
 from app.core.exceptions import AppError
 from app.crud import workspace as workspace_crud
-from app.db.models import Organization
 from app.schemas.workspace import (
     WorkspaceCreate,
     WorkspaceListResponse,
@@ -40,7 +39,6 @@ def _validate_workspace_name(name: str) -> str:
 def quick_create_workspace(
     payload: WorkspaceQuickCreate,
     db: Session = Depends(get_db),
-    authorization: str | None = Header(default=None),
 ) -> WorkspaceResponse:
     """
     Create a workspace without needing an organization_id.

@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
-import { quickCreateWorkspace, updateWorkspaceName } from '../api/workspace';
+import { listWorkspaces, quickCreateWorkspace, updateWorkspaceName } from '../api/workspace';
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/WorkspaceSelector.css';
 
@@ -13,14 +13,39 @@ function WorkspaceSelector({
   onConnectionError,
 }, ref) {
   const { t } = useTranslation();
+  const [workspaces, setWorkspaces] = useState([]);
+  const [loadingWorkspaces, setLoadingWorkspaces] = useState(false);
   const [nameInput, setNameInput] = useState(workspaceName || '');
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
   const [saveStatus, setSaveStatus] = useState('');
 
+  const loadWorkspaces = async () => {
+    setLoadingWorkspaces(true);
+    try {
+      const response = await listWorkspaces();
+      const items = Array.isArray(response)
+        ? response
+        : Array.isArray(response?.workspaces)
+          ? response.workspaces
+          : Array.isArray(response?.data)
+            ? response.data
+            : [];
+      setWorkspaces(items);
+    } catch {
+      setWorkspaces([]);
+    } finally {
+      setLoadingWorkspaces(false);
+    }
+  };
+
   useEffect(() => {
     setNameInput(workspaceName || '');
   }, [workspaceName]);
+
+  useEffect(() => {
+    loadWorkspaces();
+  }, []);
 
   useImperativeHandle(ref, () => ({
     retryWorkspaceCreation: handleGenerate,
@@ -57,6 +82,17 @@ function WorkspaceSelector({
     }
   };
 
+  const handleSelectWorkspace = (workspace) => {
+    if (!workspace?.id) return;
+    setCreateError('');
+    setSaveStatus('');
+    setNameInput(workspace.name || '');
+    onWorkspaceChange(workspace.id);
+    onWorkspaceNameChange(workspace.name || '');
+    localStorage.setItem('workspaceId', workspace.id);
+    localStorage.setItem('workspaceName', workspace.name || '');
+  };
+
   const handleGenerate = async () => {
     if (!normalizedName) {
       setCreateError(t('enter_project_name_first'));
@@ -80,6 +116,7 @@ function WorkspaceSelector({
       onWorkspaceNameChange(workspace.name);
       localStorage.setItem('workspaceId', workspace.id);
       localStorage.setItem('workspaceName', workspace.name);
+      await loadWorkspaces();
       setSaveStatus(t('workspace_saved'));
     } catch (err) {
       setCreateError(t('project_create_failed'));
@@ -91,6 +128,21 @@ function WorkspaceSelector({
 
   return (
     <div className="workspace-selector">
+      <div className="workspace-list">
+        {loadingWorkspaces && <div className="workspace-empty">{t('loading')}</div>}
+        {!loadingWorkspaces && !workspaces.length && <div className="workspace-empty">{t('no_workspace')}</div>}
+        {workspaces.map((workspace) => (
+          <div
+            key={workspace.id}
+            className={`workspace-item ${workspace.id === workspaceId ? 'active' : ''}`}
+            onClick={() => handleSelectWorkspace(workspace)}
+          >
+            <span className="workspace-item-name">{workspace.name}</span>
+            <span className="workspace-item-id">ID: {String(workspace.id).slice(0, 8)}…</span>
+          </div>
+        ))}
+      </div>
+
       <div className="workspace-input-wrap">
         <input
           type="text"

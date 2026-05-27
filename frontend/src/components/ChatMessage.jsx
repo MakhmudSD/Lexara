@@ -2,6 +2,65 @@ import { useState } from 'react';
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/ChatMessage.css';
 
+function escapeHtml(text = '') {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function formatInline(text = '') {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>');
+}
+
+function renderMarkdown(text = '') {
+  const escaped = escapeHtml(text);
+  const lines = escaped.split(/\r?\n/);
+  const blocks = [];
+  let paragraph = [];
+  let listItems = [];
+
+  const flushParagraph = () => {
+    if (!paragraph.length) return;
+    blocks.push(`<p>${paragraph.join('<br/>')}</p>`);
+    paragraph = [];
+  };
+
+  const flushList = () => {
+    if (!listItems.length) return;
+    blocks.push(`<ol>${listItems.map((item) => `<li>${item}</li>`).join('')}</ol>`);
+    listItems = [];
+  };
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    const numbered = line.match(/^(\d+)\.\s+(.+)$/);
+
+    if (!line) {
+      flushParagraph();
+      flushList();
+      continue;
+    }
+
+    if (numbered) {
+      flushParagraph();
+      listItems.push(formatInline(numbered[2]));
+      continue;
+    }
+
+    flushList();
+    paragraph.push(formatInline(line));
+  }
+
+  flushParagraph();
+  flushList();
+  return blocks.join('');
+}
+
 function SourceCard({ source }) {
   const score = source.score || 0;
   const scoreClass = score >= 0.75 ? 'high' : score >= 0.55 ? 'medium' : 'low';
@@ -37,8 +96,9 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
   const [showSources, setShowSources] = useState(false);
   const isUser = role === 'user';
   const hasRealSources = sources && sources.length > 0;
-  const hasAnswer = role === 'assistant' && mode === 'rag' && content && content.trim();
+  const hasAnswer = role === 'assistant' && content && content.trim();
   const showThinking = !isUser && isStreaming && (!content || content.length === 0);
+  const renderedAnswer = !isUser && content ? renderMarkdown(content) : '';
 
   const topScore = sources?.length > 0
     ? Math.max(...sources.map((s) => s.score || 0))
@@ -69,17 +129,31 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
         )}
         {hasAnswer ? (
           <div className="answer-block">
-            <p className="message-text">
-              {content}
-              {isStreaming && <span className="cursor" aria-hidden="true" />}
-            </p>
+            {isUser ? (
+              <p className="message-text">
+                {content}
+                {isStreaming && <span className="cursor" aria-hidden="true" />}
+              </p>
+            ) : (
+              <>
+                <div className="message-text" dangerouslySetInnerHTML={{ __html: renderedAnswer }} />
+                {isStreaming && <span className="cursor" aria-hidden="true" />}
+              </>
+            )}
           </div>
         ) : (
           content ? (
-            <p className="message-text">
-              {content}
-              {isStreaming && <span className="cursor" aria-hidden="true" />}
-            </p>
+            isUser ? (
+              <p className="message-text">
+                {content}
+                {isStreaming && <span className="cursor" aria-hidden="true" />}
+              </p>
+            ) : (
+              <>
+                <div className="message-text" dangerouslySetInnerHTML={{ __html: renderedAnswer }} />
+                {isStreaming && <span className="cursor" aria-hidden="true" />}
+              </>
+            )
           ) : (
             showThinking ? (
               <div className="thinking-wrap">
@@ -101,7 +175,7 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
         <div className="sources-section">
           <div className="sources-meta-row">
             <button className="sources-toggle-btn" type="button" onClick={() => setShowSources((value) => !value)}>
-              <span>{sources.length} {t('references').toLowerCase()}</span>
+              <span>{sources.length} {t('references')}</span>
               <span className="sources-arrow">{showSources ? '↑' : '↓'}</span>
             </button>
 
@@ -112,6 +186,7 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
             )}
             {tier === 'low' && <div className="confidence-badge confidence-low">{t('confidence_low')}</div>}
           </div>
+          {tier === 'high' && <div className="confidence-high-note">{t('from_your_documents')}</div>}
           {tier === 'low' && <div className="confidence-tip">{t('confidence_tip')}</div>}
 
           {showSources && (

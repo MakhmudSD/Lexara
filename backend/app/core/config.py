@@ -1,18 +1,19 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
 from pathlib import Path
 
 from dotenv import load_dotenv
+from pydantic import BaseModel, ConfigDict, model_validator
 
 load_dotenv()
 
 DEFAULT_SQLITE_DB_PATH = str(Path(__file__).resolve().parents[2] / "data" / "rag.sqlite3")
 
 
-@dataclass(frozen=True)
-class Settings:
+class Settings(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
     # OpenAI (optional — not used in retrieval-only MVP)
     openai_api_key: str | None
     embedding_model: str = "text-embedding-3-small"
@@ -69,6 +70,23 @@ class Settings:
     @property
     def openai_configured(self) -> bool:
         return bool(self.openai_api_key)
+
+    @model_validator(mode="after")
+    def validate_jwt_secret(self):
+        import logging
+
+        if self.jwt_secret_key in (
+            "change-me-in-production",
+            "change-me-",
+            "secret",
+            "change-me-in-production-32-chars-min",
+        ):
+            logging.getLogger(__name__).critical(
+                "SECURITY WARNING: JWT_SECRET_KEY is set to the default value. "
+                "This is a critical security risk. Set a real secret in your .env file. "
+                "Run: python3 -c \"import secrets; print(secrets.token_hex(32))\""
+            )
+        return self
 
 
 def get_settings() -> Settings:

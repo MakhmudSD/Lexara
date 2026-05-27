@@ -367,7 +367,7 @@ function UsersPanel({
       </div>
 
       {!sourceUsers.length ? (
-        <EmptyUsersState message="No users found" />
+        <EmptyUsersState message={t('admin_no_users')} />
       ) : !filteredUsers.length ? (
         <EmptyUsersState message={t('admin_no_users_match')} />
       ) : (
@@ -489,7 +489,6 @@ export default function AdminPage({ onGoAsk }) {
 
   const loadUsers = useCallback(async () => {
     const response = await getUsers();
-    console.log('users response:', response);
     const users = Array.isArray(response)
       ? response
       : Array.isArray(response?.users)
@@ -525,8 +524,8 @@ export default function AdminPage({ onGoAsk }) {
       }
     } catch (err) {
       setError(activeTab === 'users'
-        ? 'Failed to load users'
-        : err.response?.data?.error?.message || err.message || 'Fetch failed');
+        ? t('connection_error')
+        : err.response?.data?.error?.message || err.message || t('connection_error'));
     } finally {
       setLoading(false);
     }

@@ -69,10 +69,6 @@ def create_app() -> FastAPI:
     def shutdown_event() -> None:
         logger.info("Shutting down backend...")
 
-    @app.get("/cors-check")
-    def cors_check() -> dict[str, object]:
-        return {"allowed_origins": allowed_origins, "status": "ok"}
-
     return app
 
 
