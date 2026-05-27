@@ -4,14 +4,14 @@ import '../styles/ChatMessage.css';
 
 function SourceCard({ source }) {
   const score = source.score || 0;
-  const scoreDot = score >= 0.75 ? '🟢' : score >= 0.55 ? '🟡' : '⚪';
+  const scoreClass = score >= 0.75 ? 'high' : score >= 0.55 ? 'medium' : 'low';
   const filename = source.filename || `doc:${String(source.document_id).slice(0, 8)}`;
   const preview = source.text ? `${source.text.substring(0, 120)}${source.text.length > 120 ? '…' : ''}` : '';
 
   return (
     <div className="source-card">
       <div className="source-card-header">
-        <span className="source-score-dot" aria-hidden="true">{scoreDot}</span>
+        <span className={`source-score-dot ${scoreClass}`} aria-hidden="true" />
         <span className="source-filename" title={filename}>
           {filename}
         </span>
@@ -23,7 +23,16 @@ function SourceCard({ source }) {
   );
 }
 
-export default function ChatMessage({ role, content, sources, isLoading, mode, isStreaming }) {
+function formatTime(timestamp) {
+  if (!timestamp) return '';
+  try {
+    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  } catch {
+    return '';
+  }
+}
+
+export default function ChatMessage({ role, content, sources, isLoading, mode, isStreaming, timestamp }) {
   const { t } = useTranslation();
   const [showSources, setShowSources] = useState(false);
   const isUser = role === 'user';
@@ -44,9 +53,9 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
     return (
       <div className="message-row assistant">
         <div className="typing-bubble">
-          <div className="typing-dot" />
-          <div className="typing-dot" />
-          <div className="typing-dot" />
+          <div className="thinking-dot" />
+          <div className="thinking-dot" />
+          <div className="thinking-dot" />
         </div>
       </div>
     );
@@ -84,19 +93,15 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
             ) : (isStreaming ? <span className="cursor" aria-hidden="true" /> : null)
           )
         )}
-        {!isUser && tier === 'low' && (
-          <div className="confidence-tip">
-            {t('confidence_tip')}
-          </div>
-        )}
       </div>
+
+      {timestamp && <span className="message-timestamp">{formatTime(timestamp)}</span>}
 
       {hasRealSources && (
         <div className="sources-section">
           <div className="sources-meta-row">
             <button className="sources-toggle-btn" type="button" onClick={() => setShowSources((value) => !value)}>
-              <span className="sources-icon">📄</span>
-              <span>{sources.length} {t('references')}</span>
+              <span>{sources.length} {t('references').toLowerCase()}</span>
               <span className="sources-arrow">{showSources ? '↑' : '↓'}</span>
             </button>
 
@@ -105,19 +110,9 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
                 {t('confidence_medium')}
               </div>
             )}
-
-            {tier === 'low' && (
-              <div className="confidence-badge confidence-low">
-                {t('confidence_low')}
-              </div>
-            )}
+            {tier === 'low' && <div className="confidence-badge confidence-low">{t('confidence_low')}</div>}
           </div>
-
-          {tier === 'high' && (
-            <div className="from-documents-note">
-              {t('from_your_documents')}
-            </div>
-          )}
+          {tier === 'low' && <div className="confidence-tip">{t('confidence_tip')}</div>}
 
           {showSources && (
             <div className="sources-grid">

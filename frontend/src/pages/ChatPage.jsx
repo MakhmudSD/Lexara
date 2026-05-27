@@ -25,6 +25,13 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
   const textareaRef = useRef(null);
   const workspaceSelectorRef = useRef(null);
 
+  const normalizeMessages = useCallback((entries, fallbackTimestamp) => (
+    (entries || []).map((entry, index) => ({
+      ...entry,
+      timestamp: entry.timestamp || entry.createdAt || new Date((fallbackTimestamp || Date.now()) + index * 60000).toISOString(),
+    }))
+  ), []);
+
   const retryWorkspaceCreation = useCallback(() => {
     workspaceSelectorRef.current?.retryWorkspaceCreation?.();
   }, []);
@@ -33,15 +40,16 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
     const session = sessions.find((item) => item.id === sessionId);
     if (!session) return;
     setActiveSessionId(session.id);
-    setMessages(session.messages || []);
-    const rebuiltHistory = (session.messages || [])
+    const normalizedMessages = normalizeMessages(session.messages || [], new Date(session.createdAt || Date.now()).getTime());
+    setMessages(normalizedMessages);
+    const rebuiltHistory = normalizedMessages
       .filter((entry) => entry.role === 'user' || entry.role === 'assistant')
       .map((entry) => ({ role: entry.role, content: entry.content || '' }))
       .slice(-HISTORY_LIMIT);
     setHistory(rebuiltHistory);
     setError('');
     setConnectionError(false);
-  }, [sessions]);
+  }, [normalizeMessages, sessions]);
 
   const createNewSession = useCallback(() => {
     if (!workspaceId) return;
@@ -106,8 +114,9 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
         setSessions(Array.isArray(parsed) ? parsed : []);
         if (Array.isArray(parsed) && parsed.length > 0) {
           setActiveSessionId(parsed[0].id);
-          setMessages(parsed[0].messages || []);
-          setHistory((parsed[0].messages || []).filter((entry) => entry.role === 'user' || entry.role === 'assistant').slice(-HISTORY_LIMIT));
+          const normalizedMessages = normalizeMessages(parsed[0].messages || [], new Date(parsed[0].createdAt || Date.now()).getTime());
+          setMessages(normalizedMessages);
+          setHistory(normalizedMessages.filter((entry) => entry.role === 'user' || entry.role === 'assistant').slice(-HISTORY_LIMIT));
           setConnectionError(false);
         } else {
           setActiveSessionId(null);
@@ -129,7 +138,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
       setHistory([]);
       setConnectionError(false);
     }
-  }, [workspaceId]);
+  }, [normalizeMessages, workspaceId]);
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -168,6 +177,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
     }
     const historyForRequest = history.slice(-HISTORY_LIMIT);
     const assistantId = `assistant-${Date.now()}`;
+    const sentAt = new Date().toISOString();
 
     setInput('');
     setError('');
@@ -175,8 +185,8 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
     setIsLoading(true);
     setMessages((prev) => [
       ...prev,
-      { role: 'user', content: question },
-      { id: assistantId, role: 'assistant', content: '', sources: [], mode: 'rag', isStreaming: true },
+      { role: 'user', content: question, timestamp: sentAt },
+      { id: assistantId, role: 'assistant', content: '', sources: [], mode: 'rag', isStreaming: true, timestamp: sentAt },
     ]);
 
     let finalContent = '';
@@ -362,53 +372,24 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
             </div>
           )}
           {!connectionError && isEmpty && (
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100%',
-              gap: 24,
-              padding: 48,
-            }}>
-              <LexaraIcon size={48} style={{ opacity: 0.15 }} />
-              <div style={{ textAlign: 'center' }}>
-                <h2 style={{
-                  fontSize: 22,
-                  fontWeight: 600,
-                  letterSpacing: -0.5,
-                  color: 'var(--lexara-text)',
-                  marginBottom: 8,
-                }}>
+            <div className="chat-empty-state">
+              <LexaraIcon size={56} style={{ opacity: 0.4 }} />
+              <div className="chat-empty-copy">
+                <h2 className="chat-empty-headline">
                   {hasWorkspaceName ? `${t('ask_about')} ${workspaceName}` : t('name_project_prompt')}
                 </h2>
-                <p style={{
-                  fontSize: 14,
-                  color: 'var(--lexara-text-secondary)',
-                  maxWidth: 320,
-                  lineHeight: 1.6,
-                }}>
+                <p className="chat-empty-subhead">
                   {hasWorkspaceName ? t('upload_prompt') : t('create_project_prompt')}
                 </p>
               </div>
               {hasWorkspaceName && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
+                <div className="chat-empty-chips">
                   {[t('suggested_q1'), t('suggested_q2'), t('suggested_q3')].map((prompt) => (
                     <button
                       key={prompt}
+                      type="button"
+                      className="chat-empty-chip"
                       onClick={() => setInput(prompt)}
-                      style={{
-                        padding: '8px 16px',
-                        borderRadius: 100,
-                        border: '1px solid var(--lexara-border)',
-                        background: 'var(--lexara-white)',
-                        fontSize: 13,
-                        color: 'var(--lexara-text-secondary)',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s',
-                      }}
-                      onMouseEnter={(event) => { event.currentTarget.style.borderColor = 'var(--lexara-blue)'; }}
-                      onMouseLeave={(event) => { event.currentTarget.style.borderColor = 'var(--lexara-border)'; }}
                     >
                       {prompt}
                     </button>
@@ -426,6 +407,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
               sources={message.sources}
               mode={message.mode}
               isStreaming={message.isStreaming}
+              timestamp={message.timestamp}
             />
           ))}
 

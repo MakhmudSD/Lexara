@@ -21,6 +21,7 @@ export default function FileUploader({
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef(null);
   const dismissTimerRef = useRef(null);
+  const phaseTimerRef = useRef(null);
   const isAllowedFile = (file) => ALLOWED[file.type] || file.name.match(/\.(pdf|docx|txt)$/i);
 
   const clearDismissTimer = () => {
@@ -30,8 +31,16 @@ export default function FileUploader({
     }
   };
 
+  const clearPhaseTimer = () => {
+    if (phaseTimerRef.current) {
+      window.clearTimeout(phaseTimerRef.current);
+      phaseTimerRef.current = null;
+    }
+  };
+
   const reset = () => {
     clearDismissTimer();
+    clearPhaseTimer();
     setStatus({ type: 'idle' });
     setDragging(false);
     if (inputRef.current) inputRef.current.value = '';
@@ -41,27 +50,31 @@ export default function FileUploader({
     if (!file) return;
     if (status.type === 'uploading' || disabled || !workspaceId) return;
     if (!isAllowedFile(file)) {
-      setStatus({ type: 'error', message: 'Upload failed. Try again.' });
-      onUploadError?.('Upload failed. Try again.');
+      const message = t('upload_failed_retry');
+      setStatus({ type: 'error', message });
+      onUploadError?.(message);
       return;
     }
 
     clearDismissTimer();
+    clearPhaseTimer();
     setDragging(false);
     setStatus({ type: 'uploading', filename: file.name });
 
     try {
       const result = await uploadDocument(file, workspaceId);
-      const chunks = result.chunk_count ?? result.chunks ?? '?';
-      setStatus({ type: 'success', filename: file.name, chunks });
+      setStatus({ type: 'success', filename: file.name, phase: 'indexing' });
       onUploadSuccess?.(result);
-      clearDismissTimer();
-      dismissTimerRef.current = window.setTimeout(() => {
-        setStatus({ type: 'idle' });
-        if (inputRef.current) inputRef.current.value = '';
+      if (inputRef.current) inputRef.current.value = '';
+      phaseTimerRef.current = window.setTimeout(() => {
+        setStatus((current) => (
+          current.type === 'success'
+            ? { ...current, phase: 'ready' }
+            : current
+        ));
       }, 3000);
     } catch (err) {
-      const msg = 'Upload failed. Try again.';
+      const msg = t('upload_failed_retry');
       setStatus({ type: 'error', message: msg });
       onUploadError?.(msg);
     }
@@ -75,7 +88,10 @@ export default function FileUploader({
 
   const isBusy = status.type === 'uploading' || !workspaceId || disabled;
 
-  useEffect(() => () => clearDismissTimer(), []);
+  useEffect(() => () => {
+    clearDismissTimer();
+    clearPhaseTimer();
+  }, []);
 
   return (
     <div className="file-uploader">
@@ -113,20 +129,20 @@ export default function FileUploader({
             <div className="uploader-progress">
               <div className="uploader-progress-bar" />
             </div>
-            <p className="uploader-status">{t('uploading')}</p>
+            <p className="uploader-status">{t('processing')}</p>
           </div>
         )}
 
         {status.type === 'success' && (
           <div className="uploader-success">
             <span className="uploader-check">✓</span>
-            <p>{status.filename} · {status.chunks} {t('chunks')}</p>
+            <p>{status.filename} · {status.phase === 'ready' ? t('ready_to_query') : t('indexing_background')}</p>
           </div>
         )}
 
         {status.type === 'error' && (
           <div className="uploader-error">
-            <p className="uploader-error-text">{status.message || 'Upload failed. Try again.'}</p>
+            <p className="uploader-error-text">{status.message || t('upload_failed_retry')}</p>
             <button type="button" onClick={reset}>{t('retry')}</button>
           </div>
         )}

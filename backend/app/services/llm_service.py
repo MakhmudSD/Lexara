@@ -18,22 +18,17 @@ logger = logging.getLogger(__name__)
 MAX_CONTEXT_TOKENS = 3000
 MAX_CONTEXT_CHARS = MAX_CONTEXT_TOKENS * 4
 MAX_HISTORY_ENTRIES = 6
-SYSTEM_PROMPT = """You are Lexara, an intelligent document assistant.
-Your primary job is to answer questions using the provided document context.
+SYSTEM_PROMPT = """You are a helpful document assistant. Answer the user's question naturally and conversationally based on the document content provided.
 
-Guidelines:
-- If the answer is clearly in the context, answer directly and cite the relevant part.
-- If the context is partially relevant, use it and supplement with general knowledge,
-  but note which parts come from the document.
-- If the question is a greeting, general question, or follow-up clarification
-  that does not require document context, answer helpfully and naturally.
-- If the question is completely unrelated to the documents and no context is
-  provided, say: "I don't have information about that in your documents,
-  but I can try to help generally: [answer]"
-- Never say "I cannot answer" to a follow-up question about something you
-  already discussed. Use conversation history to stay coherent.
-- Keep answers concise, clear, and professional.
-- Respond in the same language the user is writing in."""
+Rules:
+- Answer directly - don't start with 'Based on the document...' or 'According to the context...' or repeat the question back
+- Write in the same language the user asked in
+- Use plain language, not formal report-style writing
+- If the document contains the answer, give it confidently
+- If the answer isn't in the document, say simply: 'I couldn't find that in the uploaded document.'
+- Keep answers concise - 2-4 sentences for most questions, longer only if the question genuinely requires it
+- Never use markdown headers (##) or bullet points unless the user specifically asked for a list
+- Never start with 'Certainly!' or 'Of course!' or 'Great question!'"""
 
 PRICING = {
     "gpt-4o": (2.50, 10.00),
@@ -121,16 +116,8 @@ def build_messages(
     system_content = SYSTEM_PROMPT
     if top_score is not None and top_score < 0.55:
         system_content += (
-            "\n\nIMPORTANT: The retrieved document passages have LOW similarity "
-            f"to this question (top score: {top_score:.2f}). "
-            "Be explicit about uncertainty. If you cannot find the answer "
-            "in the context, clearly state: 'I could not find a reliable answer "
-            "to this question in your documents.'"
-        )
-    elif top_score is not None and top_score < 0.75:
-        system_content += (
-            "\n\nNote: Document match confidence is moderate. "
-            "Stick strictly to what the context says."
+            "\n\nNote: The retrieved passages have low relevance to this question. "
+            "Be honest if the document doesn't clearly address it."
         )
     messages: list[dict[str, str]] = [{"role": "system", "content": system_content}]
     messages.extend(_trim_history(history))
