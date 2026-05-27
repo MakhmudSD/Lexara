@@ -1,7 +1,7 @@
 from uuid import UUID
 import random
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Header, Query
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_db
