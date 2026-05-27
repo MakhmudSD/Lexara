@@ -40,6 +40,7 @@ def _validate_workspace_name(name: str) -> str:
 def quick_create_workspace(
     payload: WorkspaceQuickCreate,
     db: Session = Depends(get_db),
+    authorization: str | None = Header(default=None),
 ) -> WorkspaceResponse:
     """
     Create a workspace without needing an organization_id.
@@ -51,11 +52,21 @@ def quick_create_workspace(
     org = db.query(Organization).filter(Organization.is_active.is_(True)).first()
     if org is None:
         from uuid import uuid4
+        # Get the real user ID from the auth token
+        user_id = uuid4()  # fallback
+        if authorization and authorization.startswith("Bearer "):
+            try:
+                settings = get_settings()
+                claims = decode_access_token(authorization.split(" ", 1)[1], settings)
+                from uuid import UUID as _UUID
+                user_id = _UUID(claims["sub"])
+            except Exception:
+                pass
         org = Organization(
             id=uuid4(),
             name="Default Organization",
             slug="default",
-            owner_id=uuid4(),
+            owner_id=user_id,
             is_active=True,
         )
         db.add(org)
