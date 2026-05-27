@@ -4,15 +4,16 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import model_validator
+from pydantic_settings import BaseSettings
 
 load_dotenv()
 
 DEFAULT_SQLITE_DB_PATH = str(Path(__file__).resolve().parents[2] / "data" / "rag.sqlite3")
 
 
-class Settings(BaseModel):
-    model_config = ConfigDict(frozen=True)
+class Settings(BaseSettings):
+    model_config = {"env_file": ".env", "case_sensitive": False}
 
     # OpenAI (optional — not used in retrieval-only MVP)
     openai_api_key: str | None
