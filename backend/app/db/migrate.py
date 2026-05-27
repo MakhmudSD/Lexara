@@ -24,26 +24,34 @@ def run_migrations() -> None:
     init_sentry(settings.sentry_dsn, settings.environment)
 #    run_startup_cleanup()
     logger.info("database_migrations_completed")
-    try:
-        from app.services.faiss_rebuild import rebuild_faiss_from_db as _rebuild
-        from app.db import SessionLocal as _SessionLocal
-        from app.core.config import get_settings as _get_settings
-        _db = _SessionLocal()
-        n = _rebuild(_db, _get_settings())
-        _db.close()
-        logger.info(f"FAISS rebuild complete: {n} workspaces indexed")
-    except Exception as _e:
-        logger.warning(f"FAISS rebuild skipped: {_e}")
-    try:
-        from app.services.faiss_rebuild import rebuild_faiss_from_db as _rebuild
-        from app.db import SessionLocal as _SessionLocal
-        from app.core.config import get_settings as _get_settings
-        _db = _SessionLocal()
-        n = _rebuild(_db, _get_settings())
-        _db.close()
-        logger.info(f"FAISS rebuild complete: {n} workspaces indexed")
-    except Exception as _e:
-        logger.warning(f"FAISS rebuild skipped: {_e}")
+    import threading
+    def _bg_rebuild():
+        try:
+            from app.services.faiss_rebuild import rebuild_faiss_from_db as _rebuild
+            from app.db import SessionLocal as _SessionLocal
+            from app.core.config import get_settings as _get_settings
+            _db = _SessionLocal()
+            n = _rebuild(_db, _get_settings())
+            _db.close()
+            logger.info(f"FAISS rebuild complete: {n} workspaces indexed")
+        except Exception as _e:
+            logger.warning(f"FAISS rebuild skipped: {_e}")
+    threading.Thread(target=_bg_rebuild, daemon=True).start()
+    logger.info("FAISS rebuild started in background")
+    import threading
+    def _bg_rebuild():
+        try:
+            from app.services.faiss_rebuild import rebuild_faiss_from_db as _rebuild
+            from app.db import SessionLocal as _SessionLocal
+            from app.core.config import get_settings as _get_settings
+            _db = _SessionLocal()
+            n = _rebuild(_db, _get_settings())
+            _db.close()
+            logger.info(f"FAISS rebuild complete: {n} workspaces indexed")
+        except Exception as _e:
+            logger.warning(f"FAISS rebuild skipped: {_e}")
+    threading.Thread(target=_bg_rebuild, daemon=True).start()
+    logger.info("FAISS rebuild started in background")
 
 
 def run_startup_cleanup() -> None:
