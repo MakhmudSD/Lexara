@@ -47,7 +47,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
     if (!workspaceId) return;
     const newSession = {
       id: globalThis.crypto?.randomUUID?.() || `session-${Date.now()}`,
-      title: 'New conversation',
+      title: t('new_conversation'),
       createdAt: new Date().toISOString(),
       messages: [],
       workspaceId,
@@ -59,7 +59,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
     setMessages([]);
     setSidebarOpen(false);
     setConnectionError(false);
-  }, [sessions, workspaceId]);
+  }, [sessions, t, workspaceId]);
 
   const deleteSession = useCallback((sessionId) => {
     const updated = sessions.filter((s) => s.id !== sessionId);
@@ -155,7 +155,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
     if (!sessionId) {
       const newSession = {
         id: globalThis.crypto?.randomUUID?.() || `session-${Date.now()}`,
-        title: 'New conversation',
+        title: t('new_conversation'),
         createdAt: new Date().toISOString(),
         messages: [],
         workspaceId,
@@ -288,18 +288,19 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
         <div className="sidebar-section">
           <div className="sidebar-label">{t('ingest_document')}</div>
           <FileUploader
-            workspaceId={hasWorkspaceName ? workspaceId : ''}
+            workspaceId={workspaceId}
             onUploadSuccess={() => setError('')}
             onUploadError={(msg) => setError(msg)}
             disabled={!hasWorkspaceName}
+            nameRequired={Boolean(workspaceId) && !hasWorkspaceName}
           />
-          {!hasWorkspaceName && <div className="input-hint">{t('upload_disabled_hint')}</div>}
+          {!hasWorkspaceName && <div className="input-hint">{workspaceId ? t('upload_disabled_hint') : t('select_project_first')}</div>}
         </div>
 
-        <div className="sidebar-section">
+          <div className="sidebar-section">
           <div className="sidebar-label">{t('conversations')}</div>
           <button className="new-chat-btn" onClick={createNewSession}>
-            + New conversation
+            + {t('new_conversation')}
           </button>
           <div className="sessions-list">
             {sessions.map((session) => (
@@ -311,7 +312,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
                   setSidebarOpen(false);
                 }}
               >
-                <span className="session-title">{session.title || 'New conversation'}</span>
+                <span className="session-title">{session.title || t('new_conversation')}</span>
                 <span className="session-date">{formatDate(session.createdAt)}</span>
                 <button
                   className="session-delete"
@@ -379,7 +380,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
                   color: 'var(--lexara-text)',
                   marginBottom: 8,
                 }}>
-                  {workspaceName ? `Ask about ${workspaceName}` : 'Name your project to begin'}
+                  {hasWorkspaceName ? `${t('ask_about')} ${workspaceName}` : t('name_project_prompt')}
                 </h2>
                 <p style={{
                   fontSize: 14,
@@ -387,14 +388,12 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
                   maxWidth: 320,
                   lineHeight: 1.6,
                 }}>
-                  {workspaceName
-                    ? 'Upload a document, then ask anything in plain language.'
-                    : 'Create a project on the left to get started.'}
+                  {hasWorkspaceName ? t('upload_prompt') : t('create_project_prompt')}
                 </p>
               </div>
-              {workspaceName && (
+              {hasWorkspaceName && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
-                  {[t('suggested_q1') || 'What are the main topics?', t('suggested_q2') || 'Summarize this document', t('suggested_q3') || 'What are the key conclusions?'].map((prompt) => (
+                  {[t('suggested_q1'), t('suggested_q2'), t('suggested_q3')].map((prompt) => (
                     <button
                       key={prompt}
                       onClick={() => setInput(prompt)}
@@ -459,7 +458,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
               </svg>
             </button>
           </div>
-          <div className="input-hint">⏎ send · ⇧⏎ newline</div>
+          <div className="input-hint">⏎ {t('send')} · ⇧⏎ {t('newline_hint')}</div>
         </div>
       </main>
     </div>

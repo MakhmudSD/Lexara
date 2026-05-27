@@ -1,5 +1,9 @@
 """Text chunking for document ingestion."""
 
+from __future__ import annotations
+
+import re
+
 from app.core.exceptions import AppError
 
 
@@ -8,12 +12,7 @@ def chunk_text(
     chunk_size: int = 500,
     overlap: int = 100,
 ) -> list[str]:
-    """
-    Split text into overlapping chunks while preserving reasonable continuity.
-
-    Chunks are character-based for MVP simplicity. Overlap helps avoid cutting
-    sentences or concepts at boundaries.
-    """
+    """Split text into sentence-aware chunks."""
     if chunk_size <= 0:
         raise AppError(400, "invalid_chunk_size", "Chunk size must be greater than zero.")
     if overlap < 0 or overlap >= chunk_size:
@@ -27,17 +26,38 @@ def chunk_text(
     if not normalized:
         return []
 
-    chunks: list[str] = []
-    start = 0
-    text_length = len(normalized)
+    sentences = re.split(r"(?<=[.!?])\s+", normalized)
+    sentences = [sentence.strip() for sentence in sentences if sentence.strip()]
 
-    while start < text_length:
-        end = min(start + chunk_size, text_length)
-        chunk = normalized[start:end].strip()
-        if chunk:
-            chunks.append(chunk)
-        if end >= text_length:
-            break
-        start = end - overlap
+    if not sentences:
+        return []
+
+    chunks: list[str] = []
+    current: list[str] = []
+    current_len = 0
+
+    for sentence in sentences:
+        sentence_len = len(sentence)
+        if current and current_len + sentence_len > chunk_size:
+            chunks.append(" ".join(current))
+
+            overlap_sentences: list[str] = []
+            overlap_len = 0
+            for current_sentence in reversed(current):
+                current_sentence_len = len(current_sentence)
+                if overlap_len + current_sentence_len <= overlap:
+                    overlap_sentences.insert(0, current_sentence)
+                    overlap_len += current_sentence_len
+                else:
+                    break
+
+            current = overlap_sentences
+            current_len = overlap_len
+
+        current.append(sentence)
+        current_len += sentence_len
+
+    if current:
+        chunks.append(" ".join(current))
 
     return chunks

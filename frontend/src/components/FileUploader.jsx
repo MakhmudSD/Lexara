@@ -9,7 +9,13 @@ const ALLOWED = {
   'text/plain': '.txt',
 };
 
-export default function FileUploader({ workspaceId, onUploadSuccess, onUploadError, disabled = false }) {
+export default function FileUploader({
+  workspaceId,
+  onUploadSuccess,
+  onUploadError,
+  disabled = false,
+  nameRequired = false,
+}) {
   const { t } = useTranslation();
   const [status, setStatus] = useState(null);
   const [dragging, setDragging] = useState(false);
@@ -20,7 +26,7 @@ export default function FileUploader({ workspaceId, onUploadSuccess, onUploadErr
     if (!file) return;
 
     if (!ALLOWED[file.type] && !file.name.match(/\.(pdf|docx|txt)$/i)) {
-      const msg = t('upload_supported_types');
+      const msg = t('supported_formats');
       setStatus({ type: 'error', text: msg });
       onUploadError?.(msg);
       return;
@@ -31,7 +37,7 @@ export default function FileUploader({ workspaceId, onUploadSuccess, onUploadErr
     try {
       const result = await uploadDocument(file, workspaceId);
       const chunks = result.chunk_count ?? result.chunks ?? '?';
-      setStatus({ type: 'success', text: `${t('indexed')} — ${chunks} chunks` });
+      setStatus({ type: 'success', text: `${t('indexed')} — ${chunks} ${t('chunks')}` });
       setUploads((prev) => [{ name: file.name, chunks }, ...prev].slice(0, 5));
       onUploadSuccess?.(result);
       setTimeout(() => setStatus(null), 3000);
@@ -39,7 +45,6 @@ export default function FileUploader({ workspaceId, onUploadSuccess, onUploadErr
     } catch (err) {
       const msg = err.response?.data?.error?.message
         || err.response?.data?.detail
-        || err.message
         || t('upload_failed');
       setStatus({ type: 'error', text: msg });
       onUploadError?.(msg);
@@ -74,9 +79,13 @@ export default function FileUploader({ workspaceId, onUploadSuccess, onUploadErr
         />
         <span className="upload-icon">↑</span>
         <div className="upload-label-text">
-          {workspaceId && !disabled ? t('drop_file_or_click') : t('select_workspace_first')}
+          {!workspaceId
+            ? t('select_project_first')
+            : nameRequired
+              ? t('name_project_first')
+              : t('drop_or_click')}
         </div>
-        <span className="upload-accepted">{t('upload_supported_types')}</span>
+        <span className="upload-accepted">{t('supported_formats')}</span>
       </div>
 
       {status && (
@@ -103,7 +112,7 @@ export default function FileUploader({ workspaceId, onUploadSuccess, onUploadErr
           {uploads.map((upload, index) => (
             <div key={index} className="recent-upload-item">
               <span className="recent-upload-name" title={upload.name}>{upload.name}</span>
-              <span className="recent-upload-chunks">{upload.chunks}c</span>
+              <span className="recent-upload-chunks">{upload.chunks} {t('chunks')}</span>
             </div>
           ))}
         </div>

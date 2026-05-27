@@ -48,16 +48,25 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
     : 'low';
 
   const tierConfig = {
-    high:   { color: '#16a34a', bg: '#f0fdf4', label: `${Math.round(topScore * 100)}% match` },
-    medium: { color: '#d97706', bg: '#fffbeb', label: `${Math.round(topScore * 100)}% match · ${t('verify_sources')}` },
-    low:    { color: '#dc2626', bg: '#fef2f2', label: t('low_match') },
+    medium: {
+      bg: '#fffbeb',
+      color: '#92400e',
+      border: '#fde68a',
+      label: t('confidence_medium'),
+    },
+    low: {
+      bg: '#f9fafb',
+      color: '#6b7280',
+      border: '#e5e7eb',
+      label: t('confidence_low'),
+    },
   };
 
   if (isLoading) {
     return (
       <div className="message-row assistant">
         <div className="message-role assistant-role">
-          <span>system</span>
+          <span>{t('system_label')}</span>
         </div>
         <div className="typing-bubble">
           <div className="typing-dot" />
@@ -71,7 +80,7 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
   return (
     <div className={`message-row ${isUser ? 'user' : 'assistant'}`}>
       <div className={`message-role ${isUser ? 'user-role' : 'assistant-role'}`}>
-        {isUser ? 'you' : 'system'}
+        {isUser ? t('you_label') : t('system_label')}
       </div>
 
       <div className={`message-bubble ${isUser ? 'user-bubble' : 'assistant-bubble'}`}>
@@ -104,6 +113,17 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
             ) : (isStreaming ? <span className="cursor" aria-hidden="true" /> : null)
           )
         )}
+        {!isUser && tier === 'low' && (
+          <div style={{
+            marginTop: 8,
+            fontSize: 12,
+            color: 'var(--text-secondary)',
+            fontStyle: 'italic',
+            lineHeight: 1.5,
+          }}>
+            {t('confidence_tip')}
+          </div>
+        )}
       </div>
 
       {hasRealSources && (
@@ -114,41 +134,52 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
             <span className={`sources-toggle-chevron ${showSources ? 'open' : ''}`}>›</span>
           </button>
 
-          {tier && (
+          {tier === 'high' && (
             <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6,
-              background: tierConfig[tier].bg,
-              border: `1px solid ${tierConfig[tier].color}22`,
-              borderRadius: 100, padding: '3px 10px',
-              fontSize: 11, color: tierConfig[tier].color,
-              fontFamily: 'var(--font-mono)', marginTop: 8,
+              marginTop: 8,
+              fontSize: 11,
+              color: 'var(--text-tertiary)',
+              fontFamily: 'var(--font-mono)',
             }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: tierConfig[tier].color }} />
-              {tierConfig[tier].label}
+              {t('from_your_documents')}
+            </div>
+          )}
+
+          {tier === 'medium' && (
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              background: tierConfig.medium.bg,
+              border: `1px solid ${tierConfig.medium.border}`,
+              borderRadius: 100,
+              padding: '2px 10px',
+              fontSize: 11,
+              color: tierConfig.medium.color,
+              fontFamily: 'var(--font-mono)',
+              marginTop: 8,
+            }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: tierConfig.medium.color }} />
+              {tierConfig.medium.label}
             </div>
           )}
 
           {tier === 'low' && (
-            <div style={{ marginTop: 6, lineHeight: 1.5 }}>
-              <p style={{ fontSize: 11, color: '#dc2626' }}>
-                {t('low_match_warning')}
-              </p>
-              <button
-                type="button"
-                onClick={() => setShowSources(true)}
-                style={{
-                  marginTop: 4,
-                  padding: 0,
-                  border: 'none',
-                  background: 'transparent',
-                  color: '#dc2626',
-                  fontSize: 11,
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                }}
-              >
-                {t('verify_sources')}
-              </button>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              background: tierConfig.low.bg,
+              border: `1px solid ${tierConfig.low.border}`,
+              borderRadius: 100,
+              padding: '2px 10px',
+              fontSize: 11,
+              color: tierConfig.low.color,
+              fontFamily: 'var(--font-mono)',
+              marginTop: 8,
+            }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: tierConfig.low.color }} />
+              {tierConfig.low.label}
             </div>
           )}
 

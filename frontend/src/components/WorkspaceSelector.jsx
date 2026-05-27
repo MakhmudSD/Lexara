@@ -59,11 +59,11 @@ function WorkspaceSelector({
 
   const handleGenerate = async () => {
     if (!normalizedName) {
-      setCreateError('Please enter a project name first');
+      setCreateError(t('enter_project_name_first'));
       return;
     }
     if (normalizedName.length < 2) {
-      setCreateError('Project name must be at least 2 characters');
+      setCreateError(t('project_name_min_length'));
       return;
     }
     if (!NAME_RE.test(normalizedName)) {
@@ -82,7 +82,7 @@ function WorkspaceSelector({
       localStorage.setItem('workspaceName', workspace.name);
       setSaveStatus(t('workspace_saved'));
     } catch (err) {
-      setCreateError('Could not create project. Please check your connection.');
+      setCreateError(t('project_create_failed'));
       onConnectionError?.();
     } finally {
       setCreating(false);
@@ -120,7 +120,7 @@ function WorkspaceSelector({
       {nameError && <div className="workspace-status" style={{ color: '#b45309', fontSize: 11 }}>✗ {nameError}</div>}
       {!!saveStatus && <div className={`workspace-status ${saveStatus.startsWith('✓') ? 'ok' : 'err'}`}>{saveStatus}</div>}
       {createError && <div className="workspace-status" style={{ color: '#b45309', fontSize: 11 }}>✗ {createError}</div>}
-      {!workspaceId && !normalizedName && !createError && <div className="workspace-status hint">Please enter a project name first</div>}
+      {!workspaceId && !normalizedName && !createError && <div className="workspace-status hint">{t('enter_project_name_first')}</div>}
       {!workspaceId && normalizedName && !createError && <div className="workspace-status hint">{t('paste_uuid_or_generate')}</div>}
 
       <button
