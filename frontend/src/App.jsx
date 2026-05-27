@@ -8,11 +8,9 @@ import LandingPage from './pages/LandingPage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 import { LexaraIcon, LexaraLogo } from './assets/LexaraLogo';
-import { useTranslation } from './i18n/useTranslation';
 import './App.css';
 
 function App() {
-  const { t, lang, setLang, currentLanguage, languageOptions } = useTranslation();
   const [workspaceId, setWorkspaceId] = useState(() => localStorage.getItem('workspaceId') || '');
   const [workspaceName, setWorkspaceName] = useState(() => localStorage.getItem('workspaceName') || '');
   const [currentPage, setCurrentPage] = useState('chat');
@@ -136,75 +134,23 @@ function App() {
 
   return (
     <div className="app">
-      <nav className="app-nav">
-        <div className="nav-brand">
-          <LexaraLogo height={32} />
+      {accessDenied && (
+        <div style={{ position: 'absolute', top: 12, left: 12, color: '#dc2626', fontFamily: 'var(--font-mono)', zIndex: 20 }}>
+          {accessDenied}
         </div>
-
-        <div className="nav-controls">
-          <div className="nav-links">
-            <button
-              className={`nav-button ${page === 'app' && currentPage === 'chat' ? 'active' : ''}`}
-              onClick={() => goAppSection('chat')}
-            >
-              <span className="nav-dot" />
-              {t('query')}
-            </button>
-            <button
-              className={`nav-button ${page === 'admin' ? 'active' : ''}`}
-              onClick={() => { if (authUser.role === 'admin') { navigate('admin'); window.location.hash = 'admin'; } }}
-              style={authUser.role !== 'admin' ? { display: 'none' } : undefined}
-            >
-              <span className="nav-dot" />
-              Admin
-            </button>
-          </div>
-
-          <label className="lang-switcher" style={{ direction: 'ltr' }}>
-            <span className="lang-switcher-label">{t('language_label')}</span>
-            <div className="lang-switcher-select-wrap">
-              <span style={{ marginRight: 6 }}>{currentLanguage.flag}</span>
-              <select
-                className="lang-select"
-                value={lang}
-                onChange={(event) => setLang(event.target.value)}
-              >
-                {languageOptions.map((option) => (
-                  <option key={option.code} value={option.code}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </label>
-
-          <div className="nav-links">
-            <button
-              className={`nav-button ${page === 'app' && currentPage === 'mypage' ? 'active' : ''}`}
-              onClick={() => goAppSection('mypage')}
-            >
-              <span className="nav-dot" />
-              {t('my_page')}
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      <div className="app-content">
-        {accessDenied && (
-          <div style={{ margin: '20px auto', color: '#dc2626', fontFamily: 'var(--font-mono)' }}>{accessDenied}</div>
-        )}
-        {page === 'app' && currentPage === 'chat' && (
-          <ChatPage
-            workspaceId={workspaceId}
-            workspaceName={workspaceName}
-            onChangeWorkspace={setWorkspaceId}
-            onWorkspaceNameChange={setWorkspaceName}
-          />
-        )}
-        {page === 'admin' && authUser.role === 'admin' && <AdminPage onGoAsk={() => goAppSection('chat')} />}
-        {page === 'app' && currentPage === 'mypage' && <MyPage authUser={authUser} onLogout={() => { setAuthUser(null); navigate('landing'); }} />}
-      </div>
+      )}
+      {page === 'app' && currentPage === 'chat' && (
+        <ChatPage
+          workspaceId={workspaceId}
+          workspaceName={workspaceName}
+          onChangeWorkspace={setWorkspaceId}
+          onWorkspaceNameChange={setWorkspaceName}
+          authUser={{ name: 'Admin', role: 'Admin' }}
+          onGoAdmin={() => goAppSection('admin')}
+        />
+      )}
+      {page === 'admin' && authUser.role === 'admin' && <AdminPage onGoAsk={() => goAppSection('chat')} />}
+      {page === 'app' && currentPage === 'mypage' && <MyPage authUser={authUser} onLogout={() => { setAuthUser(null); navigate('landing'); }} />}
     </div>
   );
 }

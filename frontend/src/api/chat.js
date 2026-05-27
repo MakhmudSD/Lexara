@@ -1,14 +1,13 @@
 import client, { API_BASE_URL } from './client';
 
-export const sendChat = async (workspaceId, question, history = [], topK = 5) => {
-  const response = await client.post('/chat/query', {
+export const sendChat = (workspaceId, question, userId = null, topK = 5) =>
+  client.post('/chat', {
     workspace_id: workspaceId,
     question,
+    ...(userId ? { user_id: userId } : {}),
     top_k: topK,
-    history: history.slice(-12),
-  });
-  return response.data;
-};
+    debug: false,
+  }).then((response) => response.data);
 
 export const streamChat = async (
   workspaceId,

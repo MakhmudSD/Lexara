@@ -1,9 +1,16 @@
 .app {
   display: flex;
-  flex-direction: column;
-  height: 100vh;
+  flex-direction: row;
+  height: 100dvh;
   overflow: hidden;
-  background: var(--lexara-bg);
+  background: var(--surface2);
+  position: relative;
+}
+
+.app > * {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
 }
 
 .app-nav {
@@ -65,7 +72,7 @@
 .nav-button.active {
   color: var(--lexara-blue);
   background: var(--lexara-blue-light);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .nav-dot {
@@ -118,28 +125,6 @@
   font-family: var(--font-sans);
 }
 
-.app-content {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-}
-
-@media (max-width: 840px) {
-  .app-nav {
-    padding: 12px 16px;
-    height: auto;
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .nav-controls {
-    width: 100%;
-    justify-content: space-between;
-    flex-wrap: wrap;
-  }
-}
-
 .my-page {
   width: 100%;
   padding: 24px;
@@ -175,7 +160,7 @@
   justify-content: center;
   font-family: var(--font-mono);
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .my-meta h2 {
@@ -222,7 +207,7 @@
 .my-stat-value {
   color: var(--text-primary);
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .my-account-info {

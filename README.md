@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # RAG MVP - Workspace-based Retrieval-Augmented Generation
 
 A production-ready demo system for RAG workspaces with FastAPI backend and React frontend.
@@ -227,7 +226,3 @@ This project is part of the RAG MVP system. See LICENSE file for details.
 ---
 
 **Ready to go?** Start the backend and frontend following the Quick Start section above!
-=======
-# RAG-project
-This is RAG project built with FastApi and React
->>>>>>> 5f5998b181ed5347c411f2c5b2db10403cf46b4a

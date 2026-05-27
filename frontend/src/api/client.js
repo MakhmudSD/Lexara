@@ -17,19 +17,16 @@ client.interceptors.request.use((config) => {
 });
 
 client.interceptors.response.use(
-  res => res,
-  err => {
-    if (err.response?.status === 401) {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('authUser');
-      window.location.reload();
-    }
-    const msg = err.response?.data?.error?.message
-      || err.response?.data?.detail
-      || err.message
-      || 'Network error';
-    console.error('[api]', err.response?.status, msg);
-    return Promise.reject(err);
+  (res) => res,
+  (err) => {
+    const status = err.response?.status;
+    const detail =
+      err.response?.data?.detail ||
+      err.response?.data?.error?.message ||
+      err.message ||
+      'Network error';
+    console.error(`[api] ${status ?? 'ERR'} — ${detail}`);
+    return Promise.reject({ status, message: detail, raw: err, response: err.response });
   }
 );
 

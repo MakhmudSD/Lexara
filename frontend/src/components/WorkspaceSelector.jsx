@@ -1,188 +1,132 @@
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
-import { listWorkspaces, quickCreateWorkspace, updateWorkspaceName } from '../api/workspace';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import { ORG_SLUG } from '../api/config';
+import { createOrgWorkspace, getOrgWorkspaces } from '../api/workspaces';
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/WorkspaceSelector.css';
-
-const NAME_RE = /^[^\x00-\x1F\x7F<>:"\/\\|?*]{1,40}$/;
 
 function WorkspaceSelector({
   workspaceId,
   workspaceName,
   onWorkspaceChange,
   onWorkspaceNameChange,
-  onConnectionError,
 }, ref) {
   const { t } = useTranslation();
   const [workspaces, setWorkspaces] = useState([]);
   const [loadingWorkspaces, setLoadingWorkspaces] = useState(false);
-  const [nameInput, setNameInput] = useState(workspaceName || '');
-  const [creating, setCreating] = useState(false);
+  const [loadError, setLoadError] = useState('');
   const [createError, setCreateError] = useState('');
-  const [saveStatus, setSaveStatus] = useState('');
+  const [creating, setCreating] = useState(false);
+  const orgConfigured = Boolean(ORG_SLUG);
 
-  const loadWorkspaces = async () => {
-    setLoadingWorkspaces(true);
-    try {
-      const response = await listWorkspaces();
-      const items = Array.isArray(response)
-        ? response
-        : Array.isArray(response?.workspaces)
-          ? response.workspaces
-          : Array.isArray(response?.data)
-            ? response.data
-            : [];
-      setWorkspaces(items);
-    } catch {
+  const loadWorkspaces = useCallback(async () => {
+    if (!ORG_SLUG) {
       setWorkspaces([]);
+      setLoadError('');
+      setLoadingWorkspaces(false);
+      return;
+    }
+    setLoadingWorkspaces(true);
+    setLoadError('');
+    try {
+      const data = await getOrgWorkspaces(ORG_SLUG);
+      const items = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.workspaces)
+          ? data.workspaces
+          : [];
+      setWorkspaces(items);
+    } catch (err) {
+      setWorkspaces([]);
+      setLoadError(err?.message || 'Failed to load workspaces.');
     } finally {
       setLoadingWorkspaces(false);
     }
-  };
-
-  useEffect(() => {
-    setNameInput(workspaceName || '');
-  }, [workspaceName]);
+  }, []);
 
   useEffect(() => {
     loadWorkspaces();
-  }, []);
+  }, [loadWorkspaces]);
 
-  useImperativeHandle(ref, () => ({
-    retryWorkspaceCreation: handleGenerate,
-  }));
-
-  const shortWorkspaceId = workspaceId ? `${workspaceId.slice(0, 8)}…` : '';
-  const normalizedName = nameInput.trim();
-  const nameError = (() => {
-    if (!normalizedName) return null;
-    if (nameInput.trim().length < 2) return t('name_too_short');
-    if (nameInput.trim().length > 40) return t('name_too_long');
-    if (!NAME_RE.test(nameInput.trim())) return t('name_invalid_chars');
-    return null;
-  })();
-
-  const persistName = async () => {
-    const normalized = normalizedName;
-    if (!workspaceId) return;
-    if (!normalized) return;
-    if (nameError) {
-      setSaveStatus(`✗ ${nameError}`);
-      return;
-    }
-
-    try {
-      const workspace = await updateWorkspaceName(workspaceId, normalized);
-      setNameInput(workspace.name);
-      onWorkspaceNameChange(workspace.name);
-      localStorage.setItem('workspaceName', workspace.name);
-      setSaveStatus(t('workspace_saved'));
-    } catch (err) {
-      const msg = err.response?.data?.error?.message || t('workspace_save_failed');
-      setSaveStatus(`✗ ${t('workspace_save_failed')}: ${msg}`);
-    }
-  };
-
-  const handleSelectWorkspace = (workspace) => {
+  const handleSelectWorkspace = useCallback((workspace) => {
     if (!workspace?.id) return;
-    setCreateError('');
-    setSaveStatus('');
-    setNameInput(workspace.name || '');
     onWorkspaceChange(workspace.id);
-    onWorkspaceNameChange(workspace.name || '');
+    onWorkspaceNameChange?.(workspace.name || '');
     localStorage.setItem('workspaceId', workspace.id);
     localStorage.setItem('workspaceName', workspace.name || '');
-  };
+  }, [onWorkspaceChange, onWorkspaceNameChange]);
 
-  const handleGenerate = async () => {
-    if (!normalizedName) {
-      setCreateError(t('enter_project_name_first'));
+  const handleNewWorkspace = useCallback(async () => {
+    if (!ORG_SLUG) {
+      setCreateError('ORG_SLUG not configured. Check .env.');
       return;
     }
-    if (normalizedName.length < 2) {
-      setCreateError(t('project_name_min_length'));
-      return;
-    }
-    if (!NAME_RE.test(normalizedName)) {
-      setCreateError(t('name_invalid_chars'));
-      return;
-    }
+    const name = window.prompt('Workspace name?')?.trim();
+    if (!name) return;
+
     setCreating(true);
     setCreateError('');
-    setSaveStatus('');
     try {
-      const workspace = await quickCreateWorkspace(normalizedName);
-      setNameInput(workspace.name);
-      onWorkspaceChange(workspace.id);
-      onWorkspaceNameChange(workspace.name);
-      localStorage.setItem('workspaceId', workspace.id);
-      localStorage.setItem('workspaceName', workspace.name);
+      const workspace = await createOrgWorkspace(ORG_SLUG, name);
       await loadWorkspaces();
-      setSaveStatus(t('workspace_saved'));
+      onWorkspaceChange(workspace.id);
+      onWorkspaceNameChange?.(workspace.name || name);
+      localStorage.setItem('workspaceId', workspace.id);
+      localStorage.setItem('workspaceName', workspace.name || name);
     } catch (err) {
-      setCreateError(t('project_create_failed'));
-      onConnectionError?.();
+      setCreateError(err?.message || 'Could not create workspace.');
     } finally {
       setCreating(false);
     }
-  };
+  }, [loadWorkspaces, onWorkspaceChange, onWorkspaceNameChange]);
+
+  useImperativeHandle(ref, () => ({
+    retryWorkspaceCreation: handleNewWorkspace,
+  }), [handleNewWorkspace]);
 
   return (
     <div className="workspace-selector">
+      {!orgConfigured && <div className="ws-config-error">ORG_SLUG not configured. Check .env.</div>}
       <div className="workspace-list">
         {loadingWorkspaces && <div className="workspace-empty">{t('loading')}</div>}
         {!loadingWorkspaces && !workspaces.length && <div className="workspace-empty">{t('no_workspace')}</div>}
-        {workspaces.map((workspace) => (
-          <div
-            key={workspace.id}
-            className={`workspace-item ${workspace.id === workspaceId ? 'active' : ''}`}
-            onClick={() => handleSelectWorkspace(workspace)}
-          >
-            <span className="workspace-item-name">{workspace.name}</span>
-            <span className="workspace-item-id">ID: {String(workspace.id).slice(0, 8)}…</span>
-          </div>
-        ))}
-      </div>
 
-      <div className="workspace-input-wrap">
-        <input
-          type="text"
-          className="workspace-input"
-          value={nameInput}
-          onChange={(event) => {
-            setNameInput(event.target.value);
-            setSaveStatus('');
-            setCreateError('');
-          }}
-          onFocus={() => setCreateError('')}
-          onBlur={persistName}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              event.preventDefault();
-              persistName();
-            }
-          }}
-          placeholder={t('workspace_name_placeholder')}
-          spellCheck={false}
-          autoComplete="off"
-        />
-        {nameInput && <div className="workspace-name-display">{nameInput}</div>}
-        {workspaceId && <div className="workspace-uuid-hint">{t('workspace_id_hint')}{shortWorkspaceId}</div>}
-      </div>
+        {workspaces.map((workspace) => {
+          const isActive = workspace.id === workspaceId;
+          const dotClass = isActive
+            ? 'ws-dot--active'
+            : workspace.is_active
+              ? 'ws-dot--ready'
+              : 'ws-dot--idle';
 
-      {nameError && <div className="workspace-status" style={{ color: '#b45309', fontSize: 11 }}>✗ {nameError}</div>}
-      {!!saveStatus && <div className={`workspace-status ${saveStatus.startsWith('✓') ? 'ok' : 'err'}`}>{saveStatus}</div>}
-      {createError && <div className="workspace-status" style={{ color: '#b45309', fontSize: 11 }}>✗ {createError}</div>}
-      {!workspaceId && !normalizedName && !createError && <div className="workspace-status hint">{t('enter_project_name_first')}</div>}
-      {!workspaceId && normalizedName && !createError && <div className="workspace-status hint">{t('paste_uuid_or_generate')}</div>}
+          return (
+            <button
+              key={workspace.id}
+              type="button"
+              className={`workspace-item ${isActive ? 'active' : ''}`}
+              onClick={() => handleSelectWorkspace(workspace)}
+            >
+              <span className={`ws-dot ${dotClass}`} aria-hidden="true" />
+              <span className="ws-info">
+                <span className="ws-name">{workspace.name}</span>
+                <span className="ws-id">{String(workspace.id).slice(0, 8)}</span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
 
       <button
+        type="button"
         className="new-workspace-btn"
-        onClick={handleGenerate}
-        disabled={creating || !normalizedName}
-        style={{ opacity: creating || !normalizedName ? 0.5 : 1 }}
+        onClick={handleNewWorkspace}
+        disabled={creating || !orgConfigured}
       >
         {creating ? t('creating_workspace') : t('generate_workspace')}
       </button>
+
+      {createError && <div className="workspace-status err">{createError}</div>}
+      {loadError && <div className="workspace-status err">{loadError}</div>}
+      {workspaceId && workspaceName && <div className="workspace-status hint">{workspaceName}</div>}
     </div>
   );
 }
