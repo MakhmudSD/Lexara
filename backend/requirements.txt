@@ -40,3 +40,4 @@ python-json-logger>=2.0.0
 tenacity==9.0.0
 slowapi==0.1.9
 sentry-sdk[fastapi]==2.19.2
+pydantic-settings==2.3.4
