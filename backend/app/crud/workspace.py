@@ -1,7 +1,5 @@
 from uuid import UUID
-
 from sqlalchemy.orm import Session
-
 from app.core.exceptions import AppError
 from app.db.models import Organization, Workspace
 
@@ -33,19 +31,7 @@ def list_workspaces(
     return query.order_by(Workspace.created_at.desc()).offset(skip).limit(limit).all()
 
 
-def create_workspace(db: Session, organization_id: UUID, name: str) -> Workspace:
-    organization = (
-        db.query(Organization)
-        .filter(Organization.id == organization_id, Organization.is_active.is_(True))
-        .first()
-    )
-    if organization is None:
-        raise AppError(
-            404,
-            "organization_not_found",
-            f"Organization {organization_id} was not found.",
-        )
-
+def create_workspace(db: Session, name: str, organization_id: UUID | None = None) -> Workspace:
     workspace = Workspace(
         organization_id=organization_id,
         name=name.strip(),
