@@ -10,7 +10,7 @@ class WorkspaceQuickCreate(BaseModel):
 
 
 class WorkspaceCreate(BaseModel):
-    organization_id: UUID
+    organization_id: UUID | None = None
     name: str = Field(..., min_length=1, max_length=255)
 
 
@@ -20,7 +20,6 @@ class WorkspaceRename(BaseModel):
 
 class WorkspaceResponse(BaseModel):
     id: UUID
-    organization_id: UUID
     name: str
     is_active: bool
     created_at: datetime
