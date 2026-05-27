@@ -4,9 +4,11 @@ from typing import Generator
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
-from app.core.config import get_settings
-
+import os
+from dotenv import load_dotenv
+load_dotenv()
 settings = get_settings()
+DATABASE_URL = os.getenv("DATABASE_URL") or settings.database_url
 
 # Database URL - configured from environment
 DATABASE_URL = settings.database_url
