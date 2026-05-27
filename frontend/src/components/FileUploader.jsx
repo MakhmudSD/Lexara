@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { uploadDocument } from '../api/upload';
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/FileUploader.css';
@@ -17,56 +17,78 @@ export default function FileUploader({
   nameRequired = false,
 }) {
   const { t } = useTranslation();
-  const [status, setStatus] = useState(null);
+  const [status, setStatus] = useState({ type: 'idle' });
   const [dragging, setDragging] = useState(false);
-  const [uploads, setUploads] = useState([]);
   const inputRef = useRef(null);
+  const dismissTimerRef = useRef(null);
+  const isAllowedFile = (file) => ALLOWED[file.type] || file.name.match(/\.(pdf|docx|txt)$/i);
+
+  const clearDismissTimer = () => {
+    if (dismissTimerRef.current) {
+      window.clearTimeout(dismissTimerRef.current);
+      dismissTimerRef.current = null;
+    }
+  };
+
+  const reset = () => {
+    clearDismissTimer();
+    setStatus({ type: 'idle' });
+    setDragging(false);
+    if (inputRef.current) inputRef.current.value = '';
+  };
 
   const handleFile = async (file) => {
     if (!file) return;
-
-    if (!ALLOWED[file.type] && !file.name.match(/\.(pdf|docx|txt)$/i)) {
-      const msg = t('supported_formats');
-      setStatus({ type: 'error', text: msg });
-      onUploadError?.(msg);
+    if (status.type === 'uploading' || disabled || !workspaceId) return;
+    if (!isAllowedFile(file)) {
+      setStatus({ type: 'error', message: 'Upload failed. Try again.' });
+      onUploadError?.('Upload failed. Try again.');
       return;
     }
 
-    setStatus({ type: 'loading', text: t('uploading') });
+    clearDismissTimer();
+    setDragging(false);
+    setStatus({ type: 'uploading', filename: file.name });
 
     try {
       const result = await uploadDocument(file, workspaceId);
       const chunks = result.chunk_count ?? result.chunks ?? '?';
-      setStatus({ type: 'success', text: `${t('indexed')} — ${chunks} ${t('chunks')}` });
-      setUploads((prev) => [{ name: file.name, chunks }, ...prev].slice(0, 5));
+      setStatus({ type: 'success', filename: file.name, chunks });
       onUploadSuccess?.(result);
-      setTimeout(() => setStatus(null), 3000);
-      if (inputRef.current) inputRef.current.value = '';
+      clearDismissTimer();
+      dismissTimerRef.current = window.setTimeout(() => {
+        setStatus({ type: 'idle' });
+        if (inputRef.current) inputRef.current.value = '';
+      }, 3000);
     } catch (err) {
-      const msg = err.response?.data?.error?.message
-        || err.response?.data?.detail
-        || t('upload_failed');
-      setStatus({ type: 'error', text: msg });
+      const msg = 'Upload failed. Try again.';
+      setStatus({ type: 'error', message: msg });
       onUploadError?.(msg);
-      setTimeout(() => setStatus(null), 4000);
     }
   };
 
   const handleDrop = (event) => {
     event.preventDefault();
     setDragging(false);
-    handleFile(event.dataTransfer.files?.[0]);
+    if (status.type !== 'uploading') handleFile(event.dataTransfer.files?.[0]);
   };
+
+  const isBusy = status.type === 'uploading' || !workspaceId || disabled;
+
+  useEffect(() => () => clearDismissTimer(), []);
 
   return (
     <div className="file-uploader">
       <div
-        className={`upload-drop-zone ${dragging ? 'dragging' : ''} ${status?.type === 'loading' ? 'loading' : ''}`}
+        className={`upload-drop-zone ${dragging ? 'dragging' : ''} ${status.type === 'uploading' ? 'uploading' : ''}`}
         onDragOver={(event) => {
+          if (isBusy) return;
           event.preventDefault();
           setDragging(true);
         }}
-        onDragLeave={() => setDragging(false)}
+        onDragLeave={() => {
+          if (!isBusy) setDragging(false);
+        }}
         onDrop={handleDrop}
       >
         <input
@@ -75,48 +97,40 @@ export default function FileUploader({
           type="file"
           accept=".pdf,.docx,.txt"
           onChange={(event) => handleFile(event.target.files?.[0])}
-          disabled={status?.type === 'loading' || !workspaceId || disabled}
+          disabled={isBusy}
         />
-        <span className="upload-icon">↑</span>
-        <div className="upload-label-text">
-          {!workspaceId
-            ? t('select_project_first')
-            : nameRequired
-              ? t('name_project_first')
-              : t('drop_or_click')}
-        </div>
-        <span className="upload-accepted">{t('supported_formats')}</span>
-      </div>
+        {status.type === 'idle' && (
+          <div className="uploader-idle">
+            <div className="uploader-icon">↑</div>
+            <p className="uploader-primary">{!workspaceId ? t('select_project_first') : nameRequired ? t('name_project_first') : t('drop_or_click')}</p>
+            <p className="uploader-hint">PDF, DOCX, TXT · max 50MB</p>
+          </div>
+        )}
 
-      {status && (
-        <div className={`upload-status ${status.type}`}>
-          {status.type === 'loading' && (
-            <>
-              <span className="upload-spinner" />
-              <span className="upload-dots" aria-hidden="true">
-                <span>.</span>
-                <span>.</span>
-                <span>.</span>
-              </span>
-            </>
-          )}
-          {status.type === 'success' && '✓'}
-          {status.type === 'error' && '✗'}
-          <span>{status.text}</span>
-        </div>
-      )}
-
-      {uploads.length > 0 && (
-        <div className="recent-uploads">
-          <div className="recent-uploads-title">{t('recent_uploads')}</div>
-          {uploads.map((upload, index) => (
-            <div key={index} className="recent-upload-item">
-              <span className="recent-upload-name" title={upload.name}>{upload.name}</span>
-              <span className="recent-upload-chunks">{upload.chunks} {t('chunks')}</span>
+        {status.type === 'uploading' && (
+          <div className="uploader-uploading">
+            <p className="uploader-filename" title={status.filename}>{status.filename}</p>
+            <div className="uploader-progress">
+              <div className="uploader-progress-bar" />
             </div>
-          ))}
-        </div>
-      )}
+            <p className="uploader-status">{t('uploading')}</p>
+          </div>
+        )}
+
+        {status.type === 'success' && (
+          <div className="uploader-success">
+            <span className="uploader-check">✓</span>
+            <p>{status.filename} · {status.chunks} {t('chunks')}</p>
+          </div>
+        )}
+
+        {status.type === 'error' && (
+          <div className="uploader-error">
+            <p className="uploader-error-text">{status.message || 'Upload failed. Try again.'}</p>
+            <button type="button" onClick={reset}>{t('retry')}</button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

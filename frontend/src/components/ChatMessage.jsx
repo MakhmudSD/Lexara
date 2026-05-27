@@ -3,29 +3,22 @@ import { useTranslation } from '../i18n/useTranslation';
 import '../styles/ChatMessage.css';
 
 function SourceCard({ source }) {
-  const scorePercent = Math.round((source.score || 0) * 100);
+  const score = source.score || 0;
+  const scoreDot = score >= 0.75 ? '🟢' : score >= 0.55 ? '🟡' : '⚪';
   const filename = source.filename || `doc:${String(source.document_id).slice(0, 8)}`;
+  const preview = source.text ? `${source.text.substring(0, 120)}${source.text.length > 120 ? '…' : ''}` : '';
 
   return (
     <div className="source-card">
       <div className="source-card-header">
+        <span className="source-score-dot" aria-hidden="true">{scoreDot}</span>
         <span className="source-filename" title={filename}>
           {filename}
         </span>
-        <div className="source-score-bar-wrap">
-          <span className="source-score-value">{scorePercent}%</span>
-          <div className="source-score-bar">
-            <div className="source-score-fill" style={{ width: `${scorePercent}%` }} />
-          </div>
-        </div>
       </div>
-      <p className="source-excerpt">
-        {source.text?.substring(0, 160)}
-        {source.text?.length > 160 ? '…' : ''}
+      <p className="source-preview">
+        {preview}
       </p>
-      {source.chunk_id && (
-        <div className="source-chunk-id">chunk:{String(source.chunk_id)}</div>
-      )}
     </div>
   );
 }
@@ -47,27 +40,9 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
     : topScore >= 0.55 ? 'medium'
     : 'low';
 
-  const tierConfig = {
-    medium: {
-      bg: '#fffbeb',
-      color: '#92400e',
-      border: '#fde68a',
-      label: t('confidence_medium'),
-    },
-    low: {
-      bg: '#f9fafb',
-      color: '#6b7280',
-      border: '#e5e7eb',
-      label: t('confidence_low'),
-    },
-  };
-
   if (isLoading) {
     return (
       <div className="message-row assistant">
-        <div className="message-role assistant-role">
-          <span>{t('system_label')}</span>
-        </div>
         <div className="typing-bubble">
           <div className="typing-dot" />
           <div className="typing-dot" />
@@ -79,10 +54,6 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
 
   return (
     <div className={`message-row ${isUser ? 'user' : 'assistant'}`}>
-      <div className={`message-role ${isUser ? 'user-role' : 'assistant-role'}`}>
-        {isUser ? t('you_label') : t('system_label')}
-      </div>
-
       <div className={`message-bubble ${isUser ? 'user-bubble' : 'assistant-bubble'}`}>
         {!isUser && mode === 'retrieval' && (
           <div className="retrieval-badge">{t('retrieval_only_badge')}</div>
@@ -114,13 +85,7 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
           )
         )}
         {!isUser && tier === 'low' && (
-          <div style={{
-            marginTop: 8,
-            fontSize: 12,
-            color: 'var(--text-secondary)',
-            fontStyle: 'italic',
-            lineHeight: 1.5,
-          }}>
+          <div className="confidence-tip">
             {t('confidence_tip')}
           </div>
         )}
@@ -128,58 +93,29 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
 
       {hasRealSources && (
         <div className="sources-section">
-          <button className="sources-toggle" onClick={() => setShowSources((value) => !value)}>
-            <span>{t('references')}</span>
-            <span className="sources-count">{sources.length}</span>
-            <span className={`sources-toggle-chevron ${showSources ? 'open' : ''}`}>›</span>
-          </button>
+          <div className="sources-meta-row">
+            <button className="sources-toggle-btn" type="button" onClick={() => setShowSources((value) => !value)}>
+              <span className="sources-icon">📄</span>
+              <span>{sources.length} {t('references')}</span>
+              <span className="sources-arrow">{showSources ? '↑' : '↓'}</span>
+            </button>
+
+            {tier === 'medium' && (
+              <div className="confidence-badge confidence-medium">
+                {t('confidence_medium')}
+              </div>
+            )}
+
+            {tier === 'low' && (
+              <div className="confidence-badge confidence-low">
+                {t('confidence_low')}
+              </div>
+            )}
+          </div>
 
           {tier === 'high' && (
-            <div style={{
-              marginTop: 8,
-              fontSize: 11,
-              color: 'var(--text-tertiary)',
-              fontFamily: 'var(--font-mono)',
-            }}>
+            <div className="from-documents-note">
               {t('from_your_documents')}
-            </div>
-          )}
-
-          {tier === 'medium' && (
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              background: tierConfig.medium.bg,
-              border: `1px solid ${tierConfig.medium.border}`,
-              borderRadius: 100,
-              padding: '2px 10px',
-              fontSize: 11,
-              color: tierConfig.medium.color,
-              fontFamily: 'var(--font-mono)',
-              marginTop: 8,
-            }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: tierConfig.medium.color }} />
-              {tierConfig.medium.label}
-            </div>
-          )}
-
-          {tier === 'low' && (
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              background: tierConfig.low.bg,
-              border: `1px solid ${tierConfig.low.border}`,
-              borderRadius: 100,
-              padding: '2px 10px',
-              fontSize: 11,
-              color: tierConfig.low.color,
-              fontFamily: 'var(--font-mono)',
-              marginTop: 8,
-            }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: tierConfig.low.color }} />
-              {tierConfig.low.label}
             </div>
           )}
 
