@@ -27,6 +27,7 @@ else:
     limiter = Limiter(key_func=get_remote_address)
 
 from app.core.dependencies import get_db, get_runtime
+from app.core.enums import UserRole, ReferralStatus
 from app.core.exceptions import AppError
 from app.core.runtime import AppRuntime
 from app.db.models import PasswordResetToken, Referral, TokenUsage, User, Workspace
@@ -81,7 +82,7 @@ def register(
         email=payload.email,
         hashed_password=hash_password(payload.password),
         full_name=payload.full_name.strip(),
-        role="user",
+        role=UserRole.MEMBER,
         is_active=True,
     )
     db.add(user)
@@ -95,7 +96,7 @@ def register(
                 referrer_id=referrer.id,
                 referred_user_id=user.id,
                 code=ref,
-                status="pending",
+                status=ReferralStatus.PENDING,
                 created_at=datetime.utcnow(),
             ))
     db.commit()
@@ -150,7 +151,7 @@ def me(
 
     referrals_count = db.query(Referral).filter(
         Referral.referrer_id == user.id,
-        Referral.status.in_(["converted", "rewarded"]),
+        Referral.status.in_([ReferralStatus.CONVERTED, ReferralStatus.REWARDED]),
     ).count()
 
     return UserResponse(

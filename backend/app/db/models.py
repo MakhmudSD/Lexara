@@ -1,11 +1,40 @@
 """SQLAlchemy ORM models for PostgreSQL database."""
 
+import enum as _enum
 from datetime import datetime
 from uuid import uuid4
 from sqlalchemy import Column, String, DateTime, ForeignKey, Integer, Text, Boolean, Float, Index, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID, JSON
 from sqlalchemy.orm import relationship
 from app.db import Base
+
+
+class UserRole(str, _enum.Enum):
+    """User roles — stored as lowercase strings in DB."""
+    ADMIN = "admin"
+    MEMBER = "member"
+
+
+class UserPlan(str, _enum.Enum):
+    """Subscription plans."""
+    FREE = "free"
+    PRO = "pro"
+    BUSINESS = "business"
+
+
+class ReferralStatus(str, _enum.Enum):
+    """Referral lifecycle status."""
+    PENDING = "pending"
+    CONVERTED = "converted"
+    REWARDED = "rewarded"
+
+
+class DocumentStatus(str, _enum.Enum):
+    """Document processing status."""
+    PENDING = "pending"
+    PROCESSING = "processing"
+    READY = "ready"
+    FAILED = "failed"
 
 
 class User(Base):
@@ -16,9 +45,9 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False, index=True)
     hashed_password = Column(String(255), nullable=False)
     full_name = Column(String(255), nullable=True)
-    role = Column(String(20), default="user", nullable=False)
+    role = Column(String(50), default=UserRole.MEMBER, nullable=False)
     is_active = Column(Boolean, default=True, index=True)
-    plan = Column(String(50), default='free', nullable=False)
+    plan = Column(String(50), default=UserPlan.FREE, nullable=False)
     plan_expires_at = Column(DateTime, nullable=True)
     referral_code = Column(String(20), nullable=True, unique=True, index=True)
     deleted_at = Column(DateTime, nullable=True)
@@ -71,7 +100,7 @@ class OrganizationMember(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     organization_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id"), nullable=False, index=True)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
-    role = Column(String(50), default="member", nullable=False)  # owner, admin, member
+    role = Column(String(50), default=UserRole.MEMBER, nullable=False)  # owner, admin, member
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
@@ -287,7 +316,7 @@ class Referral(Base):
     referrer_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
     referred_user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True)
     code = Column(String(20), nullable=False, unique=True, index=True)
-    status = Column(String(20), default="pending", nullable=False)  # pending, converted, rewarded
+    status = Column(String(20), default=ReferralStatus.PENDING, nullable=False)
     converted_at = Column(DateTime, nullable=True)
     rewarded_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

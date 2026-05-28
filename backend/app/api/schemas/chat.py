@@ -1,3 +1,4 @@
+# TODO: consolidate with app/schemas/chat.py once chat_service is migrated to use ChatQueryRequest
 from __future__ import annotations
 
 from typing import Any
