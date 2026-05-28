@@ -1,30 +1,32 @@
-.mypage-container {
-  max-width: 560px;
-  margin: 40px auto;
-  padding: 0 16px;
+.mypage-wrap {
+  max-width: 540px;
+  margin: 32px auto;
+  padding: 0 16px 40px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+  font-family: var(--font, 'Inter', system-ui, sans-serif);
 }
 
-.mypage-card {
+.mypage-header-card {
   background: #ffffff;
   border: 0.5px solid rgba(0,0,0,0.1);
-  border-radius: 12px;
-  padding: 20px 24px;
+  border-radius: 14px;
+  padding: 20px 24px 0;
 }
 
-.mypage-profile-row {
+.mypage-avatar-row {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
+  margin-bottom: 16px;
 }
 
 .mypage-avatar {
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  background: #2356d8;
+  background: linear-gradient(135deg, #2356d8, #7c3aed);
   color: white;
   font-size: 18px;
   font-weight: 500;
@@ -54,54 +56,47 @@
   border-radius: 20px;
   background: #e8eefb;
   color: #2356d8;
-  margin-top: 6px;
+  margin-top: 5px;
+  text-transform: capitalize;
 }
 
-.mypage-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+.mypage-tabs {
+  display: flex;
+  gap: 4px;
+  border-top: 0.5px solid rgba(0,0,0,0.08);
+  padding: 8px 0;
+  margin-top: 4px;
 }
 
-.mypage-stat-card {
-  background: #f7f7f6;
-  border-radius: 8px;
-  padding: 12px 14px;
+.mypage-tab-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: none;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  background: transparent;
+  color: #6b6860;
+  transition: all 120ms;
 }
 
-.mypage-stat-label {
-  font-size: 10px;
-  font-weight: 500;
-  color: #9d9b96;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 4px;
-}
-
-.mypage-stat-value {
-  font-size: 22px;
-  font-weight: 500;
+.mypage-tab-btn:hover {
+  background: rgba(0,0,0,0.04);
   color: #1a1814;
-  line-height: 1;
 }
 
-.mypage-stat-bar-wrap {
-  height: 3px;
-  background: rgba(0,0,0,0.08);
-  border-radius: 2px;
-  margin-top: 8px;
-  overflow: hidden;
+.mypage-tab-btn.active {
+  background: #1a1814;
+  color: white;
+  font-weight: 500;
 }
 
-.mypage-stat-bar {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 400ms ease-out;
+.mypage-section-card {
+  background: #ffffff;
+  border: 0.5px solid rgba(0,0,0,0.1);
+  border-radius: 14px;
+  padding: 20px 24px;
 }
-
-.mypage-stat-bar.green  { background: #22c55e; }
-.mypage-stat-bar.amber  { background: #f59e0b; }
-.mypage-stat-bar.red    { background: #ef4444; }
 
 .mypage-section-title {
   font-size: 11px;
@@ -112,46 +107,50 @@
   margin-bottom: 12px;
 }
 
-.mypage-plan-card {
-  background: linear-gradient(135deg, #2356d8 0%, #1a42b0 100%);
-  border-radius: 10px;
-  padding: 16px 20px;
-  color: white;
+.mypage-stat-block { }
+
+.mypage-stat-row {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
 }
 
-.mypage-plan-name {
-  font-size: 14px;
+.mypage-stat-label {
+  font-size: 13px;
+  color: #6b6860;
+}
+
+.mypage-stat-value {
+  font-size: 22px;
   font-weight: 500;
-  text-transform: capitalize;
+  color: #1a1814;
+  line-height: 1;
 }
 
-.mypage-plan-desc {
-  font-size: 12px;
-  opacity: 0.8;
-  line-height: 1.5;
+.mypage-bar-wrap {
+  height: 4px;
+  background: rgba(0,0,0,0.08);
+  border-radius: 2px;
+  overflow: hidden;
 }
 
-.mypage-upgrade-btn {
-  margin-top: 8px;
-  padding: 8px 16px;
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.3);
-  border-radius: 6px;
-  color: white;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  text-align: center;
-  width: fit-content;
-  transition: background 150ms;
-  font-family: inherit;
+.mypage-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 600ms ease-out;
 }
 
-.mypage-upgrade-btn:hover {
-  background: rgba(255,255,255,0.25);
+.mypage-stat-sub {
+  font-size: 11px;
+  color: #9d9b96;
+  margin-top: 5px;
+}
+
+.mypage-divider {
+  height: 0.5px;
+  background: rgba(0,0,0,0.08);
+  margin: 16px 0;
 }
 
 .mypage-info-row {
@@ -159,21 +158,33 @@
   justify-content: space-between;
   align-items: center;
   font-size: 13px;
-  color: #6b6860;
-  padding: 4px 0;
+  padding: 6px 0;
 }
 
-.mypage-info-row + .mypage-info-row {
-  border-top: 0.5px solid rgba(0,0,0,0.06);
-  margin-top: 4px;
-  padding-top: 8px;
+.mypage-info-key { color: #6b6860; }
+
+.mypage-info-val {
+  color: #1a1814;
+  font-weight: 500;
+}
+
+.mypage-lang-select {
+  padding: 5px 8px;
+  border: 0.5px solid rgba(0,0,0,0.18);
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  background: #ffffff;
+  color: #1a1814;
+  cursor: pointer;
+  outline: none;
 }
 
 .mypage-signout-btn {
   padding: 8px 14px;
   background: transparent;
-  border: 0.5px solid rgba(239,68,68,0.4);
-  border-radius: 6px;
+  border: 0.5px solid rgba(239,68,68,0.35);
+  border-radius: 8px;
   color: #b91c1c;
   font-size: 12px;
   cursor: pointer;
@@ -186,30 +197,202 @@
   border-color: #ef4444;
 }
 
-.mypage-pref-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
-  color: #1a1814;
+/* Plan card */
+.mypage-plan-card {
+  border-radius: 14px;
+  padding: 20px 24px;
+  color: white;
 }
 
-.mypage-pref-label {
+.mypage-plan-badge {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.8;
+  margin-bottom: 6px;
+}
+
+.mypage-plan-name {
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.mypage-plan-features {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mypage-plan-feature {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+/* Upgrade grid */
+.mypage-upgrade-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.mypage-upgrade-card {
+  background: #ffffff;
+  border: 0.5px solid rgba(0,0,0,0.1);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.mypage-upgrade-card-header {
+  padding: 14px 16px;
+  color: white;
+}
+
+.mypage-upgrade-plan-name {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.mypage-upgrade-price {
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.mypage-upgrade-price span {
+  font-size: 13px;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.mypage-upgrade-features {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mypage-upgrade-feature {
+  font-size: 12px;
   color: #6b6860;
 }
 
-.mypage-pref-select {
-  padding: 5px 8px;
-  border: 0.5px solid rgba(0,0,0,0.18);
-  border-radius: 6px;
+.mypage-upgrade-btn {
+  display: block;
+  width: calc(100% - 32px);
+  margin: 0 16px 14px;
+  padding: 9px;
+  border: none;
+  border-radius: 8px;
   font-size: 12px;
+  font-weight: 500;
   font-family: inherit;
-  background: #ffffff;
-  color: #1a1814;
   cursor: pointer;
+  transition: opacity 120ms;
+  color: white;
+}
+
+.mypage-upgrade-btn.pro { background: #2356d8; }
+.mypage-upgrade-btn.business { background: #7c3aed; }
+.mypage-upgrade-btn:hover { opacity: 0.85; }
+
+/* Promo tab */
+.mypage-promo-hero {
+  text-align: center;
+  padding: 8px 0 16px;
+}
+
+.mypage-promo-icon {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.mypage-promo-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1a1814;
+  margin-bottom: 6px;
+}
+
+.mypage-promo-sub {
+  font-size: 13px;
+  color: #6b6860;
+  line-height: 1.5;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+.mypage-referral-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.mypage-referral-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 0.5px solid rgba(0,0,0,0.18);
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: 'SF Mono', monospace;
+  color: #1a1814;
+  background: #f7f7f6;
   outline: none;
 }
 
-.mypage-pref-select:focus {
-  border-color: #2356d8;
+.mypage-referral-copy-btn {
+  padding: 8px 14px;
+  background: #1a1814;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 120ms;
+}
+
+.mypage-referral-copy-btn:hover { background: #2d2a25; }
+
+.mypage-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.mypage-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mypage-step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #2356d8;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mypage-step-text {
+  font-size: 13px;
+  color: #6b6860;
+}
+
+.mypage-promo-note {
+  font-size: 11px;
+  color: #9d9b96;
+  font-style: italic;
+  margin-top: 8px;
 }

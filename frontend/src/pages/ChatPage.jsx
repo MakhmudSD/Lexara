@@ -382,28 +382,61 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
           )}
           {!connectionError && isEmpty && (
             <div className="chat-empty-state">
-              <LexaraIcon size={56} style={{ opacity: 0.4 }} />
               <div className="chat-empty-copy">
                 <h2 className="chat-empty-headline">
-                  {hasWorkspaceName ? `${t('ask_about')} ${workspaceName}` : t('name_project_prompt')}
+                  {hasWorkspaceName
+                    ? `${t('ask_about')} ${workspaceName}`
+                    : t('name_project_prompt')}
                 </h2>
-                <p className="chat-empty-subhead">
-                  {hasWorkspaceName ? t('upload_prompt') : t('create_project_prompt')}
-                </p>
               </div>
+
               {hasWorkspaceName && (
-                <div className="chat-empty-chips">
-                  {[t('suggested_q1'), t('suggested_q2'), t('suggested_q3')].map((prompt) => (
-                    <button
-                      key={prompt}
-                      type="button"
-                      className="chat-empty-chip"
-                      onClick={() => setInput(prompt)}
-                    >
-                      {prompt}
-                    </button>
-                  ))}
-                </div>
+                <>
+                  {/* 3-step onboarding */}
+                  <div className="onboarding-steps">
+                    <div className="onboarding-step done">
+                      <div className="onboarding-step-icon done">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                          <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="onboarding-step-title">{t('step_project_created') || 'Loyiha yaratildi'}</div>
+                        <div className="onboarding-step-sub">{workspaceName}</div>
+                      </div>
+                    </div>
+
+                    <div className="onboarding-step current">
+                      <div className="onboarding-step-icon current">2</div>
+                      <div>
+                        <div className="onboarding-step-title">{t('step_upload_doc') || 'Hujjat yuklang'}</div>
+                        <div className="onboarding-step-sub">{t('step_upload_sub') || 'PDF, DOCX, TXT · 50 MB gacha'}</div>
+                      </div>
+                    </div>
+
+                    <div className="onboarding-step pending">
+                      <div className="onboarding-step-icon pending">3</div>
+                      <div>
+                        <div className="onboarding-step-title">{t('step_ask') || 'Savol bering'}</div>
+                        <div className="onboarding-step-sub">{t('step_ask_sub') || 'Hujjat haqida istalgan savolni yozing'}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Suggestion chips */}
+                  <div className="chat-empty-chips">
+                    {[t('suggested_q1'), t('suggested_q2'), t('suggested_q3')].map((q) => (
+                      <button
+                        key={q}
+                        type="button"
+                        className="chat-empty-chip"
+                        onClick={() => setInput(q)}
+                      >
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           )}

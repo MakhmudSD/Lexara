@@ -518,9 +518,17 @@ export default function AdminPage({ onGoChat }) {
         retrievals: getRetrievals,
       };
 
-      const result = await fetchers[activeTab]();
-      if (activeTab !== 'users') {
-        setData((prev) => ({ ...prev, [activeTab]: result }));
+      if (activeTab === 'logs') {
+        const [logsRes, reqsRes] = await Promise.all([
+          fetchers.logs ? fetchers.logs() : Promise.resolve([]),
+          fetchers.requests(),
+        ]);
+        setData((prev) => ({ ...prev, logs: logsRes, requests: reqsRes }));
+      } else {
+        const result = await fetchers[activeTab]();
+        if (activeTab !== 'users') {
+          setData((prev) => ({ ...prev, [activeTab]: result }));
+        }
       }
     } catch (err) {
       setError(activeTab === 'users'
@@ -564,14 +572,114 @@ export default function AdminPage({ onGoChat }) {
     users: data.users?.length,
   };
 
+  const renderMetrics = () => {
+    const requests = Array.isArray(data.requests) ? data.requests : [];
+    const logs = Array.isArray(data.logs) ? data.logs : [];
+    const totalReqs = requests.length;
+    const errorReqs = requests.filter((r) =>
+      r.status_code >= 400 || r.status === 'error'
+    ).length;
+    const errorRate = totalReqs > 0
+      ? Math.round((errorReqs / totalReqs) * 100)
+      : 0;
+    const avgLatency = totalReqs > 0
+      ? Math.round(requests.reduce((s, r) => s + (r.duration_ms || r.latency_ms || 0), 0) / totalReqs)
+      : 0;
+    const slowReqs = requests.filter((r) => (r.duration_ms || r.latency_ms || 0) > 3000);
+    const errorLogs = logs.filter((l) => l.level === 'ERROR' || l.level === 'error');
+
+    return (
+      <div>
+        <div className="metrics-grid">
+          <div className="metric-card">
+            <div className="metric-label">{t('admin_total_requests') || 'Jami so\'rovlar'}</div>
+            <div className="metric-value">{totalReqs}</div>
+          </div>
+          <div className="metric-card">
+            <div className="metric-label">{t('admin_error_rate') || 'Xato darajasi'}</div>
+            <div className="metric-value" style={{ color: errorRate > 5 ? '#ef4444' : '#22c55e' }}>
+              {errorRate}%
+            </div>
+          </div>
+          <div className="metric-card">
+            <div className="metric-label">{t('admin_avg_response') || 'O\'rt. javob vaqti'}</div>
+            <div className="metric-value">
+              {avgLatency > 0 ? `${(avgLatency / 1000).toFixed(1)}s` : '—'}
+            </div>
+          </div>
+          <div className="metric-card">
+            <div className="metric-label">{t('admin_slow_queries') || 'Sekin so\'rovlar (>3s)'}</div>
+            <div className="metric-value" style={{ color: slowReqs.length > 0 ? '#f59e0b' : '#22c55e' }}>
+              {slowReqs.length}
+            </div>
+          </div>
+        </div>
+
+        <div className="metrics-section-title">{t('admin_recent_errors') || 'So\'nggi xatolar'}</div>
+        {errorLogs.length === 0 ? (
+          <div className="metrics-empty">
+            <span style={{ color: '#22c55e' }}>✓</span> {t('admin_no_errors') || 'Xatolar yo\'q'}
+          </div>
+        ) : (
+          <div className="table-container">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Vaqt</th>
+                  <th>Xabar</th>
+                  <th>So'rov ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                {errorLogs.slice(0, 10).map((log, i) => (
+                  <tr key={i}>
+                    <td className="mono">{new Date(log.timestamp).toLocaleTimeString()}</td>
+                    <td style={{ color: '#b91c1c' }}>{log.message}</td>
+                    <td className="mono">{(log.request_id || '').substring(0, 8)}…</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {slowReqs.length > 0 && (
+          <>
+            <div className="metrics-section-title" style={{ marginTop: 16 }}>
+              {t('admin_slow_queries') || 'Sekin so\'rovlar'}
+            </div>
+            <div className="table-container">
+              <table className="admin-table">
+                <thead>
+                  <tr><th>Yo'l</th><th>Vaqt (ms)</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                  {slowReqs.slice(0, 10).map((r, i) => (
+                    <tr key={i}>
+                      <td>{r.path || r.endpoint || '—'}</td>
+                      <td style={{ color: '#f59e0b' }}>
+                        {Math.round(r.duration_ms || r.latency_ms || 0)}ms
+                      </td>
+                      <td>{r.status_code || r.status || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  };
+
   const tabLabels = {
-    users: t('admin_users'),
-    health: t('admin_health'),
-    usage: t('admin_usage'),
-    conversations: t('admin_conversations'),
-    documents: t('admin_documents'),
-    requests: t('admin_requests'),
-    logs: t('admin_logs'),
+    users: t('admin_users') || 'Foydalanuvchilar',
+    health: t('admin_health') || 'Holat',
+    usage: t('admin_usage') || 'Foydalanish',
+    conversations: t('admin_conversations') || 'Suhbatlar',
+    documents: t('admin_documents') || 'Hujjatlar',
+    requests: t('admin_requests') || 'So\'rovlar',
+    logs: t('admin_metrics') || 'Ko\'rsatkichlar',
   };
   const tabs = Object.keys(tabLabels);
 
@@ -696,7 +804,7 @@ export default function AdminPage({ onGoChat }) {
             )}
             {activeTab === 'documents' && <DocumentsPanel data={data.documents} t={t} />}
             {activeTab === 'requests' && <RequestsPanel data={data.requests} t={t} />}
-            {activeTab === 'logs' && <LogsPanel data={data.logs} t={t} />}
+            {activeTab === 'logs' && renderMetrics()}
             {activeTab === 'retrievals' && <RetrievalsPanel data={data.retrievals} t={t} />}
           </>
         )}

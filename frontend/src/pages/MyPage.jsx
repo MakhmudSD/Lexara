@@ -3,145 +3,306 @@ import client from '../api/client';
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/MyPage.css';
 
-const PLAN_LIMITS = { queries: 1000, tokens: 500000 };
-
 function initials(name = '') {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (!parts.length) return 'U';
-  return parts.slice(0, 2).map((part) => part[0].toUpperCase()).join('');
+  return parts.slice(0, 2).map((p) => p[0].toUpperCase()).join('');
 }
 
-function barColor(pct) {
-  if (pct > 80) return 'red';
-  if (pct > 50) return 'amber';
-  return 'green';
+function getBarColor(pct) {
+  if (pct >= 80) return '#ef4444';
+  if (pct >= 50) return '#f59e0b';
+  return '#22c55e';
 }
+
+const PLAN_LIMITS = {
+  free:     { queries: 50,    workspaces: 1,  label: 'Free' },
+  pro:      { queries: 1000,  workspaces: 5,  label: 'Pro' },
+  business: { queries: 5000,  workspaces: 999, label: 'Business' },
+};
+
+const PLAN_GRADIENTS = {
+  free:     'linear-gradient(135deg, #6b6860 0%, #9d9b96 100%)',
+  pro:      'linear-gradient(135deg, #2356d8 0%, #1a42b0 100%)',
+  business: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)',
+};
+
+const PLAN_FEATURES = {
+  free: [
+    '50 so\'rov/oy',
+    '1 ish maydoni',
+    '5 hujjat',
+    'Asosiy kirish',
+  ],
+  pro: [
+    '1,000 so\'rov/oy',
+    '5 ish maydoni',
+    'Cheksiz hujjatlar',
+    'Suhbat xotirasi',
+    'Streaming javoblar',
+  ],
+  business: [
+    '5,000 so\'rov/oy',
+    'Cheksiz ish maydonlari',
+    'Barcha Pro xususiyatlari',
+    'Ustuvor qo\'llab-quvvatlash',
+    'Tahlil paneli',
+  ],
+};
 
 export default function MyPage({ onLogout }) {
   const { t, lang, setLang, languageOptions } = useTranslation();
+  const [activeTab, setActiveTab] = useState('info');
+  const [stats, setStats] = useState({ total_queries: 0, total_tokens: 0, total_cost_usd: 0 });
+  const [loading, setLoading] = useState(true);
+
   const user = (() => {
     try { return JSON.parse(localStorage.getItem('authUser') || '{}'); }
     catch { return {}; }
   })();
-  const [stats, setStats] = useState({ total_queries: 0, total_tokens: 0, total_cost_usd: 0 });
+
+  const plan = user.plan || 'free';
+  const planLimits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
+  const queriesPct = Math.min(100, Math.round((stats.total_queries / planLimits.queries) * 100));
+  const queriesLeft = Math.max(0, planLimits.queries - stats.total_queries);
+
+  const referralCode = user.id
+    ? `LEX-${user.id.toString().replace(/-/g,'').substring(0,6).toUpperCase()}`
+    : 'LEX-XXXXXX';
+  const referralLink = `${window.location.origin}?ref=${referralCode}`;
 
   useEffect(() => {
     client.get('/auth/me')
-      .then((res) => setStats({
-        total_queries: res.data.total_queries || 0,
-        total_tokens: res.data.total_tokens || 0,
-        total_cost_usd: res.data.total_cost_usd || 0,
+      .then((r) => setStats({
+        total_queries: r.data.total_queries || 0,
+        total_tokens: r.data.total_tokens || 0,
+        total_cost_usd: r.data.total_cost_usd || 0,
       }))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   const memberSince = user.created_at
-    ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    ? new Date(user.created_at).toLocaleDateString(lang === 'uz' ? 'uz-UZ' : lang, { year: 'numeric', month: 'long' })
     : '—';
 
-  const handleSignOut = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('authUser');
-    localStorage.removeItem('workspaceId');
-    localStorage.removeItem('workspaceName');
-    onLogout?.();
-    window.location.reload();
-  };
-
-  const queriesPct = Math.min(100, (stats.total_queries / PLAN_LIMITS.queries) * 100);
-  const tokensPct = Math.min(100, (stats.total_tokens / PLAN_LIMITS.tokens) * 100);
-
-  const usageCards = [
-    { label: t('total_queries') || 'Total queries', value: stats.total_queries, pct: queriesPct, hasBar: true },
-    { label: t('tokens_used') || 'Tokens used', value: stats.total_tokens, pct: tokensPct, hasBar: true },
-    { label: t('est_spend') || 'Est. spend', value: `$${Number(stats.total_cost_usd || 0).toFixed(4)}`, pct: null, hasBar: false },
+  const tabs = [
+    { id: 'info', label: t('tab_my_info') || 'Ma\'lumotlarim' },
+    { id: 'subscription', label: t('tab_subscription') || 'Obuna' },
+    { id: 'promo', label: t('tab_promo') || 'Promo' },
   ];
 
   return (
-    <div className="mypage-container">
-      {/* Profile header */}
-      <div className="mypage-card">
-        <div className="mypage-profile-row">
-          <div className="mypage-avatar">{initials(user.full_name || 'User')}</div>
+    <div className="mypage-wrap">
+      {/* Header */}
+      <div className="mypage-header-card">
+        <div className="mypage-avatar-row">
+          <div className="mypage-avatar">{initials(user.full_name || user.email || 'U')}</div>
           <div>
-            <div className="mypage-name">{user.full_name || 'User'}</div>
-            <div className="mypage-email">{user.email || '—'}</div>
-            <span className="mypage-role-badge">{user.role || 'user'}</span>
+            <div className="mypage-name">{user.full_name || user.email || 'Foydalanuvchi'}</div>
+            <div className="mypage-email">{user.email}</div>
+            <span className="mypage-role-badge">{user.role || 'member'}</span>
           </div>
         </div>
-      </div>
 
-      {/* Usage stats */}
-      <div className="mypage-card">
-        <div className="mypage-section-title">{t('usage') || 'Usage'}</div>
-        <div className="mypage-stats-grid">
-          {usageCards.map((card) => (
-            <div key={card.label} className="mypage-stat-card">
-              <div className="mypage-stat-label">{card.label}</div>
-              <div className="mypage-stat-value">{card.value}</div>
-              {card.hasBar && (
-                <div className="mypage-stat-bar-wrap">
-                  <div
-                    className={`mypage-stat-bar ${barColor(card.pct)}`}
-                    style={{ width: `${card.pct}%` }}
-                  />
-                </div>
-              )}
-            </div>
+        {/* Tabs */}
+        <div className="mypage-tabs">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              className={`mypage-tab-btn ${activeTab === tab.id ? 'active' : ''}`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
           ))}
         </div>
       </div>
 
-      {/* Plan */}
-      <div className="mypage-card">
-        <div className="mypage-section-title">{t('plan') || 'Plan'}</div>
-        <div className="mypage-plan-card">
-          <div className="mypage-plan-name">{user.plan || 'Free'}</div>
-          <div className="mypage-plan-desc">
-            {user.plan === 'pro'
-              ? '1,000 queries/mo · Unlimited documents · Streaming'
-              : '50 queries/mo · 5 documents · Basic access'}
+      {/* TAB: Ma'lumotlarim */}
+      {activeTab === 'info' && (
+        <div className="mypage-section-card">
+          <div className="mypage-section-title">{t('usage_title') || 'Foydalanish'}</div>
+
+          <div className="mypage-stat-block">
+            <div className="mypage-stat-row">
+              <span className="mypage-stat-label">{t('total_queries_label') || 'Jami so\'rovlar'}</span>
+              <span className="mypage-stat-value">{loading ? '—' : stats.total_queries}</span>
+            </div>
+            <div className="mypage-bar-wrap">
+              <div
+                className="mypage-bar-fill"
+                style={{ width: `${queriesPct}%`, background: getBarColor(queriesPct) }}
+              />
+            </div>
+            <div className="mypage-stat-sub">
+              {loading ? '—' : `${queriesLeft} so'rov qoldi (${planLimits.queries} dan)`}
+            </div>
           </div>
-          <button
-            className="mypage-upgrade-btn"
-            onClick={() => window.open('mailto:support@lexara.app?subject=Upgrade request')}
-          >
-            {user.plan === 'pro' ? (t('manage_plan') || 'Manage plan') : (t('upgrade') || 'Upgrade to Pro →')}
+
+          <div className="mypage-stat-block" style={{ marginTop: 12 }}>
+            <div className="mypage-stat-row">
+              <span className="mypage-stat-label">{t('tokens_label') || 'Tokenlar'}</span>
+              <span className="mypage-stat-value">{loading ? '—' : stats.total_tokens.toLocaleString()}</span>
+            </div>
+          </div>
+
+          <div className="mypage-divider" />
+
+          <div className="mypage-section-title">{t('account_label') || 'Hisob'}</div>
+          <div className="mypage-info-row">
+            <span className="mypage-info-key">{t('member_since_label') || 'A\'zo bo\'lgan sana'}</span>
+            <span className="mypage-info-val">{memberSince}</span>
+          </div>
+
+          <div className="mypage-divider" />
+
+          <div className="mypage-section-title">{t('preferences_label') || 'Sozlamalar'}</div>
+          <div className="mypage-info-row">
+            <span className="mypage-info-key">{t('language_label') || 'Til'}</span>
+            <select
+              className="mypage-lang-select"
+              value={lang}
+              onChange={(e) => setLang(e.target.value)}
+            >
+              {languageOptions.map((o) => (
+                <option key={o.code} value={o.code}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="mypage-divider" />
+          <button className="mypage-signout-btn" onClick={onLogout}>
+            {t('sign_out') || 'Chiqish'}
           </button>
         </div>
-      </div>
+      )}
 
-      {/* Account info */}
-      <div className="mypage-card">
-        <div className="mypage-section-title">{t('account') || 'Account'}</div>
-        <div className="mypage-info-row">
-          <span>{t('member_since') || 'Member since'}</span>
-          <span>{memberSince}</span>
-        </div>
-        <div className="mypage-info-row">
-          <span>{t('sign_out') || 'Sign out'}</span>
-          <button className="mypage-signout-btn" onClick={handleSignOut}>
-            {t('sign_out') || 'Sign out'}
-          </button>
-        </div>
-      </div>
-
-      {/* Preferences */}
-      <div className="mypage-card">
-        <div className="mypage-section-title">{t('preferences') || 'Preferences'}</div>
-        <div className="mypage-pref-row">
-          <span className="mypage-pref-label">{t('language_label') || 'Language'}</span>
-          <select
-            className="mypage-pref-select"
-            value={lang}
-            onChange={(e) => setLang(e.target.value)}
+      {/* TAB: Obuna */}
+      {activeTab === 'subscription' && (
+        <div>
+          <div
+            className="mypage-plan-card"
+            style={{ background: PLAN_GRADIENTS[plan] }}
           >
-            {languageOptions.map((opt) => (
-              <option key={opt.code} value={opt.code}>{opt.label}</option>
+            <div className="mypage-plan-badge">{t('current_plan_label') || 'Joriy reja'}</div>
+            <div className="mypage-plan-name">{PLAN_LIMITS[plan]?.label || 'Free'}</div>
+            <div className="mypage-plan-features">
+              {(PLAN_FEATURES[plan] || PLAN_FEATURES.free).map((f) => (
+                <div key={f} className="mypage-plan-feature">✓ {f}</div>
+              ))}
+            </div>
+          </div>
+
+          {plan === 'free' && (
+            <div className="mypage-upgrade-grid">
+              <div className="mypage-upgrade-card">
+                <div className="mypage-upgrade-card-header" style={{ background: PLAN_GRADIENTS.pro }}>
+                  <div className="mypage-upgrade-plan-name">Pro</div>
+                  <div className="mypage-upgrade-price">$19<span>/oy</span></div>
+                </div>
+                <div className="mypage-upgrade-features">
+                  {PLAN_FEATURES.pro.map((f) => (
+                    <div key={f} className="mypage-upgrade-feature">✓ {f}</div>
+                  ))}
+                </div>
+                <button
+                  className="mypage-upgrade-btn pro"
+                  onClick={() => window.open('mailto:support@lexara.app?subject=Pro rejaga o\'tish')}
+                >
+                  {t('upgrade_to_pro') || 'Pro\'ga o\'tish →'}
+                </button>
+              </div>
+
+              <div className="mypage-upgrade-card">
+                <div className="mypage-upgrade-card-header" style={{ background: PLAN_GRADIENTS.business }}>
+                  <div className="mypage-upgrade-plan-name">Business</div>
+                  <div className="mypage-upgrade-price">$49<span>/oy</span></div>
+                </div>
+                <div className="mypage-upgrade-features">
+                  {PLAN_FEATURES.business.map((f) => (
+                    <div key={f} className="mypage-upgrade-feature">✓ {f}</div>
+                  ))}
+                </div>
+                <button
+                  className="mypage-upgrade-btn business"
+                  onClick={() => window.open('mailto:support@lexara.app?subject=Business rejaga o\'tish')}
+                >
+                  {t('upgrade_to_business') || 'Business\'ga o\'tish →'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {plan !== 'free' && (
+            <div className="mypage-section-card" style={{ marginTop: 12 }}>
+              <div className="mypage-info-row">
+                <span className="mypage-info-key">{t('plan_expires_label') || 'Tugash sanasi'}</span>
+                <span className="mypage-info-val">{user.plan_expires_at ? new Date(user.plan_expires_at).toLocaleDateString() : '—'}</span>
+              </div>
+              <button
+                className="mypage-signout-btn"
+                style={{ marginTop: 12 }}
+                onClick={() => window.open('mailto:support@lexara.app?subject=Reja boshqaruvi')}
+              >
+                {t('manage_plan') || 'Rejani boshqarish'}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB: Promo */}
+      {activeTab === 'promo' && (
+        <div className="mypage-section-card">
+          <div className="mypage-promo-hero">
+            <div className="mypage-promo-icon">🎁</div>
+            <div className="mypage-promo-title">
+              {t('promo_headline') || 'Do\'stingizni taklif qiling'}
+            </div>
+            <div className="mypage-promo-sub">
+              {t('promo_desc') || 'Har bir do\'stingiz Lexara\'ga qo\'shilsa, siz 1 oy Pro bepul olasiz!'}
+            </div>
+          </div>
+
+          <div className="mypage-divider" />
+
+          <div className="mypage-section-title">{t('your_referral_link') || 'Sizning havola'}</div>
+          <div className="mypage-referral-row">
+            <input
+              className="mypage-referral-input"
+              value={referralLink}
+              readOnly
+            />
+            <button
+              className="mypage-referral-copy-btn"
+              onClick={() => { navigator.clipboard.writeText(referralLink); }}
+            >
+              {t('copy') || 'Nusxa'}
+            </button>
+          </div>
+
+          <div className="mypage-divider" />
+
+          <div className="mypage-section-title">{t('how_it_works') || 'Qanday ishlaydi'}</div>
+          <div className="mypage-steps">
+            {[
+              t('promo_step1') || 'Havolani do\'stlaringizga yuboring',
+              t('promo_step2') || 'Ular ro\'yxatdan o\'tadi va 5 so\'rov yuboradi',
+              t('promo_step3') || 'Siz 1 oy Pro bepul olasiz',
+            ].map((step, i) => (
+              <div key={i} className="mypage-step">
+                <div className="mypage-step-num">{i + 1}</div>
+                <div className="mypage-step-text">{step}</div>
+              </div>
             ))}
-          </select>
+          </div>
+
+          <div className="mypage-promo-note">
+            {t('promo_note') || '* Mukofot hozircha qo\'lda beriladi. Tez orada avtomatik bo\'ladi.'}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -15,6 +15,7 @@ function WorkspaceSelector({
   const { t } = useTranslation();
   const [workspaces, setWorkspaces] = useState([]);
   const [loadingWorkspaces, setLoadingWorkspaces] = useState(false);
+  const [docCounts, setDocCounts] = useState({});
   const [nameInput, setNameInput] = useState(workspaceName || '');
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
@@ -35,6 +36,21 @@ function WorkspaceSelector({
     return () => document.removeEventListener('mousedown', handle);
   }, [menuOpenId]);
 
+  const fetchDocCounts = async (workspaceList) => {
+    const counts = {};
+    await Promise.all(
+      workspaceList.map(async (ws) => {
+        try {
+          const res = await client.get(`/documents?workspace_id=${ws.id}&limit=1`);
+          counts[ws.id] = res.data?.total ?? res.data?.length ?? 0;
+        } catch {
+          counts[ws.id] = null;
+        }
+      })
+    );
+    setDocCounts(counts);
+  };
+
   const loadWorkspaces = async () => {
     setLoadingWorkspaces(true);
     try {
@@ -47,6 +63,7 @@ function WorkspaceSelector({
             ? response.data
             : [];
       setWorkspaces(items);
+      fetchDocCounts(items);
     } catch {
       setWorkspaces([]);
     } finally {
@@ -176,6 +193,11 @@ function WorkspaceSelector({
             >
               {ws.name}
             </button>
+            <span className={`ws-doc-count ${ws.id === workspaceId ? 'active' : ''}`}>
+              {docCounts[ws.id] != null
+                ? docCounts[ws.id] > 0 ? docCounts[ws.id] : '—'
+                : ''}
+            </span>
             <div className="ws-menu-wrap">
               <button
                 className="ws-menu-btn"
