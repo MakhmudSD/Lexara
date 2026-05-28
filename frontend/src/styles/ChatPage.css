@@ -35,19 +35,24 @@
 }
 
 .chat-sidebar {
-  width: 260px;
-  flex-shrink: 0;
+  width: 220px;
+  min-width: 220px;
+  height: 100%;
+  background: #f7f7f6;
+  border-right: 0.5px solid rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
-  background: var(--lexara-white);
-  border-right: 1px solid var(--lexara-border);
   overflow: hidden;
-  box-shadow: none;
 }
 
 .sidebar-section {
-  padding: 18px 18px 16px;
-  border-bottom: 1px solid var(--lexara-border);
+  padding: 0;
+}
+
+.sidebar-divider {
+  height: 0.5px;
+  background: rgba(0,0,0,0.08);
+  margin: 6px 0;
 }
 
 .sidebar-label {

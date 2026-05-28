@@ -299,7 +299,6 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
       <div className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`} onClick={() => setSidebarOpen(false)} />
       <aside className={`chat-sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-section">
-          <div className="sidebar-label">{t('workspace')}</div>
           <WorkspaceSelector
             ref={workspaceSelectorRef}
             workspaceId={workspaceId}

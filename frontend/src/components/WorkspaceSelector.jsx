@@ -18,8 +18,10 @@ function WorkspaceSelector({
   const [nameInput, setNameInput] = useState(workspaceName || '');
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
-  const [saveStatus, setSaveStatus] = useState('');
+  const [, setSaveStatus] = useState('');
   const [menuOpenId, setMenuOpenId] = useState(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const createInputRef = useRef(null);
 
   // Close three-dot menu when clicking outside any .ws-menu-wrap element
   useEffect(() => {
@@ -51,10 +53,6 @@ function WorkspaceSelector({
       setLoadingWorkspaces(false);
     }
   };
-
-  useEffect(() => {
-    setNameInput(workspaceName || '');
-  }, [workspaceName]);
 
   useEffect(() => {
     loadWorkspaces();
@@ -100,7 +98,6 @@ function WorkspaceSelector({
     setCreateError('');
     setSaveStatus('');
     setMenuOpenId(null);
-    setNameInput(workspace.name || '');
     onWorkspaceChange(workspace.id);
     onWorkspaceNameChange(workspace.name || '');
     localStorage.setItem('workspaceId', workspace.id);
@@ -144,6 +141,7 @@ function WorkspaceSelector({
       const workspace = await quickCreateWorkspace(normalizedName);
       setCreateError('');
       setNameInput('');
+      setShowCreateForm(false);
       onWorkspaceChange(workspace.id);
       onWorkspaceNameChange(workspace.name);
       localStorage.setItem('workspaceId', workspace.id);
@@ -160,36 +158,45 @@ function WorkspaceSelector({
 
   return (
     <div className="workspace-selector">
+      <div className="sidebar-section-label">{t('workspace') || 'Loyiha'}</div>
       <div className="workspace-list">
-        {loadingWorkspaces && <div className="workspace-empty">{t('loading')}</div>}
-        {!loadingWorkspaces && !workspaces.length && <div className="workspace-empty">{t('no_workspace')}</div>}
-        {workspaces.map((workspace) => (
-          <div key={workspace.id} className="workspace-item-row">
-            <div
-              className={`workspace-item ${workspace.id === workspaceId ? 'active' : ''}`}
-              onClick={() => handleSelectWorkspace(workspace)}
+        {loadingWorkspaces && <div className="ws-loading">Yuklanmoqda…</div>}
+        {!loadingWorkspaces && workspaces.length === 0 && (
+          <div className="ws-empty">Hech qanday loyiha yo'q</div>
+        )}
+        {workspaces.map((ws) => (
+          <div
+            key={ws.id}
+            className={`workspace-item-row ${ws.id === workspaceId ? 'active' : ''}`}
+          >
+            <button
+              className="workspace-item"
+              onClick={() => handleSelectWorkspace(ws)}
+              title={ws.name}
             >
-              <span className="workspace-item-name">{workspace.name}</span>
-            </div>
+              {ws.name}
+            </button>
             <div className="ws-menu-wrap">
               <button
                 className="ws-menu-btn"
-                type="button"
-                title="Options"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setMenuOpenId(menuOpenId === workspace.id ? null : workspace.id);
+                  setMenuOpenId(menuOpenId === ws.id ? null : ws.id);
                 }}
+                aria-label="Loyiha sozlamalari"
               >
                 ···
               </button>
-              {menuOpenId === workspace.id && (
+              {menuOpenId === ws.id && (
                 <div className="ws-dropdown">
                   <button
                     className="ws-dropdown-item ws-dropdown-item--danger"
-                    onClick={() => handleDeleteWorkspace(workspace.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteWorkspace(ws.id, ws.name);
+                    }}
                   >
-                    {t('delete_workspace')}
+                    {t('delete') || "O'chirish"}
                   </button>
                 </div>
               )}
@@ -198,46 +205,54 @@ function WorkspaceSelector({
         ))}
       </div>
 
-      <div className="workspace-input-wrap">
-        <input
-          type="text"
-          className="workspace-input"
-          value={nameInput}
-          onChange={(event) => {
-            setNameInput(event.target.value);
-            setSaveStatus('');
-            setCreateError('');
-          }}
-          onFocus={() => setCreateError('')}
-          onBlur={persistName}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              event.preventDefault();
-              persistName();
-            }
-          }}
-          placeholder={t('workspace_name_placeholder')}
-          spellCheck={false}
-          autoComplete="off"
-        />
-        {nameInput && <div className="workspace-name-display">{nameInput}</div>}
-        {workspaceId && <div className="workspace-uuid-hint">{t('workspace_id_hint')}{shortWorkspaceId}</div>}
-      </div>
-
-      {nameError && <div className="workspace-status" style={{ color: '#b45309', fontSize: 11 }}>✗ {nameError}</div>}
-      {!!saveStatus && <div className={`workspace-status ${saveStatus.startsWith('✓') ? 'ok' : 'err'}`}>{saveStatus}</div>}
-      {createError && <div className="workspace-status" style={{ color: '#b45309', fontSize: 11 }}>✗ {createError}</div>}
-      {!workspaceId && !normalizedName && !createError && <div className="workspace-status hint">{t('enter_project_name_first')}</div>}
-      {!workspaceId && normalizedName && !createError && <div className="workspace-status hint">{t('paste_uuid_or_generate')}</div>}
-
-      <button
-        className="new-workspace-btn"
-        onClick={handleGenerate}
-        disabled={creating || !normalizedName}
-        style={{ opacity: creating || !normalizedName ? 0.5 : 1 }}
-      >
-        {creating ? t('creating_workspace') : t('generate_workspace')}
-      </button>
+      {!showCreateForm ? (
+        <button
+          className="ws-create-btn"
+          onClick={() => setShowCreateForm(true)}
+        >
+          + {t('new_workspace') || 'Yangi loyiha'}
+        </button>
+      ) : (
+        <div className="ws-create-form">
+          <input
+            ref={createInputRef}
+            type="text"
+            className="ws-create-input"
+            value={nameInput}
+            onChange={(e) => setNameInput(e.target.value)}
+            placeholder={t('workspace_name_placeholder') || 'Loyiha nomi…'}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleGenerate();
+              if (e.key === 'Escape') {
+                setShowCreateForm(false);
+                setNameInput('');
+                setCreateError('');
+              }
+            }}
+            autoFocus
+          />
+          {createError && <div className="ws-create-error">{createError}</div>}
+          <div className="ws-create-actions">
+            <button
+              className="ws-create-submit"
+              onClick={handleGenerate}
+              disabled={creating || !nameInput.trim()}
+            >
+              {creating ? '…' : (t('create') || 'Yaratish')}
+            </button>
+            <button
+              className="ws-create-cancel"
+              onClick={() => {
+                setShowCreateForm(false);
+                setNameInput('');
+                setCreateError('');
+              }}
+            >
+              {t('cancel') || 'Bekor'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
