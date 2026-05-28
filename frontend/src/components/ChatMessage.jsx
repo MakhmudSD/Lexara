@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/ChatMessage.css';
 
@@ -60,6 +61,27 @@ function renderMarkdown(text = '') {
   return blocks.join('');
 }
 
+function SourceCard({ source }) {
+  const score = source.score || 0;
+  const scoreClass = score >= 0.75 ? 'high' : score >= 0.55 ? 'medium' : 'low';
+  const filename = source.filename || `doc:${String(source.document_id).slice(0, 8)}`;
+  const preview = source.text ? `${source.text.substring(0, 120)}${source.text.length > 120 ? '…' : ''}` : '';
+
+  return (
+    <div className="source-card">
+      <div className="source-card-header">
+        <span className={`source-score-dot ${scoreClass}`} aria-hidden="true" />
+        <span className="source-filename" title={filename}>
+          {filename}
+        </span>
+      </div>
+      <p className="source-preview">
+        {preview}
+      </p>
+    </div>
+  );
+}
+
 function formatTime(timestamp) {
   if (!timestamp) return '';
   try {
@@ -71,10 +93,21 @@ function formatTime(timestamp) {
 
 export default function ChatMessage({ role, content, sources, isLoading, mode, isStreaming, timestamp }) {
   const { t } = useTranslation();
+  const [showSources, setShowSources] = useState(false);
   const isUser = role === 'user';
+  const hasRealSources = sources && sources.length > 0;
   const hasAnswer = role === 'assistant' && content && content.trim();
   const showThinking = !isUser && isStreaming && (!content || content.length === 0);
   const renderedAnswer = !isUser && content ? renderMarkdown(content) : '';
+
+  const topScore = sources?.length > 0
+    ? Math.max(...sources.map((s) => s.score || 0))
+    : null;
+
+  const tier = topScore === null ? null
+    : topScore >= 0.75 ? 'high'
+    : topScore >= 0.55 ? 'medium'
+    : 'low';
 
   if (isLoading) {
     return (
@@ -134,23 +167,37 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
             ) : (isStreaming ? <span className="cursor" aria-hidden="true" /> : null)
           )
         )}
-
-        {sources && sources.length > 0 && (
-          <div className="message-sources">
-            <div className="source-label">Sources</div>
-            {sources.map((src, i) => (
-              <div key={i} className="source-chip">
-                <span>{src.filename || 'Document'}</span>
-                {src.score != null && (
-                  <span className="score-badge">{Math.round(src.score * 100)}%</span>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {timestamp && <span className="message-timestamp">{formatTime(timestamp)}</span>}
+
+      {hasRealSources && (
+        <div className="sources-section">
+          <div className="sources-meta-row">
+            <button className="sources-toggle-btn" type="button" onClick={() => setShowSources((value) => !value)}>
+              <span>{sources.length} {t('references')}</span>
+              <span className="sources-arrow">{showSources ? '↑' : '↓'}</span>
+            </button>
+
+            {tier === 'medium' && (
+              <div className="confidence-badge confidence-medium">
+                {t('confidence_medium')}
+              </div>
+            )}
+            {tier === 'low' && <div className="confidence-badge confidence-low">{t('confidence_low')}</div>}
+          </div>
+          {tier === 'high' && <div className="confidence-high-note">{t('from_your_documents')}</div>}
+          {tier === 'low' && <div className="confidence-tip">{t('confidence_tip')}</div>}
+
+          {showSources && (
+            <div className="sources-grid">
+              {sources.map((source, index) => (
+                <SourceCard key={index} source={source} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

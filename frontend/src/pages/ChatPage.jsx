@@ -1,23 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import ChatMessage from '../components/ChatMessage';
+import FileUploader from '../components/FileUploader';
 import WorkspaceSelector from '../components/WorkspaceSelector';
 import { LexaraIcon } from '../assets/LexaraLogo';
 import { useTranslation } from '../i18n/useTranslation';
-import { sendChat } from '../api/chat';
-import { uploadDocument } from '../api/upload';
+import { streamChat } from '../api/chat';
 import '../styles/ChatPage.css';
 
 const HISTORY_LIMIT = 12;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export default function ChatPage({
-  workspaceId,
-  workspaceName,
-  onChangeWorkspace,
-  onWorkspaceNameChange,
-  authUser,
-  onGoAdmin,
-}) {
+export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace, onWorkspaceNameChange }) {
   const { t } = useTranslation();
   const [messages, setMessages] = useState([]);
   const [history, setHistory] = useState([]);
@@ -28,16 +21,9 @@ export default function ChatPage({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [connectionError, setConnectionError] = useState(false);
-  const [uploadError, setUploadError] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
-  const [lastFile, setLastFile] = useState(null);
-  const [uploadStage, setUploadStage] = useState('idle');
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const workspaceSelectorRef = useRef(null);
-  const fileInputRef = useRef(null);
-  const uploadResetTimerRef = useRef(null);
 
   const normalizeMessages = useCallback((entries, fallbackTimestamp) => (
     (entries || []).map((entry, index) => ({
@@ -49,80 +35,6 @@ export default function ChatPage({
   const retryWorkspaceCreation = useCallback(() => {
     workspaceSelectorRef.current?.retryWorkspaceCreation?.();
   }, []);
-
-  const clearUploadResetTimer = useCallback(() => {
-    if (uploadResetTimerRef.current) {
-      window.clearTimeout(uploadResetTimerRef.current);
-      uploadResetTimerRef.current = null;
-    }
-  }, []);
-
-  const resetUploadState = useCallback(() => {
-    clearUploadResetTimer();
-    setUploadError(null);
-    setUploadProgress(0);
-    setIsUploading(false);
-    setUploadStage('idle');
-    setLastFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  }, [clearUploadResetTimer]);
-
-  const doUpload = useCallback(async (file) => {
-    if (!file) return;
-    if (!workspaceId) {
-      setUploadError('Select a workspace before uploading.');
-      return;
-    }
-
-    clearUploadResetTimer();
-    setLastFile(file);
-    setUploadError(null);
-    setUploadStage('idle');
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    try {
-      await uploadDocument(file, workspaceId, null, (pct) => {
-        setUploadProgress(pct);
-      });
-      setUploadProgress(100);
-      setUploadStage('indexing');
-      uploadResetTimerRef.current = window.setTimeout(() => {
-        setUploadStage('ready');
-      }, 3000);
-    } catch (err) {
-      setUploadError(err?.message || t('upload_failed_retry'));
-      setUploadStage('idle');
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  }, [clearUploadResetTimer, t, workspaceId]);
-
-  const handleFileChange = useCallback(async (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    await doUpload(file);
-  }, [doUpload]);
-
-  const handleRetryUpload = useCallback(() => {
-    if (lastFile) {
-      doUpload(lastFile);
-    }
-  }, [doUpload, lastFile]);
-
-  const openFilePicker = useCallback(() => {
-    if (isUploading) return;
-    if (!workspaceId) {
-      setUploadError('Select a workspace before uploading.');
-      return;
-    }
-    fileInputRef.current?.click();
-  }, [isUploading, workspaceId]);
 
   const loadSession = useCallback((sessionId) => {
     const session = sessions.find((item) => item.id === sessionId);
@@ -229,10 +141,6 @@ export default function ChatPage({
   }, [normalizeMessages, workspaceId]);
 
   useEffect(() => {
-    resetUploadState();
-  }, [resetUploadState, workspaceId]);
-
-  useEffect(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
     textarea.style.height = 'auto';
@@ -252,7 +160,8 @@ export default function ChatPage({
   const sendMessage = useCallback(async (text) => {
     if (!text.trim() || isLoading || !workspaceId) return;
     const question = text.trim();
-    const sessionId = activeSessionId || (() => {
+    let sessionId = activeSessionId;
+    if (!sessionId) {
       const newSession = {
         id: globalThis.crypto?.randomUUID?.() || `session-${Date.now()}`,
         title: t('new_conversation'),
@@ -264,8 +173,9 @@ export default function ChatPage({
       setSessions(updated);
       localStorage.setItem(`lexara_sessions_${workspaceId}`, JSON.stringify(updated));
       setActiveSessionId(newSession.id);
-      return newSession.id;
-    })();
+      sessionId = newSession.id;
+    }
+    const historyForRequest = history.slice(-HISTORY_LIMIT);
     const assistantId = `assistant-${Date.now()}`;
     const sentAt = new Date().toISOString();
 
@@ -279,53 +189,73 @@ export default function ChatPage({
       { id: assistantId, role: 'assistant', content: '', sources: [], mode: 'rag', isStreaming: true, timestamp: sentAt },
     ]);
 
-    try {
-      const response = await sendChat(
-        workspaceId,
-        question,
-        authUser?.id || null,
-        5,
-      );
-      const finalMode = response.mode || (response.answer ? 'rag' : 'retrieval');
-      const finalSources = (response.sources || []).map((source) => ({
-        ...source,
-        filename: source.filename || `doc:${String(source.document_id).slice(0, 8)}`,
-      }));
-      const finalContent = response.answer || (finalSources.length === 0 ? t('no_results') : '');
+    let finalContent = '';
+    let finalMode = 'retrieval';
+    let finalSources = [];
+    let settled = false;
 
-      setMessages((prev) => {
-        const finalMessages = prev.map((message) => (
-          message.id === assistantId
-            ? {
-                ...message,
-                mode: finalMode,
-                content: finalContent,
-                sources: finalSources,
-                isStreaming: false,
-              }
-            : message
-        ));
-        saveSession(sessionId, finalMessages);
-        return finalMessages;
-      });
-      appendHistory(question, finalContent);
-      try {
-        const existing = JSON.parse(localStorage.getItem('lexara_stats') || '{}');
-        const next = {
-          total_queries: Number(existing.total_queries || 0) + 1,
-          total_tokens: Number(existing.total_tokens || 0),
-          total_cost: Number(existing.total_cost || 0),
-        };
-        localStorage.setItem('lexara_stats', JSON.stringify(next));
-      } catch {
-        // no-op
-      }
-      setIsLoading(false);
-    } catch (err) {
-      setError(err?.message || 'Chat request failed');
-      setMessages((prev) => prev.filter((entry) => entry.id !== assistantId));
-      setIsLoading(false);
-    }
+    await streamChat(
+      workspaceId,
+      question,
+      historyForRequest,
+      (delta) => {
+        finalContent += delta;
+        setMessages((prev) => prev.map((message) => (
+          message.id === assistantId ? { ...message, content: finalContent } : message
+        )));
+      },
+      (sources) => {
+        finalSources = (sources || []).map((source) => ({
+          ...source,
+          filename: source.filename || `doc:${String(source.document_id).slice(0, 8)}`,
+        }));
+        setMessages((prev) => prev.map((message) => (
+          message.id === assistantId ? { ...message, sources: finalSources } : message
+        )));
+      },
+      (done) => {
+        settled = true;
+        finalMode = done?.mode || 'retrieval';
+        if (finalMode === 'retrieval' && !finalContent && finalSources.length === 0) {
+          finalContent = t('no_results');
+        }
+        setMessages((prev) => {
+          const finalMessages = prev.map((message) => (
+            message.id === assistantId
+              ? {
+                  ...message,
+                  mode: finalMode,
+                  content: finalMode === 'rag' ? finalContent : (finalContent || ''),
+                  sources: finalSources,
+                  isStreaming: false,
+                }
+              : message
+          ));
+          saveSession(sessionId, finalMessages);
+          return finalMessages;
+        });
+        appendHistory(question, finalMode === 'rag' ? finalContent : '');
+        try {
+          const existing = JSON.parse(localStorage.getItem('lexara_stats') || '{}');
+          const next = {
+            total_queries: Number(existing.total_queries || 0) + 1,
+            total_tokens: Number(existing.total_tokens || 0),
+            total_cost: Number(existing.total_cost || 0),
+          };
+          localStorage.setItem('lexara_stats', JSON.stringify(next));
+        } catch {
+          // no-op
+        }
+        setIsLoading(false);
+      },
+      (message) => {
+        if (settled) return;
+        settled = true;
+        setError(message);
+        setMessages((prev) => prev.filter((entry) => entry.id !== assistantId));
+        setIsLoading(false);
+      },
+    );
   }, [activeSessionId, appendHistory, history, isLoading, saveSession, sessions, t, workspaceId]);
 
   const hasWorkspaceName = Boolean(workspaceName && workspaceName.trim() && !UUID_RE.test(workspaceName.trim()));
@@ -341,13 +271,6 @@ export default function ChatPage({
 
   return (
     <div className="chat-page">
-      <input
-        ref={fileInputRef}
-        type="file"
-        className="hidden-file-input"
-        onChange={handleFileChange}
-        accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
-      />
       <button className="sidebar-toggle" onClick={() => setSidebarOpen((value) => !value)}>
         {sidebarOpen ? '✕' : '☰'}
       </button>
@@ -370,6 +293,18 @@ export default function ChatPage({
             onWorkspaceNameChange={onWorkspaceNameChange}
             onConnectionError={() => setConnectionError(true)}
           />
+        </div>
+
+        <div className="sidebar-section">
+          <div className="sidebar-label">{t('ingest_document')}</div>
+          <FileUploader
+            workspaceId={workspaceId}
+            onUploadSuccess={() => setError('')}
+            onUploadError={(msg) => setError(msg)}
+            disabled={!hasWorkspaceName}
+            nameRequired={Boolean(workspaceId) && !hasWorkspaceName}
+          />
+          {!hasWorkspaceName && <div className="input-hint">{workspaceId ? t('upload_disabled_hint') : t('select_project_first')}</div>}
         </div>
 
         <div className="sidebar-section">
@@ -402,23 +337,6 @@ export default function ChatPage({
             ))}
           </div>
         </div>
-
-        {authUser && (
-          <div className="sidebar-footer">
-            <div className="user-avatar" aria-hidden="true">
-              {(authUser.email || authUser.name || 'L').slice(0, 1).toUpperCase()}
-            </div>
-            <div className="user-info">
-              <div className="user-name">{authUser.email || authUser.name || 'Signed in'}</div>
-              <div className="user-role">{authUser.role || 'Account'}</div>
-            </div>
-            {onGoAdmin && (
-              <button type="button" className="sidebar-admin-link" onClick={onGoAdmin}>
-                Admin
-              </button>
-            )}
-          </div>
-        )}
       </aside>
 
       <main className="chat-main">
@@ -432,85 +350,10 @@ export default function ChatPage({
           <span className="chat-mode-badge">{workspaceId ? t('ready') : t('disconnected')}</span>
         </div>
 
-        <div className="upload-strip">
-          {isUploading ? (
-            <div className="upload-zone upload-zone--uploading">
-              <div className="upload-zone-icon">↑</div>
-              <div className="upload-zone-text">
-                <div className="upload-zone-title">{lastFile?.name || t('uploading')}</div>
-                <div className="upload-zone-sub">Processing...</div>
-              </div>
-              <div className="upload-zone-progress-wrap" aria-hidden="true">
-                <div
-                  className="upload-progress"
-                  style={{ width: `${Math.max(12, Math.min(uploadProgress, 100))}%` }}
-                />
-              </div>
-            </div>
-          ) : (uploadStage === 'indexing' || uploadStage === 'ready') ? (
-            <div className="upload-zone upload-zone--success">
-              <div className="upload-zone-icon upload-zone-icon--success">✓</div>
-              <div className="upload-zone-text">
-                <div className="upload-zone-title">
-                  {lastFile?.name || t('uploading')} · {uploadStage === 'ready' ? 'Ready to query' : 'Indexing...'}
-                </div>
-                <div className="upload-zone-sub">
-                  {uploadStage === 'ready'
-                    ? 'You can start asking questions now.'
-                    : 'Processing the document in the background.'}
-                </div>
-              </div>
-              <button type="button" className="upload-zone-btn" onClick={openFilePicker}>
-                Browse files
-              </button>
-            </div>
-          ) : (
-            <div
-              className="upload-zone upload-zone--idle"
-              role="button"
-              tabIndex={0}
-              onClick={openFilePicker}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault();
-                  openFilePicker();
-                }
-              }}
-            >
-              <div className="upload-zone-icon">↑</div>
-              <div className="upload-zone-text">
-                <div className="upload-zone-title">{t('drop_or_click')}</div>
-                <div className="upload-zone-sub">PDF, DOCX, TXT · max 50MB</div>
-              </div>
-              <button
-                type="button"
-                className="upload-zone-btn"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  openFilePicker();
-                }}
-                disabled={isUploading}
-              >
-                Browse files
-              </button>
-            </div>
-          )}
-
-          {uploadError && (
-            <div className="upload-error">
-              <div className="upload-error-icon">⚠</div>
-              <div className="upload-error-text">{uploadError}</div>
-              <button type="button" className="upload-error-retry" onClick={handleRetryUpload}>
-                Retry
-              </button>
-            </div>
-          )}
-        </div>
-
         <div className="chat-messages">
           {connectionError && (
             <div className="connection-error-state">
-              <div style={{ fontSize: 32 }}>⚠</div>
+              <div style={{ fontSize: 32 }}>⚠️</div>
               <p>{t('connection_error')}</p>
               <button
                 onClick={() => {
