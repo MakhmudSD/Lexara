@@ -13,4 +13,10 @@ export default defineConfig({
       '@sentry/react': resolve('src/vendor/sentry-react-stub.js'),
     },
   },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['src/tests/setup.js'],
+    css: false,
+  },
 });
