@@ -24,6 +24,7 @@ def run_migrations() -> None:
     logger.info("database_migrations_completed")
 
     import threading
+
     def _bg_rebuild():
         import time
         time.sleep(8)
@@ -41,7 +42,8 @@ def run_migrations() -> None:
         threading.Thread(target=_bg_rebuild, daemon=True).start()
         logger.info("FAISS rebuild scheduled in background")
     else:
-        logger.info("FAISS rebuild disabled via DISABLE_FAISS_REBUILD env var")
+        logger.info("FAISS rebuild disabled")
+
 
 def run_startup_cleanup() -> None:
     """Run cleanup once on startup."""
