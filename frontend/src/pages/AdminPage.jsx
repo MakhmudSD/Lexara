@@ -585,6 +585,7 @@ export default function AdminPage({ onGoChat }) {
         </div>
       </div>
       <div className="admin-tabs">
+        {tabs.map((tab) => (
           <button
             key={tab}
             className={`admin-tab ${activeTab === tab ? 'active' : ''}`}
@@ -594,7 +595,7 @@ export default function AdminPage({ onGoChat }) {
             }}
           >
             {tabLabels[tab] || tab}
-            {tab === 'users' && <span className="tab-count">{counts.users ?? 0}</span>}
+            {tab === 'users' && <span className="tab-count">{counts.users != null ? counts.users : 0}</span>}
           </button>
         ))}
       </div>
