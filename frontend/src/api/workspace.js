@@ -18,3 +18,7 @@ export const updateWorkspaceName = async (workspaceId, name) => {
   const response = await client.patch(`/workspaces/${workspaceId}/name`, { name });
   return response.data;
 };
+
+export const deleteWorkspace = async (workspaceId) => {
+  await client.delete(`/workspaces/${workspaceId}`);
+};

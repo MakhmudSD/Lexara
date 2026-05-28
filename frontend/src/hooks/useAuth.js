@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 const TOKEN_KEY = 'access_token';
 const USER_KEY = 'authUser';
+const INACTIVITY_MS = 30 * 60 * 1000; // 30 minutes
 
 function decodeJWT(token) {
   try {
@@ -55,6 +56,23 @@ export function useAuth() {
     setAuth(null);
     window.dispatchEvent(new Event('auth:change'));
   }, []);
+
+  // Inactivity logout — fires after 30 min of no user input
+  useEffect(() => {
+    if (!auth) return;
+    let timerId;
+    const reset = () => {
+      clearTimeout(timerId);
+      timerId = setTimeout(logout, INACTIVITY_MS);
+    };
+    const events = ['mousedown', 'keydown', 'touchstart', 'scroll'];
+    events.forEach((ev) => window.addEventListener(ev, reset, { passive: true }));
+    reset(); // start the countdown immediately on login
+    return () => {
+      clearTimeout(timerId);
+      events.forEach((ev) => window.removeEventListener(ev, reset));
+    };
+  }, [auth, logout]);
 
   const isAdmin = auth?.role?.toLowerCase() === 'admin';
   const isAuthenticated = auth !== null;

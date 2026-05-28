@@ -165,6 +165,9 @@ export const translations = {
     suggestion_chip_2: 'Summarize this document',
     suggestion_chip_3: 'What are the key conclusions?',
     suggestion_chip_4: 'List the most important facts',
+    delete_workspace: 'Delete project',
+    workspace_delete_failed: 'Failed to delete project',
+    upload_success: '✓ Indexed',
   },
   ko: {
     app_name: 'Lexara',
@@ -332,6 +335,9 @@ export const translations = {
     suggestion_chip_2: '문서를 요약해주세요',
     suggestion_chip_3: '핵심 결론은 무엇인가요?',
     suggestion_chip_4: '가장 중요한 사실을 나열해주세요',
+    delete_workspace: '프로젝트 삭제',
+    workspace_delete_failed: '프로젝트를 삭제하지 못했습니다',
+    upload_success: '✓ 인덱싱됨',
   },
   ru: {
     app_name: 'Lexara',
@@ -499,6 +505,9 @@ export const translations = {
     suggestion_chip_2: 'Кратко изложите документ',
     suggestion_chip_3: 'Каковы ключевые выводы?',
     suggestion_chip_4: 'Перечислите важнейшие факты',
+    delete_workspace: 'Удалить проект',
+    workspace_delete_failed: 'Не удалось удалить проект',
+    upload_success: '✓ Проиндексировано',
   },
   uz: {
     app_name: 'Lexara',
@@ -666,6 +675,9 @@ export const translations = {
     suggestion_chip_2: 'Hujjatni xulosalang',
     suggestion_chip_3: 'Asosiy xulosalar qanday?',
     suggestion_chip_4: 'Eng muhim faktlarni keltiring',
+    delete_workspace: "Loyihani o'chirish",
+    workspace_delete_failed: "Loyihani o'chirib bo'lmadi",
+    upload_success: '✓ Indekslandi',
   },
   ja: {
     app_name: 'Lexara',
@@ -794,6 +806,9 @@ export const translations = {
     suggestion_chip_2: 'この文書を要約してください',
     suggestion_chip_3: '主な結論は何ですか？',
     suggestion_chip_4: '最も重要な事実を列挙してください',
+    delete_workspace: 'プロジェクトを削除',
+    workspace_delete_failed: 'プロジェクトを削除できませんでした',
+    upload_success: '✓ インデックス済み',
   },
 };
 

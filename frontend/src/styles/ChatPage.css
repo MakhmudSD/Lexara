@@ -494,3 +494,67 @@
     padding-right: 16px;
   }
 }
+
+/* ── Inline file upload ── */
+
+.attach-btn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--lexara-text-tertiary);
+  transition: background 0.15s ease, color 0.15s ease;
+  padding: 0;
+}
+
+.attach-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.attach-btn:hover:not(:disabled) {
+  background: var(--lexara-bg);
+  color: var(--lexara-text-secondary);
+}
+
+.attach-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.upload-progress-wrap {
+  height: 3px;
+  background: var(--lexara-border);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.upload-progress-bar {
+  height: 100%;
+  background: var(--lexara-blue);
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+.upload-status {
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.3px;
+  padding: 2px 4px;
+}
+
+.upload-status.ok {
+  color: var(--success);
+}
+
+.upload-status.err {
+  color: var(--error);
+}

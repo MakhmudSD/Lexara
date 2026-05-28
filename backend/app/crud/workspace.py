@@ -31,6 +31,15 @@ def list_workspaces(
     return query.order_by(Workspace.created_at.desc()).offset(skip).limit(limit).all()
 
 
+def deactivate_workspace(db: Session, workspace_id: UUID) -> Workspace:
+    """Soft-delete a workspace by setting is_active = False."""
+    workspace = get_workspace_or_404(db, workspace_id)
+    workspace.is_active = False
+    db.commit()
+    db.refresh(workspace)
+    return workspace
+
+
 def create_workspace(db: Session, name: str, organization_id: UUID | None = None) -> Workspace:
     normalized_name = name.strip()
     

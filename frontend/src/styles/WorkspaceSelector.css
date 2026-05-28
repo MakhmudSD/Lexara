@@ -151,3 +151,93 @@
 .new-workspace-btn:disabled {
   cursor: not-allowed;
 }
+
+/* ── Three-dot delete menu ── */
+
+.workspace-item-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.workspace-item-row .workspace-item {
+  flex: 1;
+  min-width: 0;
+}
+
+.ws-menu-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.ws-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: var(--lexara-text-tertiary);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+  padding: 0;
+  letter-spacing: -1px;
+}
+
+.workspace-item-row:hover .ws-menu-btn,
+.ws-menu-btn:focus {
+  opacity: 1;
+}
+
+.ws-menu-btn:hover {
+  background: var(--lexara-bg);
+  color: var(--lexara-text);
+}
+
+.ws-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  background: var(--lexara-white);
+  border: 1px solid var(--lexara-border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+  z-index: 300;
+  min-width: 140px;
+  overflow: hidden;
+  padding: 4px;
+}
+
+.ws-dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+  color: var(--lexara-text);
+}
+
+.ws-dropdown-item:hover {
+  background: var(--lexara-bg);
+}
+
+.ws-dropdown-item--danger {
+  color: #dc2626;
+}
+
+.ws-dropdown-item--danger:hover {
+  background: rgba(220, 38, 38, 0.08);
+  color: #b91c1c;
+}

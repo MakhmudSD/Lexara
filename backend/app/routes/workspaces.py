@@ -84,6 +84,19 @@ def rename_workspace(
     return WorkspaceResponse.model_validate(workspace)
 
 
+@router.delete("/{workspace_id}", status_code=204)
+def delete_workspace(
+    workspace_id: UUID,
+    db: Session = Depends(get_db),
+) -> None:
+    """
+    Soft-delete a workspace (sets is_active = False).
+    Returns 204 No Content on success.
+    The workspace no longer appears in list_workspaces or accepts queries.
+    """
+    workspace_crud.deactivate_workspace(db, workspace_id)
+
+
 @router.post("", response_model=WorkspaceResponse, status_code=201)
 def create_workspace(
     payload: WorkspaceCreate,

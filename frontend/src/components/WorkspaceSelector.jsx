@@ -1,5 +1,5 @@
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
-import { listWorkspaces, quickCreateWorkspace, updateWorkspaceName } from '../api/workspace';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { deleteWorkspace, listWorkspaces, quickCreateWorkspace, updateWorkspaceName } from '../api/workspace';
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/WorkspaceSelector.css';
 
@@ -19,6 +19,19 @@ function WorkspaceSelector({
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
   const [saveStatus, setSaveStatus] = useState('');
+  const [menuOpenId, setMenuOpenId] = useState(null);
+
+  // Close three-dot menu when clicking outside any .ws-menu-wrap element
+  useEffect(() => {
+    if (!menuOpenId) return;
+    const handle = (e) => {
+      if (!e.target.closest('.ws-menu-wrap')) {
+        setMenuOpenId(null);
+      }
+    };
+    document.addEventListener('mousedown', handle);
+    return () => document.removeEventListener('mousedown', handle);
+  }, [menuOpenId]);
 
   const loadWorkspaces = async () => {
     setLoadingWorkspaces(true);
@@ -86,11 +99,29 @@ function WorkspaceSelector({
     if (!workspace?.id) return;
     setCreateError('');
     setSaveStatus('');
+    setMenuOpenId(null);
     setNameInput(workspace.name || '');
     onWorkspaceChange(workspace.id);
     onWorkspaceNameChange(workspace.name || '');
     localStorage.setItem('workspaceId', workspace.id);
     localStorage.setItem('workspaceName', workspace.name || '');
+  };
+
+  const handleDeleteWorkspace = async (id) => {
+    setMenuOpenId(null);
+    try {
+      await deleteWorkspace(id);
+      if (workspaceId === id) {
+        onWorkspaceChange('');
+        onWorkspaceNameChange('');
+        localStorage.removeItem('workspaceId');
+        localStorage.removeItem('workspaceName');
+        setNameInput('');
+      }
+      await loadWorkspaces();
+    } catch (err) {
+      setSaveStatus(`✗ ${err.response?.data?.error?.message || t('workspace_delete_failed')}`);
+    }
   };
 
   const handleGenerate = async () => {
@@ -111,6 +142,7 @@ function WorkspaceSelector({
     setSaveStatus('');
     try {
       const workspace = await quickCreateWorkspace(normalizedName);
+      setCreateError('');
       setNameInput('');
       onWorkspaceChange(workspace.id);
       onWorkspaceNameChange(workspace.name);
@@ -132,12 +164,36 @@ function WorkspaceSelector({
         {loadingWorkspaces && <div className="workspace-empty">{t('loading')}</div>}
         {!loadingWorkspaces && !workspaces.length && <div className="workspace-empty">{t('no_workspace')}</div>}
         {workspaces.map((workspace) => (
-          <div
-            key={workspace.id}
-            className={`workspace-item ${workspace.id === workspaceId ? 'active' : ''}`}
-            onClick={() => handleSelectWorkspace(workspace)}
-          >
-            <span className="workspace-item-name">{workspace.name}</span>
+          <div key={workspace.id} className="workspace-item-row">
+            <div
+              className={`workspace-item ${workspace.id === workspaceId ? 'active' : ''}`}
+              onClick={() => handleSelectWorkspace(workspace)}
+            >
+              <span className="workspace-item-name">{workspace.name}</span>
+            </div>
+            <div className="ws-menu-wrap">
+              <button
+                className="ws-menu-btn"
+                type="button"
+                title="Options"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMenuOpenId(menuOpenId === workspace.id ? null : workspace.id);
+                }}
+              >
+                ···
+              </button>
+              {menuOpenId === workspace.id && (
+                <div className="ws-dropdown">
+                  <button
+                    className="ws-dropdown-item ws-dropdown-item--danger"
+                    onClick={() => handleDeleteWorkspace(workspace.id)}
+                  >
+                    {t('delete_workspace')}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         ))}
       </div>

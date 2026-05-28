@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import ChatMessage from '../components/ChatMessage';
-import FileUploader from '../components/FileUploader';
 import WorkspaceSelector from '../components/WorkspaceSelector';
 import { LexaraIcon } from '../assets/LexaraLogo';
 import { useTranslation } from '../i18n/useTranslation';
 import { streamChat } from '../api/chat';
+import { uploadDocument } from '../api/upload';
 import '../styles/ChatPage.css';
 
 const HISTORY_LIMIT = 12;
@@ -24,6 +24,10 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const workspaceSelectorRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadStatus, setUploadStatus] = useState('');
 
   const normalizeMessages = useCallback((entries, fallbackTimestamp) => (
     (entries || []).map((entry, index) => ({
@@ -259,6 +263,24 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
   }, [activeSessionId, appendHistory, history, isLoading, saveSession, sessions, t, workspaceId]);
 
   const hasWorkspaceName = Boolean(workspaceName && workspaceName.trim() && !UUID_RE.test(workspaceName.trim()));
+
+  // handleFileUpload is declared after hasWorkspaceName so the dep is in scope
+  const handleFileUpload = useCallback(async (file) => {
+    if (!file || !workspaceId || !hasWorkspaceName) return;
+    setIsUploading(true);
+    setUploadProgress(0);
+    setUploadStatus('');
+    try {
+      await uploadDocument(file, workspaceId, null, (pct) => setUploadProgress(pct));
+      setUploadStatus(t('upload_success'));
+    } catch (err) {
+      setUploadStatus(`✗ ${err.response?.data?.error?.message || t('upload_failed')}`);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  }, [workspaceId, hasWorkspaceName, t]);
+
   const canSend = input.trim() && !isLoading && !!workspaceId && hasWorkspaceName;
   const isEmpty = messages.length === 0 && !isLoading;
   const formatDate = (date) => {
@@ -296,24 +318,12 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
         </div>
 
         <div className="sidebar-section">
-          <div className="sidebar-label">{t('ingest_document')}</div>
-          <FileUploader
-            workspaceId={workspaceId}
-            onUploadSuccess={() => setError('')}
-            onUploadError={(msg) => setError(msg)}
-            disabled={!hasWorkspaceName}
-            nameRequired={Boolean(workspaceId) && !hasWorkspaceName}
-          />
-          {!hasWorkspaceName && <div className="input-hint">{workspaceId ? t('upload_disabled_hint') : t('select_project_first')}</div>}
-        </div>
-
-        <div className="sidebar-section">
           <div className="sidebar-label">{t('conversations')}</div>
           <button className="new-chat-btn" onClick={createNewSession}>
             + {t('new_conversation')}
           </button>
           <div className="sessions-list">
-            {sessions.map((session) => (
+            {[...sessions].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((session) => (
               <div
                 key={session.id}
                 className={`session-item ${activeSessionId === session.id ? 'active' : ''}`}
@@ -418,6 +428,27 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
 
         <div className="chat-input-area">
           <div className={`chat-input-wrapper ${!workspaceId || connectionError ? 'disabled' : ''}`}>
+            <button
+              className="attach-btn"
+              type="button"
+              title={t('upload_file')}
+              disabled={!hasWorkspaceName || isUploading || connectionError}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M13.5 8.5l-5 5a3.5 3.5 0 01-4.95-4.95l6-6a2 2 0 012.83 2.83L6.5 11.24a.5.5 0 01-.71-.71L11.5 4.83" />
+              </svg>
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              style={{ display: 'none' }}
+              accept=".pdf,.txt,.docx,.md,.csv"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleFileUpload(f);
+              }}
+            />
             <textarea
               ref={textareaRef}
               className="chat-input"
@@ -440,6 +471,14 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
               </svg>
             </button>
           </div>
+          {isUploading && (
+            <div className="upload-progress-wrap">
+              <div className="upload-progress-bar" style={{ width: `${uploadProgress}%` }} />
+            </div>
+          )}
+          {uploadStatus && !isUploading && (
+            <div className={`upload-status ${uploadStatus.startsWith('✗') ? 'err' : 'ok'}`}>{uploadStatus}</div>
+          )}
           <div className="input-hint">⏎ {t('send')} · ⇧⏎ {t('newline_hint')}</div>
         </div>
       </main>
