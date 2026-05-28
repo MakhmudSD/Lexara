@@ -227,6 +227,7 @@ export const translations = {
     admin_recent_errors: 'Recent errors',
     admin_no_errors: 'No errors',
     admin_metrics: 'Metrics',
+    quota_exceeded: 'Monthly query limit reached. Go to My Page to upgrade your plan.',
   },
   ko: {
     app_name: 'Lexara',
@@ -456,6 +457,7 @@ export const translations = {
     admin_recent_errors: '최근 오류',
     admin_no_errors: '오류 없음',
     admin_metrics: '지표',
+    quota_exceeded: '월간 쿼리 한도에 도달했습니다. 내 페이지에서 플랜을 업그레이드하세요.',
   },
   ru: {
     app_name: 'Lexara',
@@ -685,6 +687,7 @@ export const translations = {
     admin_recent_errors: 'Последние ошибки',
     admin_no_errors: 'Ошибок нет',
     admin_metrics: 'Показатели',
+    quota_exceeded: 'Месячный лимит запросов исчерпан. Перейдите в профиль для обновления плана.',
   },
   uz: {
     app_name: 'Lexara',
@@ -914,6 +917,7 @@ export const translations = {
     admin_recent_errors: 'So\'nggi xatolar',
     admin_no_errors: 'Xatolar yo\'q',
     admin_metrics: 'Ko\'rsatkichlar',
+    quota_exceeded: 'Oylik so\'rovlar limiti tugadi. Rejangizni yangilash uchun "Mening sahifam" ga o\'ting.',
   },
   ja: {
     app_name: 'Lexara',
@@ -1103,6 +1107,7 @@ export const translations = {
     admin_recent_errors: '最近のエラー',
     admin_no_errors: 'エラーなし',
     admin_metrics: '指標',
+    quota_exceeded: '月間クエリ制限に達しました。マイページでプランをアップグレードしてください。',
   },
 };
 

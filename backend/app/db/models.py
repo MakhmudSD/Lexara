@@ -18,6 +18,9 @@ class User(Base):
     full_name = Column(String(255), nullable=True)
     role = Column(String(20), default="user", nullable=False)
     is_active = Column(Boolean, default=True, index=True)
+    plan = Column(String(50), default='free', nullable=False)
+    plan_expires_at = Column(DateTime, nullable=True)
+    referral_code = Column(String(20), nullable=True, unique=True, index=True)
     deleted_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
@@ -26,6 +29,8 @@ class User(Base):
     organizations = relationship("OrganizationMember", back_populates="user", cascade="all, delete-orphan")
     audit_logs = relationship("AuditLog", back_populates="user", cascade="all, delete-orphan")
     password_reset_tokens = relationship("PasswordResetToken", back_populates="user", cascade="all, delete-orphan")
+    referrals_made = relationship("Referral", foreign_keys="[Referral.referrer_id]", back_populates="referrer")
+    referral_used = relationship("Referral", foreign_keys="[Referral.referred_user_id]", back_populates="referred", uselist=False)
 
     __table_args__ = (
         Index("idx_user_email", "email"),
@@ -249,6 +254,7 @@ class TokenUsage(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     request_id = Column(String(64), nullable=True, index=True)
     workspace_id = Column(String(64), nullable=True, index=True)
+    user_id = Column(String(64), nullable=True, index=True)
     timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
     model = Column(String(50), nullable=False)
     prompt_tokens = Column(Integer, nullable=False, default=0)
@@ -271,6 +277,30 @@ class PasswordResetToken(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     user = relationship("User", back_populates="password_reset_tokens")
+
+
+class Referral(Base):
+    """Tracks referral relationships between users."""
+    __tablename__ = "referrals"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    referrer_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
+    referred_user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True)
+    code = Column(String(20), nullable=False, unique=True, index=True)
+    status = Column(String(20), default="pending", nullable=False)  # pending, converted, rewarded
+    converted_at = Column(DateTime, nullable=True)
+    rewarded_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    referrer = relationship("User", foreign_keys=[referrer_id], back_populates="referrals_made")
+    referred = relationship("User", foreign_keys=[referred_user_id], back_populates="referral_used")
+
+    __table_args__ = (
+        Index("idx_referral_referrer_id", "referrer_id"),
+        Index("idx_referral_code", "code"),
+        Index("idx_referral_status", "status"),
+    )
+
 
 class Conversation(Base):
     __tablename__ = "conversations"

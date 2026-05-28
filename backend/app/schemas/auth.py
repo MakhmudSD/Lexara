@@ -32,6 +32,10 @@ class UserResponse(BaseModel):
     total_queries: int = 0
     total_tokens: int = 0
     total_cost_usd: float = 0.0
+    plan: str = "free"
+    plan_expires_at: str | None = None
+    referral_code: str | None = None
+    referrals_count: int = 0
 
 
 class ForgotPasswordRequest(BaseModel):

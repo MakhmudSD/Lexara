@@ -255,7 +255,9 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
       (message) => {
         if (settled) return;
         settled = true;
-        setError(message);
+        const isQuota = message?.includes('monthly_quota_exceeded') ||
+                        message?.includes('tugadi');
+        setError(isQuota ? (t('quota_exceeded') || message) : message);
         setMessages((prev) => prev.filter((entry) => entry.id !== assistantId));
         setIsLoading(false);
       },

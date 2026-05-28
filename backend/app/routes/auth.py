@@ -29,7 +29,7 @@ else:
 from app.core.dependencies import get_db, get_runtime
 from app.core.exceptions import AppError
 from app.core.runtime import AppRuntime
-from app.db.models import PasswordResetToken, TokenUsage, User, Workspace
+from app.db.models import PasswordResetToken, Referral, TokenUsage, User, Workspace
 from app.schemas.auth import (
     AuthResponse,
     ForgotPasswordRequest,
@@ -46,6 +46,10 @@ from app.services.auth_service import (
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+def _generate_referral_code(user_id_str: str) -> str:
+    return "LEX-" + user_id_str.replace("-", "")[:6].upper()
 
 
 def _auth_response(user: User, runtime: AppRuntime) -> AuthResponse:
@@ -66,6 +70,7 @@ def register(
     payload: RegisterRequest,
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
+    ref: str | None = None,
 ) -> AuthResponse:
     existing = db.query(User).filter(User.email == payload.email).first()
     if existing is not None:
@@ -80,6 +85,19 @@ def register(
         is_active=True,
     )
     db.add(user)
+    db.flush()  # get user.id from DB before commit
+    user.referral_code = _generate_referral_code(str(user.id))
+    if ref:
+        referrer = db.query(User).filter(User.referral_code == ref).first()
+        if referrer and referrer.id != user.id:
+            db.add(Referral(
+                id=uuid4(),
+                referrer_id=referrer.id,
+                referred_user_id=user.id,
+                code=ref,
+                status="pending",
+                created_at=datetime.utcnow(),
+            ))
     db.commit()
     db.refresh(user)
     return _auth_response(user, runtime)
@@ -130,6 +148,11 @@ def me(
         if user_workspace_ids else False
     ).first()
 
+    referrals_count = db.query(Referral).filter(
+        Referral.referrer_id == user.id,
+        Referral.status.in_(["converted", "rewarded"]),
+    ).count()
+
     return UserResponse(
         user_id=str(user.id),
         email=user.email,
@@ -140,6 +163,10 @@ def me(
         total_queries=int(stats.total_queries or 0),
         total_tokens=int(stats.total_tokens or 0),
         total_cost_usd=float(stats.total_cost or 0.0),
+        plan=user.plan or "free",
+        plan_expires_at=user.plan_expires_at.isoformat() if user.plan_expires_at else None,
+        referral_code=user.referral_code,
+        referrals_count=referrals_count,
     )
 
 

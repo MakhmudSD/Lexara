@@ -1,11 +1,13 @@
 import json
 import logging
 import time
+from datetime import datetime
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
+from app.core.config import PLAN_LIMITS
 from app.core.dependencies import get_db, get_request_id, get_runtime
 from app.core.exceptions import AppError
 from app.observability.models import ConversationEntry, TokenUsageEntry
@@ -23,6 +25,41 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 logger = logging.getLogger(__name__)
 
 
+def _check_quota(db: Session, user_id: str | None) -> None:
+    """Raise 429 if user has exceeded their monthly query limit."""
+    if not user_id:
+        return
+    from app.db.models import User
+    user = db.query(User).filter(User.id == user_id).first()
+    if user is None:
+        return
+
+    plan = user.plan or "free"
+    if user.plan_expires_at and user.plan_expires_at < datetime.utcnow():
+        plan = "free"
+
+    monthly_limit = PLAN_LIMITS.get(plan, PLAN_LIMITS["free"])["monthly_queries"]
+
+    now = datetime.utcnow()
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    monthly_count = (
+        db.query(TokenUsage)
+        .filter(
+            TokenUsage.user_id == user_id,
+            TokenUsage.timestamp >= month_start,
+        )
+        .count()
+    )
+
+    if monthly_count >= monthly_limit:
+        raise AppError(
+            429,
+            "monthly_quota_exceeded",
+            f"Oylik so'rovlar limiti ({monthly_limit}) tugadi. "
+            "Ko'proq so'rov uchun rejangizni yangilang.",
+        )
+
+
 def _serialize_sources(sources: list) -> list[dict]:
     return [source.model_dump(mode="json") for source in sources]
 
@@ -38,6 +75,7 @@ async def chat_query(
     runtime: AppRuntime = Depends(get_runtime),
     request_id: str = Depends(get_request_id),
 ) -> ChatQueryResponse:
+    _check_quota(db, str(payload.user_id) if payload.user_id else None)
     started_at = time.perf_counter()
     retrieved_chunks = query_workspace(
         db,
@@ -77,6 +115,7 @@ async def chat_query(
                 TokenUsage(
                     request_id=request_id,
                     workspace_id=str(payload.workspace_id),
+                    user_id=str(payload.user_id) if payload.user_id else None,
                     model=usage.model,
                     prompt_tokens=usage.prompt_tokens,
                     completion_tokens=usage.completion_tokens,
@@ -152,6 +191,7 @@ async def chat_stream(
     runtime: AppRuntime = Depends(get_runtime),
     request_id: str = Depends(get_request_id),
 ) -> StreamingResponse:
+    _check_quota(db, str(payload.user_id) if payload.user_id else None)
     sources = query_workspace(
         db,
         runtime.vector_store,
@@ -236,6 +276,7 @@ async def chat_stream(
                     TokenUsage(
                         request_id=request_id,
                         workspace_id=str(payload.workspace_id),
+                        user_id=str(payload.user_id) if payload.user_id else None,
                         model=usage.model,
                         prompt_tokens=usage.prompt_tokens,
                         completion_tokens=usage.completion_tokens,
