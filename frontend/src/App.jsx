@@ -7,6 +7,7 @@ import MyPage from './pages/MyPage';
 import LandingPage from './pages/LandingPage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
+import RefundPage from './pages/RefundPage';
 import { LexaraIcon, LexaraLogo } from './assets/LexaraLogo';
 import { useTranslation } from './i18n/useTranslation';
 import './App.css';
@@ -102,6 +103,7 @@ function App() {
         onSignUp={() => navigate('register')}
         onPrivacy={() => navigate('privacy')}
         onTerms={() => navigate('terms')}
+        onRefund={() => navigate('refund')}
       />
     );
   }
@@ -110,6 +112,9 @@ function App() {
     return <PrivacyPage onHome={() => navigate('landing')} />;
   }
 
+  if (page === 'refund') {
+    return <RefundPage onHome={() => navigate('landing')} />;
+  }
   if (page === 'terms') {
     return <TermsPage onHome={() => navigate('landing')} />;
   }
