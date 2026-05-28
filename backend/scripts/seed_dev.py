@@ -35,7 +35,7 @@ def main() -> None:
         user = User(
             id=uuid4(),
             email="dev@example.com",
-            password_hash="dev-only-not-for-production",
+            hashed_password="dev-only-not-for-production",
             full_name="Dev User",
             is_active=True,
         )
