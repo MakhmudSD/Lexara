@@ -573,6 +573,7 @@ export default function AdminPage({ onGoChat }) {
     requests: t('admin_requests'),
     logs: t('admin_logs'),
   };
+  const tabs = Object.keys(tabLabels);
 
   return (
     <div className="admin-page">

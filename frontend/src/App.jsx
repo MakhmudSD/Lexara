@@ -53,7 +53,7 @@ function App() {
 
     const syncFromHash = () => {
       if (window.location.hash === '#admin') {
-        if (authUser.role === 'admin') {
+        if (authUser.role?.toLowerCase() === 'admin') {
           setPage('admin');
           setAccessDenied('');
         } else {
@@ -158,8 +158,8 @@ function App() {
             </button>
             <button
               className={`nav-button ${page === 'admin' ? 'active' : ''}`}
-              onClick={() => { if (authUser.role === 'admin') { navigate('admin'); } }}
-              style={authUser.role !== 'admin' ? { display: 'none' } : undefined}
+              onClick={() => { if (authUser.role?.toLowerCase() === 'admin') { navigate('admin'); } }}
+              style={authUser.role?.toLowerCase() !== 'admin' ? { display: 'none' } : undefined}
             >
               <span className="nav-dot" />
               Admin
@@ -208,7 +208,7 @@ function App() {
             onWorkspaceNameChange={setWorkspaceName}
           />
         )}
-        {page === 'admin' && authUser.role === 'admin' && <AdminPage onGoChat={() => goAppSection('chat')} />}
+        {page === 'admin' && authUser.role?.toLowerCase() === 'admin' && <AdminPage onGoChat={() => goAppSection('chat')} />}
         {page === 'app' && currentPage === 'mypage' && <MyPage authUser={authUser} onLogout={() => { setAuthUser(null); navigate('landing'); }} />}
       </div>
     </div>
