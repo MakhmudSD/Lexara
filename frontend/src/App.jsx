@@ -43,6 +43,12 @@ function App() {
   }, [workspaceId]);
 
   useEffect(() => {
+    if (window.location.hash) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }, [page]);
+
+  useEffect(() => {
     if (!authUser) return;
 
     const syncFromHash = () => {
@@ -152,7 +158,7 @@ function App() {
             </button>
             <button
               className={`nav-button ${page === 'admin' ? 'active' : ''}`}
-              onClick={() => { if (authUser.role === 'admin') { navigate('admin'); window.location.hash = 'admin'; } }}
+              onClick={() => { if (authUser.role === 'admin') { navigate('admin'); } }}
               style={authUser.role !== 'admin' ? { display: 'none' } : undefined}
             >
               <span className="nav-dot" />
@@ -202,7 +208,7 @@ function App() {
             onWorkspaceNameChange={setWorkspaceName}
           />
         )}
-        {page === 'admin' && authUser.role === 'admin' && <AdminPage onGoAsk={() => goAppSection('chat')} />}
+        {page === 'admin' && authUser.role === 'admin' && <AdminPage onGoChat={() => goAppSection('chat')} />}
         {page === 'app' && currentPage === 'mypage' && <MyPage authUser={authUser} onLogout={() => { setAuthUser(null); navigate('landing'); }} />}
       </div>
     </div>

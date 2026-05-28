@@ -32,9 +32,28 @@ def list_workspaces(
 
 
 def create_workspace(db: Session, name: str, organization_id: UUID | None = None) -> Workspace:
+    normalized_name = name.strip()
+    
+    # Check for existing workspace with same name in this org
+    existing = (
+        db.query(Workspace)
+        .filter(
+            Workspace.organization_id == organization_id,
+            Workspace.name == normalized_name,
+            Workspace.is_active.is_(True),
+        )
+        .first()
+    )
+    if existing:
+        raise AppError(
+            409,
+            "workspace_name_taken",
+            f"A workspace named '{normalized_name}' already exists. Choose a different name.",
+        )
+
     workspace = Workspace(
         organization_id=organization_id,
-        name=name.strip(),
+        name=normalized_name,
         is_active=True,
     )
     db.add(workspace)

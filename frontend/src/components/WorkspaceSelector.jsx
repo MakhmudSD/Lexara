@@ -111,7 +111,7 @@ function WorkspaceSelector({
     setSaveStatus('');
     try {
       const workspace = await quickCreateWorkspace(normalizedName);
-      setNameInput(workspace.name);
+      setNameInput('');
       onWorkspaceChange(workspace.id);
       onWorkspaceNameChange(workspace.name);
       localStorage.setItem('workspaceId', workspace.id);
@@ -119,7 +119,7 @@ function WorkspaceSelector({
       await loadWorkspaces();
       setSaveStatus(t('workspace_saved'));
     } catch (err) {
-      setCreateError(t('project_create_failed'));
+      setCreateError(err.response?.data?.error?.message || t('project_create_failed'));
       onConnectionError?.();
     } finally {
       setCreating(false);
@@ -138,7 +138,6 @@ function WorkspaceSelector({
             onClick={() => handleSelectWorkspace(workspace)}
           >
             <span className="workspace-item-name">{workspace.name}</span>
-            <span className="workspace-item-id">ID: {String(workspace.id).slice(0, 8)}…</span>
           </div>
         ))}
       </div>
