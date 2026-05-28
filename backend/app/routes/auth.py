@@ -29,7 +29,7 @@ else:
 from app.core.dependencies import get_db, get_runtime
 from app.core.exceptions import AppError
 from app.core.runtime import AppRuntime
-from app.db.models import PasswordResetToken, TokenUsage, User
+from app.db.models import PasswordResetToken, TokenUsage, User, Workspace
 from app.schemas.auth import (
     AuthResponse,
     ForgotPasswordRequest,
@@ -115,11 +115,20 @@ def me(
     if user is None:
         raise AppError(401, "invalid_token", "Invalid or expired token.")
 
+    user_workspace_ids = [
+        str(ws.id)
+        for ws in db.query(Workspace).filter(
+            Workspace.is_active.is_(True)
+        ).all()
+    ]
     stats = db.query(
         func.count(TokenUsage.id).label("total_queries"),
         func.coalesce(func.sum(TokenUsage.total_tokens), 0).label("total_tokens"),
         func.coalesce(func.sum(TokenUsage.estimated_cost_usd), 0.0).label("total_cost"),
-    ).filter(TokenUsage.workspace_id.isnot(None)).first()
+    ).filter(
+        TokenUsage.workspace_id.in_(user_workspace_ids)
+        if user_workspace_ids else False
+    ).first()
 
     return UserResponse(
         user_id=str(user.id),
