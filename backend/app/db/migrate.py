@@ -37,9 +37,11 @@ def run_migrations() -> None:
         except Exception as _e:
             logger.warning(f"FAISS rebuild skipped: {_e}")
 
-    threading.Thread(target=_bg_rebuild, daemon=True).start()
-    logger.info("FAISS rebuild scheduled in background")
-
+    if not os.getenv("DISABLE_FAISS_REBUILD"):
+        threading.Thread(target=_bg_rebuild, daemon=True).start()
+        logger.info("FAISS rebuild scheduled in background")
+    else:
+        logger.info("FAISS rebuild disabled via DISABLE_FAISS_REBUILD env var")
 
 def run_startup_cleanup() -> None:
     """Run cleanup once on startup."""
