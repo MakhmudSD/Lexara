@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { LexaraLogo } from '../assets/LexaraLogo';
 import { useTranslation } from '../i18n/useTranslation';
+import '../styles/LandingPage.css';
 
 const faqItems = [
   ['How fast is indexing?', 'Most PDFs and DOCX files are searchable in seconds after upload.'],
@@ -225,6 +226,36 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
           ))}
         </div>
       </div>
+
+      {/* DEMO MOCKUP */}
+      <section className="landing-demo">
+        <div className="landing-demo-window">
+          <div className="landing-demo-titlebar">
+            <span className="landing-demo-dot" style={{ background: '#ff5f57' }} />
+            <span className="landing-demo-dot" style={{ background: '#febc2e' }} />
+            <span className="landing-demo-dot" style={{ background: '#28c840' }} />
+            <span className="landing-demo-title">Lexara</span>
+          </div>
+          <div className="landing-demo-body">
+            <div className="landing-demo-user">
+              {t('demo_question') || 'What are the termination conditions?'}
+            </div>
+            <div className="landing-demo-assistant">
+              <p>{t('demo_answer') || 'Per clause 14.2, either party may terminate this agreement with 30 days written notice. Immediate termination is permitted in cases of material breach (clause 14.3) or insolvency (clause 14.4).'}</p>
+              <div className="landing-demo-sources">
+                <span className="landing-demo-source">📄 contract.pdf · clause 14.2</span>
+                <span className="landing-demo-source">📄 contract.pdf · clause 14.3</span>
+              </div>
+            </div>
+          </div>
+          <div className="landing-demo-input">
+            <span className="landing-demo-placeholder">
+              {t('input_placeholder_ready') || 'Ask about your documents…'}
+            </span>
+            <span className="landing-demo-send">→</span>
+          </div>
+        </div>
+      </section>
 
       <section id="features" style={{ maxWidth: 1120, margin: '0 auto', padding: '36px 24px', display: 'grid', gap: 12, gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
         {featureCards.map(([num, titleKey, fallbackTitle, body, detail], i) => {
