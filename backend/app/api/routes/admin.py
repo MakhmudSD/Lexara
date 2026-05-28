@@ -127,11 +127,40 @@ async def admin_token_summary(
     )
 
 
-@router.get("/conversations", response_model=list[ConversationResponse])
-async def admin_conversations(
-    runtime: AppRuntime = Depends(get_runtime),
-) -> list[ConversationResponse]:
-    return runtime.observability.list_conversations()
+@router.get("/conversations")
+def admin_conversations(
+    db: Session = Depends(get_db),
+    limit: int = 50,
+) -> list:
+    try:
+        from app.db.models import Conversation, ConversationTurn
+        from sqlalchemy import func
+
+        convs = (
+            db.query(
+                Conversation,
+                func.count(ConversationTurn.id).label("turn_count"),
+            )
+            .outerjoin(ConversationTurn, ConversationTurn.conversation_id == Conversation.id)
+            .group_by(Conversation.id)
+            .order_by(Conversation.updated_at.desc())
+            .limit(limit)
+            .all()
+        )
+
+        return [
+            {
+                "id": str(conv.Conversation.id),
+                "workspace_id": str(conv.Conversation.workspace_id) if conv.Conversation.workspace_id else None,
+                "title": conv.Conversation.title or "Untitled",
+                "turn_count": conv.turn_count,
+                "updated_at": conv.Conversation.updated_at.isoformat() if conv.Conversation.updated_at else None,
+                "created_at": conv.Conversation.created_at.isoformat() if conv.Conversation.created_at else None,
+            }
+            for conv in convs
+        ]
+    except Exception:
+        return []
 
 
 @router.post("/cleanup")

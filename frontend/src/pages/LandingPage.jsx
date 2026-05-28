@@ -158,9 +158,9 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
         <div style={{ maxWidth: 1120, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <LexaraLogo height={32} />
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-            <a href="#features" onClick={(event) => scrollToSection(event, 'features')} style={{ color: '#6b6560', textDecoration: 'none', fontSize: 14 }}>Features</a>
-            <a href="#pricing" onClick={(event) => scrollToSection(event, 'pricing')} style={{ color: '#6b6560', textDecoration: 'none', fontSize: 14 }}>Pricing</a>
-            <a href="#faq" onClick={(event) => scrollToSection(event, 'faq')} style={{ color: '#6b6560', textDecoration: 'none', fontSize: 14 }}>FAQ</a>
+            <a href="#features" onClick={(event) => scrollToSection(event, 'features')} style={{ color: '#6b6560', textDecoration: 'none', fontSize: 14 }}>{t('landing_nav_features') || 'Features'}</a>
+            <a href="#pricing" onClick={(event) => scrollToSection(event, 'pricing')} style={{ color: '#6b6560', textDecoration: 'none', fontSize: 14 }}>{t('landing_nav_pricing') || 'Pricing'}</a>
+            <a href="#faq" onClick={(event) => scrollToSection(event, 'faq')} style={{ color: '#6b6560', textDecoration: 'none', fontSize: 14 }}>{t('landing_nav_faq') || 'FAQ'}</a>
             <button onClick={onSignIn} style={{ border: '1px solid rgba(0,0,0,0.14)', background: '#fff', borderRadius: 10, padding: '8px 14px', cursor: 'pointer' }}>{t('landing_cta_secondary')}</button>
             <select
               value={lang}
@@ -308,8 +308,8 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
 
       <section style={{ maxWidth: 1120, margin: '0 auto', padding: '0 24px 36px' }}>
         <div style={{ borderRadius: 16, background: 'linear-gradient(135deg,#2a5ce0,#2356d8)', color: '#fff', padding: '30px 24px', textAlign: 'center' }}>
-          <h3 style={{ margin: '0 0 10px', fontSize: 30 }}>Ready to make documents answerable?</h3>
-          <button onClick={onSignUp} style={{ border: 'none', borderRadius: 12, background: '#fff', color: '#2356d8', padding: '10px 16px', cursor: 'pointer' }}>Start with Lexara</button>
+          <h3 style={{ margin: '0 0 10px', fontSize: 30 }}>{t('landing_cta_headline') || 'Ready to make documents answerable?'}</h3>
+          <button onClick={onSignUp} style={{ border: 'none', borderRadius: 12, background: '#fff', color: '#2356d8', padding: '10px 16px', cursor: 'pointer' }}>{t('landing_cta_start') || 'Start with Lexara'}</button>
         </div>
       </section>
 
@@ -318,8 +318,8 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
           <LexaraLogo height={32} />
           <div>
             © {new Date().getFullYear()} ·
-            <button onClick={onPrivacy} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b6560', margin: '0 6px' }}>Privacy</button>·
-            <button onClick={onTerms} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b6560', margin: '0 6px' }}>Terms</button>· Contact
+            <button onClick={onPrivacy} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b6560', margin: '0 6px' }}>{t('landing_footer_privacy') || 'Privacy'}</button>·
+            <button onClick={onTerms} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b6560', margin: '0 6px' }}>{t('landing_footer_terms') || 'Terms'}</button>· {t('landing_footer_contact') || 'Contact'}
           </div>
         </div>
       </footer>

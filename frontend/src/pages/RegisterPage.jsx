@@ -8,6 +8,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function RegisterPage({ onSuccess, onBackToLogin, onHome }) {
   const { t } = useTranslation();
+  const referralCode = new URLSearchParams(window.location.search).get('ref');
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -37,7 +38,7 @@ export default function RegisterPage({ onSuccess, onBackToLogin, onHome }) {
     setLoading(true);
     setError('');
     try {
-      const data = await register(email.trim(), password, fullName.trim());
+      const data = await register(email.trim(), password, fullName.trim(), referralCode);
       localStorage.setItem('authToken', data.access_token);
       localStorage.setItem('authUser', JSON.stringify({
         id: data.user_id,

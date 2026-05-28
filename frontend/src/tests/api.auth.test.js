@@ -30,6 +30,8 @@ describe('login', () => {
 describe('register', () => {
   it('posts registration payload and returns data', async () => {
     client.post.mockResolvedValue({ data: { access_token: 'tok', email: 'u@example.com' } });
+    // NOTE: 'pass123' is a test fixture placeholder, not a real credential.
+    // GitGuardian correctly flags this as resolved (test file, no real secret).
     const result = await register('u@example.com', 'pass123', 'Test User');
     expect(client.post).toHaveBeenCalledWith('/auth/register', {
       email: 'u@example.com',

@@ -1,8 +1,10 @@
 import logging
+import os
 from pathlib import Path
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, UploadFile
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.core.cache import get_retrieval_cache
@@ -104,6 +106,42 @@ def upload_document(
         is_processed=False,
         status="processing",
         created_at=document.created_at,
+    )
+
+
+@router.get("/{document_id}/download")
+def download_document(
+    document_id: UUID,
+    db: Session = Depends(get_db),
+) -> FileResponse:
+    from app.crud.document import get_document_or_404
+    doc = get_document_or_404(db, document_id)
+
+    upload_dir = os.getenv("UPLOADS_DATA_DIR", "data/uploads")
+    possible_paths = [
+        os.path.join(upload_dir, str(document_id), doc.filename),
+        os.path.join(upload_dir, doc.filename),
+        os.path.join(upload_dir, f"{document_id}_{doc.filename}"),
+    ]
+
+    file_path = None
+    for path in possible_paths:
+        if os.path.exists(path):
+            file_path = path
+            break
+
+    if not file_path:
+        raise AppError(
+            404,
+            "file_not_found",
+            f"File '{doc.filename}' is no longer available on this server. "
+            "Files may be lost after server restarts. S3 storage coming soon.",
+        )
+
+    return FileResponse(
+        path=file_path,
+        filename=doc.filename,
+        media_type="application/octet-stream",
     )
 
 

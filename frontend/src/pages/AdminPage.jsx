@@ -102,6 +102,7 @@ function DocumentsPanel({ data, t }) {
             <th>{t('admin_chunks')}</th>
             <th>{t('admin_size')}</th>
             <th>{t('admin_uploaded')}</th>
+            <th>Yuklab olish</th>
           </tr>
         </thead>
         <tbody>
@@ -113,6 +114,17 @@ function DocumentsPanel({ data, t }) {
               <td className="td-mono">{doc.chunk_count}</td>
               <td className="td-mono">{doc.file_size ? `${(doc.file_size / 1024).toFixed(1)}k` : doc.size_bytes ? `${(doc.size_bytes / 1024).toFixed(1)}k` : '—'}</td>
               <td className="td-mono">{formatTime(doc.upload_time ?? doc.created_at)}</td>
+              <td>
+                <a
+                  href={`${import.meta.env.VITE_API_URL}/documents/${doc.document_id}/download`}
+                  download={doc.filename}
+                  className="admin-download-link"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  ↓
+                </a>
+              </td>
             </tr>
           ))}
         </tbody>

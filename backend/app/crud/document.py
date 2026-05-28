@@ -2,6 +2,7 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
+from app.core.exceptions import AppError
 from app.db.models import Document, DocumentChunk
 
 
@@ -69,6 +70,16 @@ def get_chunks_by_ids(db: Session, chunk_ids: list[UUID]) -> list[DocumentChunk]
     if not chunk_ids:
         return []
     return db.query(DocumentChunk).filter(DocumentChunk.id.in_(chunk_ids)).all()
+
+
+def get_document_or_404(db: Session, document_id: UUID) -> Document:
+    doc = db.query(Document).filter(
+        Document.id == document_id,
+        Document.is_active.is_(True),
+    ).first()
+    if not doc:
+        raise AppError(404, "document_not_found", "Document not found.")
+    return doc
 
 
 def get_workspace_chunks_with_embeddings(db: Session, workspace_id: UUID) -> list[DocumentChunk]:
