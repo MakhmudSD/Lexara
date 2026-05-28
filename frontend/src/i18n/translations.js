@@ -228,6 +228,9 @@ export const translations = {
     admin_no_errors: 'No errors',
     admin_metrics: 'Metrics',
     quota_exceeded: 'Monthly query limit reached. Go to My Page to upgrade your plan.',
+    checkout_error: 'Could not open checkout. Please try again.',
+    upgrade_success: 'Your plan has been upgraded!',
+    payment_processing: 'Processing payment...',
   },
   ko: {
     app_name: 'Lexara',
@@ -458,6 +461,9 @@ export const translations = {
     admin_no_errors: '오류 없음',
     admin_metrics: '지표',
     quota_exceeded: '월간 쿼리 한도에 도달했습니다. 내 페이지에서 플랜을 업그레이드하세요.',
+    checkout_error: '결제 페이지를 열 수 없습니다. 다시 시도해주세요.',
+    upgrade_success: '플랜이 업그레이드되었습니다!',
+    payment_processing: '결제 처리 중...',
   },
   ru: {
     app_name: 'Lexara',
@@ -688,6 +694,9 @@ export const translations = {
     admin_no_errors: 'Ошибок нет',
     admin_metrics: 'Показатели',
     quota_exceeded: 'Месячный лимит запросов исчерпан. Перейдите в профиль для обновления плана.',
+    checkout_error: 'Не удалось открыть страницу оплаты. Попробуйте ещё раз.',
+    upgrade_success: 'Ваш план обновлён!',
+    payment_processing: 'Обработка платежа...',
   },
   uz: {
     app_name: 'Lexara',
@@ -918,6 +927,9 @@ export const translations = {
     admin_no_errors: 'Xatolar yo\'q',
     admin_metrics: 'Ko\'rsatkichlar',
     quota_exceeded: 'Oylik so\'rovlar limiti tugadi. Rejangizni yangilash uchun "Mening sahifam" ga o\'ting.',
+    checkout_error: 'Toʻlov sahifasini ochib boʻlmadi. Qaytadan urinib koʻring.',
+    upgrade_success: 'Rejangiz yangilandi!',
+    payment_processing: 'Toʻlov qayta ishlanmoqda...',
   },
   ja: {
     app_name: 'Lexara',
@@ -1108,6 +1120,9 @@ export const translations = {
     admin_no_errors: 'エラーなし',
     admin_metrics: '指標',
     quota_exceeded: '月間クエリ制限に達しました。マイページでプランをアップグレードしてください。',
+    checkout_error: 'チェックアウトページを開けませんでした。もう一度お試しください。',
+    upgrade_success: 'プランがアップグレードされました！',
+    payment_processing: '支払い処理中...',
   },
 };
 

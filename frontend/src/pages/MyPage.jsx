@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import client from '../api/client';
+import { createCheckout } from '../api/billing';
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/MyPage.css';
 
@@ -55,6 +56,7 @@ export default function MyPage({ onLogout }) {
   const [activeTab, setActiveTab] = useState('info');
   const [stats, setStats] = useState({ total_queries: 0, total_tokens: 0, total_cost_usd: 0 });
   const [loading, setLoading] = useState(true);
+  const [upgradeLoading, setUpgradeLoading] = useState(null);
 
   const user = (() => {
     try { return JSON.parse(localStorage.getItem('authUser') || '{}'); }
@@ -81,6 +83,67 @@ export default function MyPage({ onLogout }) {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (window.Paddle && import.meta.env.VITE_PADDLE_CLIENT_TOKEN) {
+      window.Paddle.Initialize({
+        token: import.meta.env.VITE_PADDLE_CLIENT_TOKEN,
+      });
+    }
+  }, []);
+
+  const handleUpgrade = async (plan) => {
+    try {
+      setUpgradeLoading(plan);
+      const { checkout_url } = await createCheckout(plan);
+
+      if (window.Paddle) {
+        window.Paddle.Checkout.open({
+          url: checkout_url,
+          settings: {
+            displayMode: 'overlay',
+            theme: 'light',
+            locale: lang === 'uz' ? 'uz' : lang === 'ru' ? 'ru' : 'en',
+          },
+          eventCallback: (event) => {
+            if (event.name === 'checkout.completed') {
+              let attempts = 0;
+              const poll = setInterval(async () => {
+                attempts++;
+                try {
+                  const res = await client.get('/auth/me');
+                  if (res.data.plan !== 'free' || attempts > 10) {
+                    clearInterval(poll);
+                    const stored = JSON.parse(localStorage.getItem('authUser') || '{}');
+                    stored.plan = res.data.plan;
+                    stored.plan_expires_at = res.data.plan_expires_at;
+                    localStorage.setItem('authUser', JSON.stringify(stored));
+                    window.dispatchEvent(new Event('auth:change'));
+                    setStats({
+                      total_queries: res.data.total_queries || 0,
+                      total_tokens: res.data.total_tokens || 0,
+                      total_cost_usd: res.data.total_cost_usd || 0,
+                    });
+                    setUpgradeLoading(null);
+                  }
+                } catch {
+                  clearInterval(poll);
+                  setUpgradeLoading(null);
+                }
+              }, 3000);
+            }
+          },
+        });
+      } else {
+        window.open(checkout_url, '_blank');
+      }
+    } catch (err) {
+      console.error('Checkout error:', err);
+      alert(t('checkout_error') || 'Could not open checkout. Please try again.');
+    } finally {
+      if (!window.Paddle) setUpgradeLoading(null);
+    }
+  };
 
   const memberSince = user.created_at
     ? new Date(user.created_at).toLocaleDateString(lang === 'uz' ? 'uz-UZ' : lang, { year: 'numeric', month: 'long' })
@@ -208,9 +271,10 @@ export default function MyPage({ onLogout }) {
                 </div>
                 <button
                   className="mypage-upgrade-btn pro"
-                  onClick={() => window.open('mailto:support@lexara.app?subject=Pro rejaga o\'tish')}
+                  onClick={() => handleUpgrade('pro')}
+                  disabled={upgradeLoading === 'pro'}
                 >
-                  {t('upgrade_to_pro') || 'Pro\'ga o\'tish →'}
+                  {upgradeLoading === 'pro' ? '...' : (t('upgrade_to_pro') || 'Upgrade to Pro →')}
                 </button>
               </div>
 
@@ -226,9 +290,10 @@ export default function MyPage({ onLogout }) {
                 </div>
                 <button
                   className="mypage-upgrade-btn business"
-                  onClick={() => window.open('mailto:support@lexara.app?subject=Business rejaga o\'tish')}
+                  onClick={() => handleUpgrade('business')}
+                  disabled={upgradeLoading === 'business'}
                 >
-                  {t('upgrade_to_business') || 'Business\'ga o\'tish →'}
+                  {upgradeLoading === 'business' ? '...' : (t('upgrade_to_business') || 'Upgrade to Business →')}
                 </button>
               </div>
             </div>
