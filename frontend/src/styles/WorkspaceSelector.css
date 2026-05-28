@@ -36,6 +36,7 @@
 
 .workspace-item-row.active {
   background: rgba(35,86,216,0.08);
+  border-left: 2px solid #2356d8;
 }
 
 .workspace-item {
@@ -58,6 +59,7 @@
 .workspace-item-row.active .workspace-item {
   color: var(--lexara-accent, #2356d8);
   font-weight: 500;
+  padding-left: 6px;
 }
 
 .ws-menu-wrap {
