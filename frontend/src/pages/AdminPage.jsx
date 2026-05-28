@@ -476,7 +476,7 @@ function ConversationsPanel({ data, expandedRow, onToggleRow, t }) {
   );
 }
 
-export default function AdminPage({ onGoAsk }) {
+export default function AdminPage({ onGoChat }) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('users');
   const [data, setData] = useState({});
@@ -576,12 +576,15 @@ export default function AdminPage({ onGoAsk }) {
 
   return (
     <div className="admin-page">
-      <div className="admin-header-note">
-        <span>Admin panel · Your personal workspaces are in Ask →</span>
-        <button type="button" onClick={onGoAsk || (() => {})}>Open Ask</button>
+      <div className="admin-header">
+        <div className="admin-header-row">
+          <button className="admin-back-btn" onClick={onGoChat} aria-label="Back to chat">
+            ← Chat
+          </button>
+          <h1>Admin dashboard</h1>
+        </div>
       </div>
       <div className="admin-tabs">
-        {TABS.map((tab) => (
           <button
             key={tab}
             className={`admin-tab ${activeTab === tab ? 'active' : ''}`}

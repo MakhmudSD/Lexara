@@ -1,6 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&display=swap');
 
 :root {
+  --bg:           #ffffff;
+  --bg-surface:   #f7f7f6;
+  --bg-elevated:  #eeede9;
+  --border:       rgba(0,0,0,0.08);
+  --border-md:    rgba(0,0,0,0.14);
+  --text:         #1a1814;
+  --text-2:       #6b6860;
+  --text-3:       #9d9b96;
+  --accent:       #2356d8;
+  --accent-h:     #1a42b0;
+  --accent-bg:    #e8eefb;
+  --success:      #22c55e;
+  --error-bg:     #fef2f2;
+  --error-border: rgba(239,68,68,0.25);
+  --error-text:   #b91c1c;
+  --radius:       8px;
+  --radius-lg:    12px;
+  --sidebar-w:    220px;
+  --font:         'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Legacy aliases for compatibility */
   --lexara-blue: #2356d8;
   --lexara-blue-hover: #1a45c0;
   --lexara-blue-light: #e8eefb;
@@ -14,20 +35,15 @@
   --lexara-border-strong: rgba(0, 0, 0, 0.16);
   --lexara-white: #ffffff;
   --lexara-surface: rgba(255, 255, 255, 0.7);
-  --error-bg: #fef2f2;
-  --error-border: rgba(239, 68, 68, 0.3);
-  --error-text: #b91c1c;
   --success-bg: #f0fdf4;
   --success-text: #15803d;
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
   --shadow-lg: 0 12px 32px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.04);
-  --radius: 8px;
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 12px;
   --radius-xl: 20px;
-  --sidebar-w: 220px;
   --page-bg: var(--lexara-bg);
   --surface: var(--lexara-white);
   --surface-muted: var(--lexara-bg-secondary);
@@ -40,7 +56,6 @@
   --text-secondary: var(--lexara-text-secondary);
   --text-tertiary: var(--lexara-text-tertiary);
   --text-inverse: var(--lexara-white);
-  --accent: var(--lexara-blue);
   --accent-muted: var(--lexara-blue-light);
   --accent-soft: var(--lexara-blue-subtle);
   --success: #15803d;

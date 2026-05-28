@@ -85,7 +85,11 @@ function WorkspaceSelector({
 
   return (
     <div className="workspace-selector">
-      {!orgConfigured && <div className="ws-config-error">ORG_SLUG not configured. Check .env.</div>}
+      {!orgConfigured && (
+        <div className="ws-config-notice">
+          <span>Connecting to workspace…</span>
+        </div>
+      )}
       <div className="workspace-list">
         {loadingWorkspaces && <div className="workspace-empty">{t('loading')}</div>}
         {!loadingWorkspaces && !workspaces.length && <div className="workspace-empty">{t('no_workspace')}</div>}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import ChatPage from './pages/ChatPage';
 import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
@@ -7,13 +7,13 @@ import MyPage from './pages/MyPage';
 import LandingPage from './pages/LandingPage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
-import { LexaraIcon, LexaraLogo } from './assets/LexaraLogo';
+import { LexaraIcon } from './assets/LexaraLogo';
 import './App.css';
 
-function App() {
-  const [workspaceId, setWorkspaceId] = useState(() => localStorage.getItem('workspaceId') || '');
-  const [workspaceName, setWorkspaceName] = useState(() => localStorage.getItem('workspaceName') || '');
-  const [currentPage, setCurrentPage] = useState('chat');
+const STORAGE_KEY_WS   = 'lexara_workspace_id';
+const STORAGE_KEY_PAGE = 'lexara_page';
+
+export default function App() {
   const [page, setPage] = useState(() => (localStorage.getItem('authUser') ? 'app' : 'landing'));
   const [transitioning, setTransitioning] = useState(false);
   const [authUser, setAuthUser] = useState(() => {
@@ -25,6 +25,15 @@ function App() {
   });
   const [authMode, setAuthMode] = useState('login');
   const [accessDenied, setAccessDenied] = useState('');
+  
+  // App-level state (when page === 'app')
+  const [workspaceId, setWorkspaceId] = useState(
+    () => localStorage.getItem(STORAGE_KEY_WS) || ''
+  );
+  const [workspaceName, setWorkspaceName] = useState('');
+  const [currentPage, setCurrentPage] = useState(
+    () => localStorage.getItem(STORAGE_KEY_PAGE) || 'chat'
+  );
 
   const navigate = (newPage) => {
     setTransitioning(true);
@@ -35,10 +44,12 @@ function App() {
   };
 
   useEffect(() => {
-    if (workspaceId) {
-      localStorage.setItem('workspaceId', workspaceId);
-    }
+    if (workspaceId) localStorage.setItem(STORAGE_KEY_WS, workspaceId);
   }, [workspaceId]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_PAGE, currentPage);
+  }, [currentPage]);
 
   useEffect(() => {
     if (!authUser) return;
@@ -63,6 +74,11 @@ function App() {
     window.addEventListener('hashchange', syncFromHash);
     return () => window.removeEventListener('hashchange', syncFromHash);
   }, [authUser]);
+
+  const handleWorkspaceChange = useCallback((id) => {
+    setWorkspaceId(id);
+    setWorkspaceName('');
+  }, []);
 
   if (transitioning) {
     return (
@@ -126,33 +142,39 @@ function App() {
     );
   }
 
-  const goAppSection = (section) => {
-    setPage('app');
-    setCurrentPage(section);
-    window.location.hash = '';
-  };
+  // App page with sidebar navigation
+  if (page === 'app') {
+    return (
+      <div style={{ display: 'flex', height: '100dvh', overflow: 'hidden' }}>
+        {accessDenied && (
+          <div style={{ position: 'absolute', top: 12, left: 12, color: '#dc2626', fontFamily: 'var(--font-mono)', zIndex: 20 }}>
+            {accessDenied}
+          </div>
+        )}
+        {currentPage === 'chat' && (
+          <ChatPage
+            workspaceId={workspaceId}
+            workspaceName={workspaceName}
+            onChangeWorkspace={handleWorkspaceChange}
+            onWorkspaceNameChange={setWorkspaceName}
+            authUser={{ name: 'Admin', role: 'Admin' }}
+            onGoAdmin={() => setCurrentPage('admin')}
+          />
+        )}
+        {currentPage === 'admin' && (
+          <AdminPage onGoChat={() => setCurrentPage('chat')} />
+        )}
+        {currentPage === 'mypage' && (
+          <MyPage authUser={authUser} onLogout={() => { setAuthUser(null); navigate('landing'); }} />
+        )}
+      </div>
+    );
+  }
 
-  return (
-    <div className="app">
-      {accessDenied && (
-        <div style={{ position: 'absolute', top: 12, left: 12, color: '#dc2626', fontFamily: 'var(--font-mono)', zIndex: 20 }}>
-          {accessDenied}
-        </div>
-      )}
-      {page === 'app' && currentPage === 'chat' && (
-        <ChatPage
-          workspaceId={workspaceId}
-          workspaceName={workspaceName}
-          onChangeWorkspace={setWorkspaceId}
-          onWorkspaceNameChange={setWorkspaceName}
-          authUser={{ name: 'Admin', role: 'Admin' }}
-          onGoAdmin={() => goAppSection('admin')}
-        />
-      )}
-      {page === 'admin' && authUser.role === 'admin' && <AdminPage onGoAsk={() => goAppSection('chat')} />}
-      {page === 'app' && currentPage === 'mypage' && <MyPage authUser={authUser} onLogout={() => { setAuthUser(null); navigate('landing'); }} />}
-    </div>
-  );
+  // Admin page at top level (legacy #admin hash support)
+  if (page === 'admin' && authUser.role === 'admin') {
+    return <AdminPage onGoChat={() => setPage('app')} />;
+  }
+
+  return null;
 }
-
-export default App;
