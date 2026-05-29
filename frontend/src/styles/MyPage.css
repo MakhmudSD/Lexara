@@ -175,10 +175,14 @@
   border-radius: 6px;
   font-size: 12px;
   font-family: inherit;
-  background: #ffffff;
-  color: #1a1814;
+  background: var(--lexara-white, #ffffff);
+  color: var(--lexara-text, #1a1814);
   cursor: pointer;
-  outline: none;
+}
+
+.mypage-lang-select:focus {
+  outline: 2px solid var(--lexara-blue, #2356d8);
+  outline-offset: 2px;
 }
 
 .mypage-signout-btn {
@@ -338,9 +342,13 @@
   border-radius: 8px;
   font-size: 12px;
   font-family: 'SF Mono', monospace;
-  color: #1a1814;
-  background: #f7f7f6;
-  outline: none;
+  color: var(--lexara-text, #1a1814);
+  background: var(--lexara-bg, #f7f5f0);
+}
+
+.mypage-referral-input:focus {
+  outline: 2px solid var(--lexara-blue, #2356d8);
+  outline-offset: 2px;
 }
 
 .mypage-referral-copy-btn {
@@ -393,9 +401,41 @@
 
 .mypage-promo-note {
   font-size: 11px;
-  color: #9d9b96;
+  color: var(--lexara-text-tertiary, #9d9b96);
   font-style: italic;
   margin-top: 8px;
+}
+
+.mypage-error-banner {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #fef2f2;
+  border: 0.5px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  font-size: 12px;
+  color: #b91c1c;
+}
+
+.mypage-stat-empty {
+  font-size: 12px;
+  color: var(--lexara-text-secondary, #6b6560);
+  font-style: italic;
+  padding: 4px 0 2px;
+}
+
+.mypage-skeleton-card {
+  height: 120px;
+  background: linear-gradient(90deg, var(--lexara-bg, #f7f5f0) 25%, var(--lexara-bg-secondary, #f0ede8) 50%, var(--lexara-bg, #f7f5f0) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-sweep 1.4s ease infinite;
+  border-radius: var(--radius-md, 10px);
+}
+
+.mypage-skeleton-short { height: 80px; }
+
+@keyframes skeleton-sweep {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 .mypage-stats-grid {

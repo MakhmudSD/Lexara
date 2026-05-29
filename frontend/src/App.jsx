@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react';
-import ChatPage from './pages/ChatPage';
-import AdminPage from './pages/AdminPage';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import MyPage from './pages/MyPage';
-import LandingPage from './pages/LandingPage';
-import PrivacyPage from './pages/PrivacyPage';
-import TermsPage from './pages/TermsPage';
-import RefundPage from './pages/RefundPage';
+const ChatPage = lazy(() => import('./pages/ChatPage'));
+const AdminPage = lazy(() => import('./pages/AdminPage'));
+const MyPage = lazy(() => import('./pages/MyPage'));
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
+const TermsPage = lazy(() => import('./pages/TermsPage'));
+const RefundPage = lazy(() => import('./pages/RefundPage'));
 import { LexaraIcon, LexaraLogo } from './assets/LexaraLogo';
 import { useTranslation } from './i18n/useTranslation';
 import './App.css';
@@ -96,8 +96,14 @@ function App() {
     );
   }
 
+  const lazySuspense = (node) => (
+    <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: '#9d9b96', fontSize: 14 }}>Loading…</div>}>
+      {node}
+    </Suspense>
+  );
+
   if (page === 'landing') {
-    return (
+    return lazySuspense(
       <LandingPage
         onSignIn={() => navigate('login')}
         onSignUp={() => navigate('register')}
@@ -109,14 +115,14 @@ function App() {
   }
 
   if (page === 'privacy') {
-    return <PrivacyPage onHome={() => navigate('landing')} />;
+    return lazySuspense(<PrivacyPage onHome={() => navigate('landing')} />);
   }
 
   if (page === 'refund') {
-    return <RefundPage onHome={() => navigate('landing')} />;
+    return lazySuspense(<RefundPage onHome={() => navigate('landing')} />);
   }
   if (page === 'terms') {
-    return <TermsPage onHome={() => navigate('landing')} />;
+    return lazySuspense(<TermsPage onHome={() => navigate('landing')} />);
   }
 
   if (page === 'register') {
@@ -205,7 +211,7 @@ function App() {
         {accessDenied && (
           <div style={{ margin: '20px auto', color: '#dc2626', fontFamily: 'var(--font-mono)' }}>{accessDenied}</div>
         )}
-        {page === 'app' && currentPage === 'chat' && (
+        {page === 'app' && currentPage === 'chat' && lazySuspense(
           <ChatPage
             workspaceId={workspaceId}
             workspaceName={workspaceName}
@@ -213,8 +219,8 @@ function App() {
             onWorkspaceNameChange={setWorkspaceName}
           />
         )}
-        {page === 'admin' && authUser.role?.toLowerCase() === 'admin' && <AdminPage onGoChat={() => goAppSection('chat')} />}
-        {page === 'app' && currentPage === 'mypage' && <MyPage authUser={authUser} onLogout={() => { setAuthUser(null); navigate('landing'); }} />}
+        {page === 'admin' && authUser.role?.toLowerCase() === 'admin' && lazySuspense(<AdminPage onGoChat={() => goAppSection('chat')} />)}
+        {page === 'app' && currentPage === 'mypage' && lazySuspense(<MyPage authUser={authUser} onLogout={() => { setAuthUser(null); navigate('landing'); }} />)}
       </div>
     </div>
   );

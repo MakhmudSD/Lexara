@@ -504,6 +504,48 @@
 
 .landing-btn-primary:hover { opacity: 0.88; }
 
+.landing-btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Hero background (replaces p5.js canvas) */
+.landing-hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 60% 40%, rgba(35, 86, 216, 0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 80% at 20% 80%, rgba(124, 58, 237, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* FAQ open state */
+.faq-item.open .faq-question {
+  color: var(--lexara-blue, #2356d8);
+}
+
+.faq-item.open {
+  border-bottom-color: rgba(35, 86, 216, 0.15);
+}
+
+/* Contact form states */
+.contact-input:invalid:not(:placeholder-shown) {
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.contact-input:invalid:not(:placeholder-shown):focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+}
+
+.contact-form-note {
+  font-size: 11px;
+  color: var(--lexara-text-tertiary, #a09890);
+  margin: 4px 0 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
 @media (max-width: 768px) {
   .contact-form-row { grid-template-columns: 1fr; }
   .landing-faq { padding: 48px 20px; }

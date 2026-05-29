@@ -67,11 +67,14 @@ function ContactForm({ t }) {
         rows={4}
         required
       />
-      <button type="submit" className="landing-btn-primary">
+      <button type="submit" className="landing-btn-primary" disabled={sent}>
         {sent
-          ? (t('contact_sent') || 'Opening email client...')
-          : (t('contact_send') || 'Send message →')}
+          ? (t('contact_sent') || 'Email client opened ✓')
+          : (t('contact_send') || 'Open email client →')}
       </button>
+      <p className="contact-form-note">
+        {t('contact_note') || 'Opens your email app with a pre-filled message to support@lexara.app'}
+      </p>
     </form>
   );
 }
@@ -105,6 +108,14 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
   }, []);
 
   useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      document.querySelectorAll('[data-reveal]').forEach((el) => {
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+      });
+      return;
+    }
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -117,86 +128,6 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
     const nodes = document.querySelectorAll('[data-reveal]');
     nodes.forEach((n) => observer.observe(n));
     return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js';
-    script.onload = () => {
-      if (window.p5 && !window._lexaraSketch) {
-        window._lexaraSketch = new window.p5((p) => {
-          let particles = [];
-          const N = 120;
-
-          p.setup = () => {
-            const host = document.getElementById('lexara-hero-canvas');
-            if (!host) return;
-            const cnv = p.createCanvas(host.offsetWidth, host.offsetHeight);
-            cnv.parent(host);
-            p.randomSeed(42);
-            p.noiseSeed(42);
-            p.colorMode(p.HSB, 360, 100, 100, 100);
-            for (let i = 0; i < N; i += 1) {
-              particles.push({
-                x: p.random(p.width),
-                y: p.random(p.height),
-                vx: 0,
-                vy: 0,
-                age: p.random(200),
-                maxAge: p.random(120, 280),
-                size: p.random(1.5, 4),
-                hue: p.random([215, 220, 225, 230]),
-              });
-            }
-          };
-
-          p.draw = () => {
-            p.noStroke();
-            p.fill(38, 8, 97, 10);
-            p.rect(0, 0, p.width, p.height);
-            const t = p.frameCount * 0.003;
-            particles.forEach((pt) => {
-              pt.age += 1;
-              const angle = p.noise(pt.x * 0.002, pt.y * 0.002, t) * p.TWO_PI * 2.5;
-              const speed = 0.7 + p.noise(pt.x * 0.001, pt.y * 0.001, t * 0.5 + 50) * 0.8;
-              pt.vx = pt.vx * 0.88 + Math.cos(angle) * speed * 0.12;
-              pt.vy = pt.vy * 0.88 + Math.sin(angle) * speed * 0.12;
-              pt.x += pt.vx;
-              pt.y += pt.vy;
-              const life = pt.age / pt.maxAge;
-              const alpha = life < 0.15 ? (life / 0.15) * 70 : life > 0.75 ? ((1 - life) / 0.25) * 70 : 70;
-              p.fill(pt.hue, 65, 75, alpha);
-              p.ellipse(pt.x, pt.y, pt.size, pt.size);
-              if (pt.age > pt.maxAge || pt.x < -10 || pt.x > p.width + 10 || pt.y < -10 || pt.y > p.height + 10) {
-                pt.x = p.random(p.width);
-                pt.y = p.random(p.height);
-                pt.vx = 0;
-                pt.vy = 0;
-                pt.age = 0;
-                pt.maxAge = p.random(120, 280);
-                pt.size = p.random(1.5, 4);
-              }
-            });
-          };
-
-          p.windowResized = () => {
-            const host = document.getElementById('lexara-hero-canvas');
-            if (!host) return;
-            p.resizeCanvas(host.offsetWidth, host.offsetHeight);
-          };
-        });
-      }
-    };
-    document.body.appendChild(script);
-    return () => {
-      if (window._lexaraSketch) {
-        window._lexaraSketch.remove();
-        window._lexaraSketch = null;
-      }
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-    };
   }, []);
 
   const reveal = useMemo(() => ({
@@ -250,7 +181,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
       </nav>
 
       <section style={{ maxWidth: 1120, margin: '0 auto', padding: '56px 24px 30px', display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 32, position: 'relative', overflow: 'hidden' }}>
-        <canvas id="lexara-hero-canvas" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.35, pointerEvents: 'none' }} />
+        <div className="landing-hero-bg" />
         <div data-reveal style={{ ...reveal, position: 'relative', zIndex: 2 }}>
           <div style={{ display: 'inline-flex', padding: '6px 10px', borderRadius: 999, background: '#fff', border: '1px solid rgba(0,0,0,0.08)', fontSize: 12, marginBottom: 20 }}>Early access · 50 free queries</div>
           <h1 style={{ fontSize: 68, lineHeight: 0.95, letterSpacing: '-0.03em', margin: '0 0 16px' }}>{t('landing_headline')}</h1>
@@ -339,9 +270,9 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
       <section id="pricing" style={{ background: '#1a1814', color: '#fff', padding: '44px 24px' }}>
         <div style={{ maxWidth: 1120, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 14 }}>
           {[
-            ['Free', '$0', ['50 queries', 'Single workspace', 'Community support'], 'Try free', false],
-            ['Pro', '$19/mo', ['2,000 queries', 'Usage analytics', 'Priority support'], 'Choose Pro', true],
-            ['Enterprise', 'Custom', ['Unlimited workspaces', 'SSO/SAML', 'Dedicated support'], 'Contact sales', false],
+            ['Free', '$0', ['50 queries/month', '1 workspace', '5 documents'], 'Try free', false],
+            ['Pro', '$19/mo', ['1,000 queries/month', '5 workspaces', 'Usage analytics'], 'Choose Pro', true],
+            ['Business', '$49/mo', ['5,000 queries/month', 'Unlimited workspaces', 'Priority support'], 'Choose Business', false],
           ].map(([name, price, feats, cta, active]) => (
             <div key={name} style={{ background: active ? '#2356d8' : 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 14, padding: 20 }}>
               <h3 style={{ margin: '0 0 6px' }}>{name}</h3>
@@ -352,7 +283,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
           ))}
         </div>
         <p style={{ textAlign: 'center', marginTop: 12, color: '#b4b2a9', fontSize: 12 }}>
-          Pricing shown is illustrative. Lexara is currently in early access.
+          Billed monthly via Paddle · Cancel anytime from your profile
         </p>
       </section>
 
@@ -421,14 +352,14 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
           >
             <div style={{ fontSize: 32, marginBottom: 12 }}>✦</div>
             <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>
-              {pricingModal === 'Free' ? 'Start for free' : pricingModal === 'Pro' ? 'Start your 14-day trial' : 'Get in touch'}
+              {pricingModal === 'Free' ? 'Start for free' : pricingModal === 'Pro' ? 'Upgrade to Pro' : 'Upgrade to Business'}
             </h3>
             <p style={{ fontSize: 14, color: '#5a5650', marginBottom: 24, lineHeight: 1.6 }}>
               {pricingModal === 'Free'
-                ? 'Create a free account to get 50 queries per month, 3 workspaces, and full document Q&A.'
+                ? 'Create a free account — 50 queries/month, 1 workspace, 5 documents. No credit card required.'
                 : pricingModal === 'Pro'
-                ? 'Try Pro free for 14 days. No credit card required to start. Cancel anytime.'
-                : 'Enterprise plans are custom-priced. Create an account and we\'ll reach out.'}
+                ? 'Get 1,000 queries/month and 5 workspaces for $19/mo. Billed monthly via Paddle. Cancel anytime from your profile.'
+                : 'Get 5,000 queries/month and unlimited workspaces for $49/mo. Billed monthly via Paddle. Cancel anytime.'}
             </p>
             <button
               onClick={() => { setPricingModal(null); onSignUp(); }}
@@ -438,7 +369,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
                 cursor: 'pointer', marginBottom: 12,
               }}
             >
-              Create free account →
+              {pricingModal === 'Free' ? 'Create free account →' : 'Create account to upgrade →'}
             </button>
             <button
               onClick={() => { setPricingModal(null); onSignIn(); }}
@@ -451,7 +382,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
               Sign in to existing account
             </button>
             <p style={{ fontSize: 11, color: '#b4b2a9', marginTop: 12 }}>
-              No credit card · Cancel anytime · Your data stays private
+              {pricingModal === 'Free' ? 'No credit card · Your data stays private' : 'Cancel anytime from your profile page'}
             </p>
           </div>
         </div>

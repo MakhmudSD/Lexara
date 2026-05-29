@@ -91,7 +91,7 @@ function formatTime(timestamp) {
   }
 }
 
-export default function ChatMessage({ role, content, sources, isLoading, mode, isStreaming, timestamp }) {
+export default function ChatMessage({ role, content, sources, mode, isStreaming, timestamp }) {
   const { t } = useTranslation();
   const [showSources, setShowSources] = useState(false);
   const isUser = role === 'user';
@@ -117,17 +117,6 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
     );
   }
 
-  if (isLoading) {
-    return (
-      <div className="message-row assistant">
-        <div className="typing-bubble">
-          <div className="thinking-dot" />
-          <div className="thinking-dot" />
-          <div className="thinking-dot" />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className={`message-row ${isUser ? 'user' : 'assistant'}`}>

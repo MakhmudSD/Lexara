@@ -81,7 +81,9 @@ export default function RegisterPage({ onSuccess, onBackToLogin, onHome }) {
         <div className="auth-card">
           <form className="auth-form" onSubmit={handleSubmit}>
             <div className="auth-field">
-              <label className="auth-label" htmlFor="register-name">Full name</label>
+              <label className="auth-label" htmlFor="register-name">
+                Full name <span style={{ fontSize: 11, fontWeight: 400, color: '#a09890' }}>(optional)</span>
+              </label>
               <input
                 id="register-name"
                 className="auth-input"
@@ -90,7 +92,6 @@ export default function RegisterPage({ onSuccess, onBackToLogin, onHome }) {
                 value={fullName}
                 onChange={(event) => setFullName(event.target.value)}
                 disabled={loading}
-                required
               />
             </div>
             <div className="auth-field">

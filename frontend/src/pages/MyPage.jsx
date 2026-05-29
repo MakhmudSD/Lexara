@@ -28,27 +28,16 @@ const PLAN_GRADIENTS = {
   business: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)',
 };
 
-const PLAN_FEATURES = {
-  free: [
-    '50 so\'rov/oy',
-    '1 ish maydoni',
-    '5 hujjat',
-    'Asosiy kirish',
-  ],
-  pro: [
-    '1,000 so\'rov/oy',
-    '5 ish maydoni',
-    'Cheksiz hujjatlar',
-    'Suhbat xotirasi',
-    'Streaming javoblar',
-  ],
-  business: [
-    '5,000 so\'rov/oy',
-    'Cheksiz ish maydonlari',
-    'Barcha Pro xususiyatlari',
-    'Ustuvor qo\'llab-quvvatlash',
-    'Tahlil paneli',
-  ],
+const PLAN_FEATURES_KEYS = {
+  free:     ['plan_free_f1', 'plan_free_f2', 'plan_free_f3'],
+  pro:      ['plan_pro_f1', 'plan_pro_f2', 'plan_pro_f3', 'plan_pro_f4'],
+  business: ['plan_business_f1', 'plan_business_f2', 'plan_business_f3', 'plan_business_f4'],
+};
+
+const PLAN_FEATURES_DEFAULTS = {
+  free:     ['50 queries/month', '1 workspace', '5 documents'],
+  pro:      ['1,000 queries/month', '5 workspaces', 'Unlimited documents', 'Usage analytics'],
+  business: ['5,000 queries/month', 'Unlimited workspaces', 'All Pro features', 'Priority support'],
 };
 
 export default function MyPage({ onLogout }) {
@@ -57,6 +46,13 @@ export default function MyPage({ onLogout }) {
   const [stats, setStats] = useState({ total_queries: 0, total_tokens: 0, total_cost_usd: 0 });
   const [loading, setLoading] = useState(true);
   const [upgradeLoading, setUpgradeLoading] = useState(null);
+  const [upgradeError, setUpgradeError] = useState('');
+
+  const PLAN_FEATURES = {
+    free:     PLAN_FEATURES_KEYS.free.map((k, i) => t(k) || PLAN_FEATURES_DEFAULTS.free[i]),
+    pro:      PLAN_FEATURES_KEYS.pro.map((k, i) => t(k) || PLAN_FEATURES_DEFAULTS.pro[i]),
+    business: PLAN_FEATURES_KEYS.business.map((k, i) => t(k) || PLAN_FEATURES_DEFAULTS.business[i]),
+  };
 
   const user = (() => {
     try { return JSON.parse(localStorage.getItem('authUser') || '{}'); }
@@ -139,7 +135,8 @@ export default function MyPage({ onLogout }) {
       }
     } catch (err) {
       console.error('Checkout error:', err);
-      alert(t('checkout_error') || 'Could not open checkout. Please try again.');
+      setUpgradeError(t('checkout_error') || 'Could not open checkout. Please try again.');
+      setTimeout(() => setUpgradeError(''), 6000);
     } finally {
       if (!window.Paddle) setUpgradeLoading(null);
     }
@@ -154,6 +151,16 @@ export default function MyPage({ onLogout }) {
     { id: 'subscription', label: t('tab_subscription') || 'Obuna' },
     { id: 'promo', label: t('tab_promo') || 'Promo' },
   ];
+
+  if (loading) {
+    return (
+      <div className="mypage-wrap">
+        <div className="mypage-skeleton-card" />
+        <div className="mypage-skeleton-card mypage-skeleton-short" />
+        <div className="mypage-skeleton-card" />
+      </div>
+    );
+  }
 
   return (
     <div className="mypage-wrap">
@@ -189,24 +196,32 @@ export default function MyPage({ onLogout }) {
 
           <div className="mypage-stat-block">
             <div className="mypage-stat-row">
-              <span className="mypage-stat-label">{t('total_queries_label') || 'Jami so\'rovlar'}</span>
-              <span className="mypage-stat-value">{loading ? '—' : stats.total_queries}</span>
+              <span className="mypage-stat-label">{t('total_queries_label') || 'Total queries'}</span>
+              <span className="mypage-stat-value">{stats.total_queries}</span>
             </div>
-            <div className="mypage-bar-wrap">
-              <div
-                className="mypage-bar-fill"
-                style={{ width: `${queriesPct}%`, background: getBarColor(queriesPct) }}
-              />
-            </div>
-            <div className="mypage-stat-sub">
-              {loading ? '—' : `${queriesLeft} so'rov qoldi (${planLimits.queries} dan)`}
-            </div>
+            {stats.total_queries === 0 ? (
+              <div className="mypage-stat-empty">
+                {t('no_queries_yet') || 'No queries yet — ask your first question in the chat.'}
+              </div>
+            ) : (
+              <>
+                <div className="mypage-bar-wrap">
+                  <div
+                    className="mypage-bar-fill"
+                    style={{ width: `${queriesPct}%`, background: getBarColor(queriesPct) }}
+                  />
+                </div>
+                <div className="mypage-stat-sub">
+                  {`${queriesLeft} ${t('queries_remaining') || 'remaining'} / ${planLimits.queries} ${t('per_month') || 'per month'}`}
+                </div>
+              </>
+            )}
           </div>
 
           <div className="mypage-stat-block" style={{ marginTop: 12 }}>
             <div className="mypage-stat-row">
               <span className="mypage-stat-label">{t('tokens_label') || 'Tokenlar'}</span>
-              <span className="mypage-stat-value">{loading ? '—' : stats.total_tokens.toLocaleString()}</span>
+              <span className="mypage-stat-value">{stats.total_tokens.toLocaleString()}</span>
             </div>
           </div>
 
@@ -305,12 +320,15 @@ export default function MyPage({ onLogout }) {
                 <span className="mypage-info-key">{t('plan_expires_label') || 'Tugash sanasi'}</span>
                 <span className="mypage-info-val">{user.plan_expires_at ? new Date(user.plan_expires_at).toLocaleDateString() : '—'}</span>
               </div>
+              {upgradeError && (
+                <div className="mypage-error-banner">{upgradeError}</div>
+              )}
               <button
                 className="mypage-signout-btn"
                 style={{ marginTop: 12 }}
-                onClick={() => window.open('mailto:support@lexara.app?subject=Reja boshqaruvi')}
+                onClick={() => window.open('mailto:support@lexara.app?subject=Plan management request')}
               >
-                {t('manage_plan') || 'Rejani boshqarish'}
+                {t('email_support_to_change_plan') || 'Email us to change plan'}
               </button>
             </div>
           )}

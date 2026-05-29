@@ -13,6 +13,17 @@ export default defineConfig({
       '@sentry/react': resolve('src/vendor/sentry-react-stub.js'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-sentry': ['@sentry/react'],
+          'vendor-analytics': ['@vercel/analytics', '@vercel/speed-insights'],
+        },
+      },
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,
