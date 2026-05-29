@@ -29,6 +29,7 @@ function App() {
   });
   const [authMode, setAuthMode] = useState('login');
   const [accessDenied, setAccessDenied] = useState('');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const navigate = (newPage) => {
     setTransitioning(true);
@@ -147,10 +148,55 @@ function App() {
     window.location.hash = '';
   };
 
+  const closeMobileNav = () => setMobileNavOpen(false);
+
   return (
     <div className="app">
+      {mobileNavOpen && (
+        <div className="mobile-nav-overlay" onClick={closeMobileNav} aria-hidden="true" />
+      )}
+
+      <div className={`mobile-nav-sidebar${mobileNavOpen ? ' open' : ''}`}>
+        <div className="mobile-nav-header">
+          <LexaraLogo height={28} />
+          <button className="mobile-nav-close" onClick={closeMobileNav} aria-label="Close menu">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div className="mobile-nav-links">
+          <button
+            className={`nav-button${page === 'app' && currentPage === 'chat' ? ' active' : ''}`}
+            onClick={() => { goAppSection('chat'); closeMobileNav(); }}
+          >
+            <span className="nav-dot" />
+            {t('query')}
+          </button>
+          {authUser.role?.toLowerCase() === 'admin' && (
+            <button
+              className={`nav-button${page === 'admin' ? ' active' : ''}`}
+              onClick={() => { navigate('admin'); closeMobileNav(); }}
+            >
+              <span className="nav-dot" />
+              Admin
+            </button>
+          )}
+          <button
+            className={`nav-button${page === 'app' && currentPage === 'mypage' ? ' active' : ''}`}
+            onClick={() => { goAppSection('mypage'); closeMobileNav(); }}
+          >
+            <span className="nav-dot" />
+            {t('my_page')}
+          </button>
+        </div>
+      </div>
+
       <nav className="app-nav">
         <div className="nav-brand">
+          <button className="hamburger" onClick={() => setMobileNavOpen(true)} aria-label="Open menu">
+            <span /><span /><span />
+          </button>
           <LexaraLogo height={32} />
         </div>
 
