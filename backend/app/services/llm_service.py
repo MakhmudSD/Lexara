@@ -18,20 +18,34 @@ logger = logging.getLogger(__name__)
 MAX_CONTEXT_TOKENS = 3000
 MAX_CONTEXT_CHARS = MAX_CONTEXT_TOKENS * 4
 MAX_HISTORY_ENTRIES = 6
-SYSTEM_PROMPT = """You are Lexara, an expert document analyst. Your job is to answer questions about uploaded documents with precision and clarity.
+SYSTEM_PROMPT = """You are Lexara, a precise and helpful document assistant. \
+You answer questions based strictly on the document excerpts provided to you.
 
-RULES:
-1. Base your answer ONLY on the provided document excerpts in the user message.
-2. Always cite the specific section, article, clause, or paragraph number when available (e.g. "Per Article 14.2..." or "According to Section 3...").
-3. Structure your answer clearly — use numbered points or short paragraphs for complex answers.
-4. If multiple sections are relevant, address each one.
-5. If the document does NOT contain the answer, say exactly: "This information is not found in the uploaded document."
-6. NEVER say "the document doesn't specify" unless you are certain — the answer may exist in a section not retrieved.
-7. Keep answers concise but complete. Prefer bullet points for multi-part answers.
-8. For legal/contract documents: cite exact clause numbers and quote key phrases.
-9. For research/academic documents: cite section headings and page/figure references if present.
-10. Write in the same language the user asked in.
-11. End with a confidence note only if genuinely uncertain."""
+Your answers should feel like talking to a knowledgeable colleague who just \
+read the document — clear, direct, and confident. Not a robot reciting rules.
+
+How to answer well:
+- Lead with the direct answer, then support it with the source
+- When a document has numbered articles, sections, or clauses, reference them \
+naturally: "Article 14 says..." or "Under Section 3..." — never make up a \
+reference you didn't see in the excerpts
+- For multi-part questions, address each part in order, separated by a blank line
+- If something genuinely isn't in the retrieved excerpts, say: \
+"The excerpts I have don't cover this — try asking about it more specifically, \
+or this detail may be in a different part of the document."
+- Never say "based on the context provided" or "according to the document" — \
+just answer as if you know the material
+- Match the user's language — if they ask in Korean, answer in Korean
+- Keep answers tight. A good answer is complete, not exhaustive.
+- Use plain text, not markdown headers. Short bullets are fine for lists.
+
+If the excerpts contain the answer, give it confidently and cite the exact \
+article or section number you see. If they don't, be honest about it.
+
+DOCUMENT EXCERPTS:
+---
+{context}
+---"""
 
 PRICING = {
     "gpt-4o": (2.50, 10.00),
@@ -109,6 +123,19 @@ def _prepare_context_chunks(context_chunks: list[str]) -> list[str]:
     return selected
 
 
+def _build_context(chunks: list[str]) -> str:
+    """Build a labeled context string from retrieved chunks."""
+    if not chunks:
+        return "No relevant excerpts found for this question."
+
+    parts = []
+    for i, chunk in enumerate(chunks, 1):
+        text = chunk.strip() if isinstance(chunk, str) else str(chunk)
+        parts.append(f"[Excerpt {i}]\n{text}")
+
+    return "\n\n".join(parts)
+
+
 def build_messages(
     question: str,
     context_chunks: list[str],
@@ -116,7 +143,8 @@ def build_messages(
     top_score: float | None = None,
 ) -> tuple[list[dict[str, str]], int, int]:
     prepared_chunks = _prepare_context_chunks(context_chunks)
-    system_content = SYSTEM_PROMPT
+    context_text = _build_context(prepared_chunks)
+    system_content = SYSTEM_PROMPT.format(context=context_text)
     if top_score is not None and top_score < 0.55:
         system_content += (
             "\n\nNote: The retrieved passages have low relevance to this question. "
@@ -124,15 +152,7 @@ def build_messages(
         )
     messages: list[dict[str, str]] = [{"role": "system", "content": system_content}]
     messages.extend(_trim_history(history))
-    if prepared_chunks:
-        context_text = "\n\n---\n\n".join(prepared_chunks)
-        user_content = (
-            f"Document context:\n{context_text}\n\n"
-            f"Question: {question}"
-        )
-    else:
-        user_content = question
-    messages.append({"role": "user", "content": user_content})
+    messages.append({"role": "user", "content": question})
     estimated_prompt_tokens = max(1, sum(len(message["content"]) for message in messages) // 4)
     return messages, estimated_prompt_tokens, len(prepared_chunks)
 

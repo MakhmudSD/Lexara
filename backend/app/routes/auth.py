@@ -91,6 +91,10 @@ def register(
     if ref:
         referrer = db.query(User).filter(User.referral_code == ref).first()
         if referrer and referrer.id != user.id:
+            # Referral reward rule:
+            # Referrer gets 30 days Pro free when the referred user makes their FIRST PAYMENT
+            # (not on signup or free queries — tied to real revenue)
+            # This is handled in the Paddle webhook: billing.py _handle_transaction_completed
             db.add(Referral(
                 id=uuid4(),
                 referrer_id=referrer.id,

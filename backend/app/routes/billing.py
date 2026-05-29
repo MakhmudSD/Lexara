@@ -224,6 +224,27 @@ async def _handle_subscription_active(db: Session, data: dict) -> None:
     db.commit()
     logger.info(f"Upgraded user {user.email} to {plan} until {plan_expires_at}")
 
+    # Referral reward rule: referrer gets 30 days Pro when referred user makes first payment
+    try:
+        from app.db.models import Referral
+        from app.core.enums import ReferralStatus
+        referral = db.query(Referral).filter(
+            Referral.referred_user_id == user.id,
+            Referral.status == ReferralStatus.PENDING,
+        ).first()
+        if referral:
+            referral.status = ReferralStatus.CONVERTED
+            referrer = db.query(User).filter(User.id == referral.referrer_id).first()
+            if referrer:
+                base = max(referrer.plan_expires_at or datetime.utcnow(), datetime.utcnow())
+                referrer.plan = "pro" if referrer.plan == "free" else referrer.plan
+                referrer.plan_expires_at = base + timedelta(days=30)
+                referral.status = ReferralStatus.REWARDED
+            db.commit()
+            logger.info(f"Referral converted via subscription: referred={user.email}")
+    except Exception as e:
+        logger.warning(f"Referral reward (subscription) failed: {e}")
+
 
 async def _handle_subscription_canceled(db: Session, data: dict) -> None:
     """Downgrade user to free when subscription is canceled."""
@@ -258,7 +279,9 @@ async def _handle_subscription_past_due(db: Session, data: dict) -> None:
 
 
 async def _handle_transaction_completed(db: Session, data: dict) -> None:
-    """Backup handler — ensure plan is upgraded on completed transaction."""
+    """Backup handler — ensure plan is upgraded on completed transaction.
+    Also rewards referrers when their referred user makes their first payment.
+    """
     custom_data = data.get("custom_data") or {}
     user_id = custom_data.get("user_id")
     plan = custom_data.get("plan", "pro")
@@ -275,3 +298,35 @@ async def _handle_transaction_completed(db: Session, data: dict) -> None:
         user.plan_expires_at = datetime.utcnow() + timedelta(days=32)
         db.commit()
         logger.info(f"Transaction completed — upgraded {user.email} to {plan}")
+
+    # Check if this user was referred — reward the referrer on first payment
+    try:
+        from app.db.models import Referral
+        from app.core.enums import ReferralStatus
+        referral = db.query(Referral).filter(
+            Referral.referred_user_id == user.id,
+            Referral.status == ReferralStatus.PENDING,
+        ).first()
+
+        if referral:
+            referral.status = ReferralStatus.CONVERTED
+            db.commit()
+
+            referrer = db.query(User).filter(User.id == referral.referrer_id).first()
+            if referrer:
+                if referrer.plan == "free":
+                    referrer.plan = "pro"
+                    referrer.plan_expires_at = datetime.utcnow() + timedelta(days=30)
+                else:
+                    base = max(referrer.plan_expires_at or datetime.utcnow(), datetime.utcnow())
+                    referrer.plan_expires_at = base + timedelta(days=30)
+
+                referral.status = ReferralStatus.REWARDED
+                db.commit()
+                logger.info(
+                    f"Referral rewarded: {referrer.email} gets 30 days Pro "
+                    f"for referring {user.email}"
+                )
+    except Exception as e:
+        logger.warning(f"Referral reward check failed: {e}")
+        # Don't fail the main transaction processing
