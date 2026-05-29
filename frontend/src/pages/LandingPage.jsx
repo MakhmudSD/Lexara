@@ -191,23 +191,23 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
             <button onClick={onSignIn} style={{ border: '1px solid rgba(0,0,0,0.14)', background: 'transparent', borderRadius: 12, padding: '12px 18px', cursor: 'pointer' }}>{t('landing_cta_secondary')}</button>
           </div>
           <div style={{ marginTop: 10, color: '#8a847c', fontSize: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span>🔒 Private</span><span>·</span><span>⚡ Fast</span><span>·</span><span>📄 Cited sources</span>
+            <span>🔒 {t('badge_private') || 'Private'}</span><span>·</span><span>⚡ {t('badge_fast') || 'Fast'}</span><span>·</span><span>📄 {t('badge_cited') || 'Cited sources'}</span>
           </div>
         </div>
         <div data-reveal style={{ ...reveal, transitionDelay: '80ms', background: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: 18, padding: 16, boxShadow: '0 32px 80px rgba(0,0,0,0.12)', position: 'relative', zIndex: 2 }}>
-          <div style={{ borderBottom: '1px solid rgba(0,0,0,0.08)', paddingBottom: 10, marginBottom: 12, fontFamily: 'var(--font-mono)', fontSize: 12 }}>app.lexara.ai</div>
-          <div style={{ background: '#f6f7fb', borderRadius: 12, padding: 10, marginBottom: 8 }}>What changed in the latest version?</div>
+          <div style={{ borderBottom: '1px solid rgba(0,0,0,0.08)', paddingBottom: 10, marginBottom: 12, fontFamily: 'var(--font-mono)', fontSize: 12 }}>{t('demo_url') || 'app.lexara.ai'}</div>
+          <div style={{ background: '#f6f7fb', borderRadius: 12, padding: 10, marginBottom: 8 }}>{t('demo_q2') || 'What changed in the latest version?'}</div>
           <div style={{ background: '#ffffff', borderRadius: 12, border: '1px solid rgba(0,0,0,0.08)', padding: 10, marginBottom: 8 }}>
-            Version 3.2 introduces three changes:
-            <div>1. Better retrieval ranking for long legal docs.</div>
-            <div>2. Faster indexing for DOCX and scanned PDFs.</div>
-            <div>3. Updated usage analytics for clearer spend tracking.</div>
+            {t('demo_a2_intro') || 'Version 3.2 introduces three changes:'}
+            <div>1. {t('demo_a2_l1') || 'Better retrieval ranking for long legal docs.'}</div>
+            <div>2. {t('demo_a2_l2') || 'Faster indexing for DOCX and scanned PDFs.'}</div>
+            <div>3. {t('demo_a2_l3') || 'Updated usage analytics for clearer spend tracking.'}</div>
           </div>
-          <div style={{ background: '#f6f7fb', borderRadius: 12, padding: 10, marginBottom: 8 }}>Show source lines for the ranking update.</div>
+          <div style={{ background: '#f6f7fb', borderRadius: 12, padding: 10, marginBottom: 8 }}>{t('demo_q3') || 'Show source lines for the ranking update.'}</div>
           <div style={{ background: '#ffffff', borderRadius: 12, border: '1px solid rgba(0,0,0,0.08)', padding: 10 }}>
-            References: policy_v2.pdf · contract_notes.docx
+            {t('demo_references') || 'References: policy_v2.pdf · contract_notes.docx'}
           </div>
-          <div style={{ marginTop: 10, fontSize: 11, color: '#8a847c', textAlign: 'right' }}>Powered by GPT-4o</div>
+          <div style={{ marginTop: 10, fontSize: 11, color: '#8a847c', textAlign: 'right' }}>{t('demo_powered') || 'Powered by GPT-4o'}</div>
         </div>
       </section>
 

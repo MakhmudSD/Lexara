@@ -25,7 +25,7 @@ client.interceptors.response.use(
       err.response?.data?.error?.message ||
       err.message ||
       'Network error';
-    console.error(`[api] ${status ?? 'ERR'} — ${detail}`);
+    if (import.meta.env.DEV) console.error(`[api] ${status ?? 'ERR'} — ${detail}`);
     return Promise.reject({ status, message: detail, raw: err, response: err.response });
   }
 );
