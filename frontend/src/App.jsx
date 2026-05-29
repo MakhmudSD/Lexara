@@ -16,6 +16,7 @@ function App() {
   const { t, lang, setLang, currentLanguage, languageOptions } = useTranslation();
   const [workspaceId, setWorkspaceId] = useState(() => localStorage.getItem('workspaceId') || '');
   const [workspaceName, setWorkspaceName] = useState(() => localStorage.getItem('workspaceName') || '');
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') === 'dark');
   const [currentPage, setCurrentPage] = useState('chat');
   const [page, setPage] = useState(() => (localStorage.getItem('authUser') ? 'app' : 'landing'));
   const [transitioning, setTransitioning] = useState(false);
@@ -42,6 +43,11 @@ function App() {
       localStorage.setItem('workspaceId', workspaceId);
     }
   }, [workspaceId]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : '');
+    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+  }, [darkMode]);
 
   useEffect(() => {
     if (window.location.hash) {
@@ -75,21 +81,11 @@ function App() {
 
   if (transitioning) {
     return (
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          background: '#f8f6f1',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9999,
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+      <div className="app-transition-screen">
+        <div className="app-transition-inner">
           <LexaraIcon size={40} />
-          <div style={{ width: 32, height: 2, background: '#e8e6e0', borderRadius: 1, overflow: 'hidden' }}>
-            <div style={{ height: '100%', background: '#2356d8', borderRadius: 1, animation: 'loadbar 1s ease-in-out infinite' }} />
+          <div className="app-transition-bar">
+            <div className="app-transition-bar-fill" />
           </div>
         </div>
       </div>
@@ -204,6 +200,30 @@ function App() {
               {t('my_page')}
             </button>
           </div>
+
+          <button
+            className="theme-toggle"
+            onClick={() => setDarkMode(!darkMode)}
+            aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {darkMode ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="5" />
+                <line x1="12" y1="1" x2="12" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="23" />
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                <line x1="1" y1="12" x2="3" y2="12" />
+                <line x1="21" y1="12" x2="23" y2="12" />
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+            )}
+          </button>
         </div>
       </nav>
 
