@@ -27,6 +27,7 @@ else:
     limiter = Limiter(key_func=get_remote_address)
 
 from app.core.dependencies import get_db, get_runtime
+from app.services.email_service import send_password_reset_email
 from app.core.enums import UserRole, ReferralStatus
 from app.core.exceptions import AppError
 from app.core.runtime import AppRuntime
@@ -197,6 +198,9 @@ def forgot_password(
 
     if runtime.settings.environment == "development" and user is not None:
         return {"message": "Reset token generated", "token": token, "expires_in": "1 hour"}
+
+    if user is not None:
+        send_password_reset_email(runtime.settings, user.email, token)
 
     return {"message": "If this email exists, a reset link was sent"}
 
