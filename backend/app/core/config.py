@@ -37,9 +37,9 @@ class Settings(BaseSettings):
     # Upload settings
     max_upload_size_bytes: int = 10 * 1024 * 1024
     
-    # Document processing
-    default_chunk_size: int = 500
-    default_chunk_overlap: int = 100
+    # Document processing — 1500 chars keeps full article heading + body together
+    default_chunk_size: int = 1500
+    default_chunk_overlap: int = 200
     
     # Observability
     max_log_entries: int = 1000
@@ -64,7 +64,7 @@ class Settings(BaseSettings):
     jwt_expire_hours: int = 24
     chat_temperature: float = 0.2
     chat_top_p: float = 0.9
-    chat_max_tokens: int = 600
+    chat_max_tokens: int = 1200
     chat_frequency_penalty: float = 0.1
     enable_reranking: bool = False
 

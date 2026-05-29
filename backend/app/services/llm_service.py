@@ -15,7 +15,7 @@ from app.core.exceptions import AppError
 
 logger = logging.getLogger(__name__)
 
-MAX_CONTEXT_TOKENS = 3000
+MAX_CONTEXT_TOKENS = 6000  # 8 chunks × 1500 chars each = 12k chars, plus system prompt
 MAX_CONTEXT_CHARS = MAX_CONTEXT_TOKENS * 4
 MAX_HISTORY_ENTRIES = 6
 SYSTEM_PROMPT = """You are Lexara, a precise and helpful document assistant. \
