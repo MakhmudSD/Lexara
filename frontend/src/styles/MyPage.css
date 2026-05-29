@@ -6,13 +6,16 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  font-family: var(--font, 'Inter', system-ui, sans-serif);
+  font-family: var(--font-sans);
 }
 
+/* ── Header card ── */
 .mypage-header-card {
-  background: #ffffff;
-  border: 0.5px solid rgba(0,0,0,0.1);
-  border-radius: 14px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   padding: 20px 24px 0;
 }
 
@@ -27,25 +30,27 @@
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2356d8, #7c3aed);
+  background: linear-gradient(135deg, var(--color-accent), #7c3aed);
   color: white;
   font-size: 18px;
-  font-weight: 500;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 0 0 3px var(--color-accent-glow);
 }
 
 .mypage-name {
   font-size: 16px;
-  font-weight: 500;
-  color: #1a1814;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
 }
 
 .mypage-email {
   font-size: 13px;
-  color: #6b6860;
+  color: var(--color-text-secondary);
   margin-top: 2px;
 }
 
@@ -54,58 +59,67 @@
   font-size: 11px;
   font-weight: 500;
   padding: 2px 8px;
-  border-radius: 20px;
-  background: #e8eefb;
-  color: #2356d8;
+  border-radius: 999px;
+  background: var(--lexara-blue-light);
+  color: var(--color-accent);
   margin-top: 5px;
   text-transform: capitalize;
 }
 
+/* ── Tabs ── */
 .mypage-tabs {
   display: flex;
   gap: 4px;
-  border-top: 0.5px solid rgba(0,0,0,0.08);
+  border-top: 1px solid var(--color-border);
   padding: 8px 0;
   margin-top: 4px;
 }
 
 .mypage-tab-btn {
   padding: 6px 14px;
-  border-radius: 20px;
+  border-radius: 999px;
   border: none;
   font-size: 13px;
   font-family: inherit;
   cursor: pointer;
   background: transparent;
-  color: #6b6860;
-  transition: all 120ms;
+  color: var(--color-text-secondary);
+  transition: all 120ms ease-out;
 }
 
 .mypage-tab-btn:hover {
-  background: rgba(0,0,0,0.04);
-  color: #1a1814;
+  background: var(--color-elevated);
+  color: var(--color-text-primary);
 }
 
 .mypage-tab-btn.active {
-  background: #1a1814;
-  color: white;
-  font-weight: 500;
+  background: var(--color-accent);
+  color: #ffffff;
+  font-weight: 600;
 }
 
+/* ── Section card ── */
 .mypage-section-card {
-  background: #ffffff;
-  border: 0.5px solid rgba(0,0,0,0.1);
-  border-radius: 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   padding: 20px 24px;
 }
 
 .mypage-section-title {
   font-size: 11px;
-  font-weight: 500;
-  color: #9d9b96;
+  font-weight: 600;
+  color: var(--color-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   margin-bottom: 12px;
+}
+
+/* ── Stats ── */
+.mypage-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
 }
 
 .mypage-stat-block { }
@@ -119,41 +133,44 @@
 
 .mypage-stat-label {
   font-size: 13px;
-  color: #6b6860;
+  color: var(--color-text-secondary);
 }
 
 .mypage-stat-value {
-  font-size: 22px;
-  font-weight: 500;
-  color: #1a1814;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--color-text-primary);
   line-height: 1;
+  letter-spacing: -0.03em;
 }
 
 .mypage-bar-wrap {
-  height: 4px;
-  background: rgba(0,0,0,0.08);
-  border-radius: 2px;
+  height: 5px;
+  background: var(--color-border);
+  border-radius: 999px;
   overflow: hidden;
 }
 
 .mypage-bar-fill {
   height: 100%;
-  border-radius: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-hover));
   transition: width 600ms ease-out;
 }
 
 .mypage-stat-sub {
   font-size: 11px;
-  color: #9d9b96;
+  color: var(--color-text-muted);
   margin-top: 5px;
 }
 
 .mypage-divider {
-  height: 0.5px;
-  background: rgba(0,0,0,0.08);
+  height: 1px;
+  background: var(--color-border);
   margin: 16px 0;
 }
 
+/* ── Info rows ── */
 .mypage-info-row {
   display: flex;
   justify-content: space-between;
@@ -162,66 +179,76 @@
   padding: 6px 0;
 }
 
-.mypage-info-key { color: #6b6860; }
+.mypage-info-key { color: var(--color-text-secondary); }
 
 .mypage-info-val {
-  color: #1a1814;
+  color: var(--color-text-primary);
   font-weight: 500;
 }
 
+/* ── Language select ── */
 .mypage-lang-select {
   padding: 5px 8px;
-  border: 0.5px solid rgba(0,0,0,0.18);
-  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   font-size: 12px;
   font-family: inherit;
-  background: var(--lexara-white, #ffffff);
-  color: var(--lexara-text, #1a1814);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
   cursor: pointer;
 }
 
 .mypage-lang-select:focus {
-  outline: 2px solid var(--lexara-blue, #2356d8);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
+/* ── Sign out ── */
 .mypage-signout-btn {
   padding: 8px 14px;
   background: transparent;
-  border: 0.5px solid rgba(239,68,68,0.35);
-  border-radius: 8px;
-  color: #b91c1c;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: var(--radius-sm);
+  color: #dc2626;
   font-size: 12px;
   cursor: pointer;
   font-family: inherit;
-  transition: all 120ms;
+  transition: all 120ms ease-out;
 }
 
 .mypage-signout-btn:hover {
-  background: #fef2f2;
+  background: rgba(239, 68, 68, 0.07);
   border-color: #ef4444;
 }
 
-/* Plan card */
+/* ── Plan card (current plan, glassmorphism) ── */
 .mypage-plan-card {
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   padding: 20px 24px;
   color: white;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 0 0 2px var(--color-accent), var(--shadow-glow);
 }
 
 .mypage-plan-badge {
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  opacity: 0.8;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
   margin-bottom: 6px;
+  color: var(--color-accent);
 }
 
 .mypage-plan-name {
   font-size: 24px;
-  font-weight: 500;
+  font-weight: 700;
   margin-bottom: 12px;
+  color: var(--color-text-primary);
+  letter-spacing: -0.03em;
 }
 
 .mypage-plan-features {
@@ -232,10 +259,10 @@
 
 .mypage-plan-feature {
   font-size: 13px;
-  opacity: 0.9;
+  color: var(--color-text-secondary);
 }
 
-/* Upgrade grid */
+/* ── Upgrade grid ── */
 .mypage-upgrade-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -244,10 +271,18 @@
 }
 
 .mypage-upgrade-card {
-  background: #ffffff;
-  border: 0.5px solid rgba(0,0,0,0.1);
-  border-radius: 12px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   overflow: hidden;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+
+.mypage-upgrade-card:hover {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-md);
 }
 
 .mypage-upgrade-card-header {
@@ -257,19 +292,21 @@
 
 .mypage-upgrade-plan-name {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 2px;
+  letter-spacing: -0.01em;
 }
 
 .mypage-upgrade-price {
   font-size: 22px;
-  font-weight: 500;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 
 .mypage-upgrade-price span {
   font-size: 13px;
   font-weight: 400;
-  opacity: 0.8;
+  opacity: 0.75;
 }
 
 .mypage-upgrade-features {
@@ -281,7 +318,7 @@
 
 .mypage-upgrade-feature {
   font-size: 12px;
-  color: #6b6860;
+  color: var(--color-text-secondary);
 }
 
 .mypage-upgrade-btn {
@@ -290,20 +327,24 @@
   margin: 0 16px 14px;
   padding: 9px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   font-family: inherit;
   cursor: pointer;
-  transition: opacity 120ms;
+  transition: opacity 120ms, box-shadow 120ms;
   color: white;
 }
 
-.mypage-upgrade-btn.pro { background: #2356d8; }
+.mypage-upgrade-btn.pro      { background: var(--color-accent); }
 .mypage-upgrade-btn.business { background: #7c3aed; }
-.mypage-upgrade-btn:hover { opacity: 0.85; }
 
-/* Promo tab */
+.mypage-upgrade-btn:hover {
+  opacity: 0.88;
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Promo tab ── */
 .mypage-promo-hero {
   text-align: center;
   padding: 8px 0 16px;
@@ -316,19 +357,21 @@
 
 .mypage-promo-title {
   font-size: 16px;
-  font-weight: 500;
-  color: #1a1814;
+  font-weight: 600;
+  color: var(--color-text-primary);
   margin-bottom: 6px;
+  letter-spacing: -0.02em;
 }
 
 .mypage-promo-sub {
   font-size: 13px;
-  color: #6b6860;
+  color: var(--color-text-secondary);
   line-height: 1.5;
   max-width: 360px;
   margin: 0 auto;
 }
 
+/* ── Referral ── */
 .mypage-referral-row {
   display: flex;
   gap: 8px;
@@ -338,35 +381,39 @@
 .mypage-referral-input {
   flex: 1;
   padding: 8px 12px;
-  border: 0.5px solid rgba(0,0,0,0.18);
-  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   font-size: 12px;
-  font-family: 'SF Mono', monospace;
-  color: var(--lexara-text, #1a1814);
-  background: var(--lexara-bg, #f7f5f0);
+  font-family: var(--font-mono);
+  color: var(--color-text-primary);
+  background: var(--color-elevated);
 }
 
 .mypage-referral-input:focus {
-  outline: 2px solid var(--lexara-blue, #2356d8);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
 .mypage-referral-copy-btn {
   padding: 8px 14px;
-  background: #1a1814;
+  background: var(--color-accent);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   font-family: inherit;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 120ms;
+  transition: all 120ms ease-out;
 }
 
-.mypage-referral-copy-btn:hover { background: #2d2a25; }
+.mypage-referral-copy-btn:hover {
+  background: var(--color-accent-hover);
+  box-shadow: var(--shadow-glow);
+}
 
+/* ── Steps ── */
 .mypage-steps {
   display: flex;
   flex-direction: column;
@@ -384,10 +431,10 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #2356d8;
+  background: var(--color-accent);
   color: white;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -396,39 +443,45 @@
 
 .mypage-step-text {
   font-size: 13px;
-  color: #6b6860;
+  color: var(--color-text-secondary);
 }
 
 .mypage-promo-note {
   font-size: 11px;
-  color: var(--lexara-text-tertiary, #9d9b96);
+  color: var(--color-text-muted);
   font-style: italic;
   margin-top: 8px;
 }
 
+/* ── Error / loading / empty states ── */
 .mypage-error-banner {
   margin-top: 8px;
   padding: 8px 12px;
-  background: #fef2f2;
-  border: 0.5px solid rgba(239, 68, 68, 0.3);
-  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: var(--radius-sm);
   font-size: 12px;
-  color: #b91c1c;
+  color: #dc2626;
 }
 
 .mypage-stat-empty {
   font-size: 12px;
-  color: var(--lexara-text-secondary, #6b6560);
+  color: var(--color-text-secondary);
   font-style: italic;
   padding: 4px 0 2px;
 }
 
 .mypage-skeleton-card {
   height: 120px;
-  background: linear-gradient(90deg, var(--lexara-bg, #f7f5f0) 25%, var(--lexara-bg-secondary, #f0ede8) 50%, var(--lexara-bg, #f7f5f0) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--color-elevated) 25%,
+    var(--color-border) 50%,
+    var(--color-elevated) 75%
+  );
   background-size: 200% 100%;
   animation: skeleton-sweep 1.4s ease infinite;
-  border-radius: var(--radius-md, 10px);
+  border-radius: var(--radius-md);
 }
 
 .mypage-skeleton-short { height: 80px; }
@@ -438,29 +491,16 @@
   100% { background-position: -200% 0; }
 }
 
-.mypage-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+/* ── Responsive ── */
+@media (min-width: 768px) {
+  .mypage-header-card { padding: 24px 28px 0; }
+  .mypage-avatar-row  { gap: 20px; margin-bottom: 20px; }
+  .mypage-avatar      { width: 64px; height: 64px; font-size: 22px; }
+  .mypage-name        { font-size: 18px; }
 }
 
-@media (min-width: 768px) {
-  .mypage-header-card {
-    padding: 24px 28px 0;
-  }
-
-  .mypage-avatar-row {
-    gap: 20px;
-    margin-bottom: 20px;
-  }
-
-  .mypage-avatar {
-    width: 64px;
-    height: 64px;
-    font-size: 22px;
-  }
-
-  .mypage-name {
-    font-size: 18px;
-  }
+@media (max-width: 600px) {
+  .mypage-wrap { padding: 16px 16px 48px; }
+  .mypage-stats-grid { grid-template-columns: 1fr; }
+  .mypage-upgrade-grid { grid-template-columns: 1fr; }
 }
