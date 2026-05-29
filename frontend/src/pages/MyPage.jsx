@@ -91,11 +91,11 @@ export default function MyPage({ onLogout }) {
   const handleUpgrade = async (plan) => {
     try {
       setUpgradeLoading(plan);
-      const { checkout_url } = await createCheckout(plan);
+      const { checkout_url, transaction_id } = await createCheckout(plan);
 
       if (window.Paddle) {
         window.Paddle.Checkout.open({
-          url: checkout_url,
+          transactionId: transaction_id,
           settings: {
             displayMode: 'overlay',
             theme: 'light',
