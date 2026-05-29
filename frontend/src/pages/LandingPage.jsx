@@ -67,7 +67,7 @@ function ContactForm({ t }) {
         rows={4}
         required
       />
-      <button type="submit" className="landing-btn-primary" disabled={sent}>
+      <button type="submit" className="landing-btn-primary landing-btn-submit" disabled={sent}>
         {sent
           ? (t('contact_sent') || 'Email client opened ✓')
           : (t('contact_send') || 'Open email client →')}
@@ -142,32 +142,22 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
   };
 
   return (
-    <div style={{ background: '#f8f6f1', color: '#1a1a1a', fontFamily: 'var(--font-sans)', minHeight: '100vh', overflowY: 'auto' }}>
-      <nav style={{
-        position: 'sticky', top: 0, zIndex: 50, padding: '14px 32px',
-        background: scrolled ? 'rgba(248,246,241,0.8)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(10px)' : 'none',
-        borderBottom: scrolled ? '1px solid rgba(0,0,0,0.08)' : '1px solid transparent',
-        transition: 'all 220ms ease',
-      }}>
-        <div style={{ maxWidth: 1120, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="landing">
+      {/* ── Nav ── */}
+      <nav className={`landing-nav ${scrolled ? 'scrolled' : ''}`}>
+        <div className="landing-nav-inner">
           <LexaraLogo height={32} />
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-            <a href="#features" onClick={(event) => scrollToSection(event, 'features')} style={{ color: '#6b6560', textDecoration: 'none', fontSize: 14 }}>{t('landing_nav_features') || 'Features'}</a>
-            <a href="#pricing" onClick={(event) => scrollToSection(event, 'pricing')} style={{ color: '#6b6560', textDecoration: 'none', fontSize: 14 }}>{t('landing_nav_pricing') || 'Pricing'}</a>
-            <a href="#faq" onClick={(event) => scrollToSection(event, 'faq')} style={{ color: '#6b6560', textDecoration: 'none', fontSize: 14 }}>{t('landing_nav_faq') || 'FAQ'}</a>
-            <button onClick={onSignIn} style={{ border: '1px solid rgba(0,0,0,0.14)', background: '#fff', borderRadius: 10, padding: '8px 14px', cursor: 'pointer' }}>{t('landing_cta_secondary')}</button>
+          <div className="landing-nav-links">
+            <a href="#features" className="landing-nav-link" onClick={(e) => scrollToSection(e, 'features')}>{t('landing_nav_features') || 'Features'}</a>
+            <a href="#pricing" className="landing-nav-link" onClick={(e) => scrollToSection(e, 'pricing')}>{t('landing_nav_pricing') || 'Pricing'}</a>
+            <a href="#faq" className="landing-nav-link" onClick={(e) => scrollToSection(e, 'faq')}>{t('landing_nav_faq') || 'FAQ'}</a>
+          </div>
+          <div className="landing-nav-right">
+            <button onClick={onSignIn} className="landing-btn-ghost">{t('landing_cta_secondary')}</button>
             <select
               value={lang}
               onChange={(e) => setLang(e.target.value)}
-              style={{
-                border: '1px solid rgba(0,0,0,0.12)',
-                borderRadius: 8,
-                padding: '6px 10px',
-                fontSize: 13,
-                background: 'transparent',
-                cursor: 'pointer',
-              }}
+              className="landing-lang-select"
             >
               {languageOptions.map((option) => (
                 <option key={option.code} value={option.code}>
@@ -175,54 +165,69 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
                 </option>
               ))}
             </select>
-            <button onClick={onSignUp} style={{ border: 'none', background: '#2356d8', color: '#fff', borderRadius: 10, padding: '8px 14px', cursor: 'pointer' }}>{t('landing_cta_primary')}</button>
+            <button onClick={onSignUp} className="landing-btn-primary">{t('landing_cta_primary')}</button>
           </div>
         </div>
       </nav>
 
-      <section style={{ maxWidth: 1120, margin: '0 auto', padding: '56px 24px 30px', display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 32, position: 'relative', overflow: 'hidden' }}>
-        <div className="landing-hero-bg" />
-        <div data-reveal style={{ ...reveal, position: 'relative', zIndex: 2 }}>
-          <div style={{ display: 'inline-flex', padding: '6px 10px', borderRadius: 999, background: '#fff', border: '1px solid rgba(0,0,0,0.08)', fontSize: 12, marginBottom: 20 }}>Early access · 100 free queries</div>
-          <h1 style={{ fontSize: 68, lineHeight: 0.95, letterSpacing: '-0.03em', margin: '0 0 16px' }}>{t('landing_headline')}</h1>
-          <p style={{ maxWidth: 500, color: '#6b6560', fontSize: 18, lineHeight: 1.5, margin: '0 0 24px' }}>{t('landing_subhead')}</p>
-          <div style={{ display: 'flex', gap: 12 }}>
-            <button onClick={onSignUp} style={{ border: 'none', background: '#2356d8', color: '#fff', borderRadius: 12, padding: '12px 18px', cursor: 'pointer', boxShadow: '0 10px 24px rgba(35,86,216,0.24)' }}>{t('landing_cta_primary')}</button>
-            <button onClick={onSignIn} style={{ border: '1px solid rgba(0,0,0,0.14)', background: 'transparent', borderRadius: 12, padding: '12px 18px', cursor: 'pointer' }}>{t('landing_cta_secondary')}</button>
+      {/* ── Hero ── */}
+      <section className="landing-hero-section">
+        <div className="landing-hero-section-inner">
+          <div className="landing-hero-left" data-reveal style={reveal}>
+            <div className="landing-hero-badge">Early access · 100 free queries</div>
+            <h1 className="landing-hero-headline">{t('landing_headline')}</h1>
+            <p className="landing-hero-sub">{t('landing_subhead')}</p>
+            <div className="landing-hero-actions">
+              <button onClick={onSignUp} className="landing-btn-cta-primary">{t('landing_cta_primary')}</button>
+              <button onClick={onSignIn} className="landing-btn-cta-ghost">{t('landing_cta_secondary')}</button>
+            </div>
+            <div className="landing-hero-trust">
+              <span className="landing-trust-chip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                {t('badge_private') || 'Private'}
+              </span>
+              <span className="landing-trust-sep">·</span>
+              <span className="landing-trust-chip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
+                {t('badge_fast') || 'Fast'}
+              </span>
+              <span className="landing-trust-sep">·</span>
+              <span className="landing-trust-chip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+                {t('badge_cited') || 'Cited sources'}
+              </span>
+            </div>
           </div>
-          <div style={{ marginTop: 10, color: '#8a847c', fontSize: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span>🔒 {t('badge_private') || 'Private'}</span><span>·</span><span>⚡ {t('badge_fast') || 'Fast'}</span><span>·</span><span>📄 {t('badge_cited') || 'Cited sources'}</span>
+
+          <div className="landing-hero-demo-card" data-reveal style={{ ...reveal, transitionDelay: '80ms' }}>
+            <div className="landing-hero-demo-urlbar">{t('demo_url') || 'app.lexara.ai'}</div>
+            <div className="landing-hero-demo-msg landing-hero-demo-msg--user">{t('demo_q2') || 'What changed in the latest version?'}</div>
+            <div className="landing-hero-demo-msg landing-hero-demo-msg--assistant">
+              {t('demo_a2_intro') || 'Version 3.2 introduces three changes:'}
+              <div className="landing-hero-demo-list-item">1. {t('demo_a2_l1') || 'Better retrieval ranking for long legal docs.'}</div>
+              <div className="landing-hero-demo-list-item">2. {t('demo_a2_l2') || 'Faster indexing for DOCX and scanned PDFs.'}</div>
+              <div className="landing-hero-demo-list-item">3. {t('demo_a2_l3') || 'Updated usage analytics for clearer spend tracking.'}</div>
+            </div>
+            <div className="landing-hero-demo-msg landing-hero-demo-msg--user">{t('demo_q3') || 'Show source lines for the ranking update.'}</div>
+            <div className="landing-hero-demo-msg landing-hero-demo-msg--assistant">
+              {t('demo_references') || 'References: policy_v2.pdf · contract_notes.docx'}
+            </div>
+            <div className="landing-hero-demo-footer">{t('demo_powered') || 'Powered by GPT-4o'}</div>
           </div>
-        </div>
-        <div data-reveal style={{ ...reveal, transitionDelay: '80ms', background: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: 18, padding: 16, boxShadow: '0 32px 80px rgba(0,0,0,0.12)', position: 'relative', zIndex: 2 }}>
-          <div style={{ borderBottom: '1px solid rgba(0,0,0,0.08)', paddingBottom: 10, marginBottom: 12, fontFamily: 'var(--font-mono)', fontSize: 12 }}>{t('demo_url') || 'app.lexara.ai'}</div>
-          <div style={{ background: '#f6f7fb', borderRadius: 12, padding: 10, marginBottom: 8 }}>{t('demo_q2') || 'What changed in the latest version?'}</div>
-          <div style={{ background: '#ffffff', borderRadius: 12, border: '1px solid rgba(0,0,0,0.08)', padding: 10, marginBottom: 8 }}>
-            {t('demo_a2_intro') || 'Version 3.2 introduces three changes:'}
-            <div>1. {t('demo_a2_l1') || 'Better retrieval ranking for long legal docs.'}</div>
-            <div>2. {t('demo_a2_l2') || 'Faster indexing for DOCX and scanned PDFs.'}</div>
-            <div>3. {t('demo_a2_l3') || 'Updated usage analytics for clearer spend tracking.'}</div>
-          </div>
-          <div style={{ background: '#f6f7fb', borderRadius: 12, padding: 10, marginBottom: 8 }}>{t('demo_q3') || 'Show source lines for the ranking update.'}</div>
-          <div style={{ background: '#ffffff', borderRadius: 12, border: '1px solid rgba(0,0,0,0.08)', padding: 10 }}>
-            {t('demo_references') || 'References: policy_v2.pdf · contract_notes.docx'}
-          </div>
-          <div style={{ marginTop: 10, fontSize: 11, color: '#8a847c', textAlign: 'right' }}>{t('demo_powered') || 'Powered by GPT-4o'}</div>
         </div>
       </section>
 
-      <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)', borderBottom: '1px solid rgba(0,0,0,0.06)', padding: '14px 24px', textAlign: 'center', color: '#6b6560' }}>
-        <div style={{ marginBottom: 10 }}>Built for people who work with dense, complex documents</div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
+      {/* ── Trust strip ── */}
+      <div className="landing-trust-strip">
+        <div className="landing-trust-strip-label">Built for people who work with dense, complex documents</div>
+        <div className="landing-trust-chips">
           {['Contract review', 'Research synthesis', 'Document Q&A', 'Report analysis'].map((chip) => (
-            <span key={chip} style={{ borderRadius: 999, border: '1px solid rgba(0,0,0,0.1)', background: '#fff', padding: '6px 10px', fontSize: 12, color: '#6b6560' }}>
-              {chip}
-            </span>
+            <span key={chip} className="landing-trust-pill">{chip}</span>
           ))}
         </div>
       </div>
 
-      {/* DEMO MOCKUP */}
+      {/* ── Demo mockup ── */}
       <section className="landing-demo">
         <div className="landing-demo-window">
           <div className="landing-demo-titlebar">
@@ -238,8 +243,14 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
             <div className="landing-demo-assistant">
               <p>{t('demo_answer') || 'Per clause 14.2, either party may terminate this agreement with 30 days written notice. Immediate termination is permitted in cases of material breach (clause 14.3) or insolvency (clause 14.4).'}</p>
               <div className="landing-demo-sources">
-                <span className="landing-demo-source">📄 contract.pdf · clause 14.2</span>
-                <span className="landing-demo-source">📄 contract.pdf · clause 14.3</span>
+                <span className="landing-demo-source">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+                  contract.pdf · clause 14.2
+                </span>
+                <span className="landing-demo-source">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+                  contract.pdf · clause 14.3
+                </span>
               </div>
             </div>
           </div>
@@ -247,46 +258,73 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
             <span className="landing-demo-placeholder">
               {t('input_placeholder_ready') || 'Ask about your documents…'}
             </span>
-            <span className="landing-demo-send">→</span>
+            <span className="landing-demo-send">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
+            </span>
           </div>
         </div>
       </section>
 
-      <section id="features" style={{ maxWidth: 1120, margin: '0 auto', padding: '36px 24px', display: 'grid', gap: 12, gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
-        {featureCards.map(([num, titleKey, fallbackTitle, body, detail], i) => {
-          const translatedTitle = t(titleKey);
-          const title = translatedTitle === titleKey ? fallbackTitle : translatedTitle;
-          return (
-          <div key={num} data-reveal style={{ ...reveal, transitionDelay: `${i * 60}ms`, background: i % 2 ? '#fff' : '#fdfbf7', border: '1px solid rgba(0,0,0,0.08)', borderRadius: 14, padding: 20 }}>
-            <div style={{ fontFamily: 'var(--font-mono)', color: '#2356d8', marginBottom: 10 }}>{num}</div>
-            <h3 style={{ margin: '0 0 8px' }}>{title}</h3>
-            <p style={{ margin: '0 0 8px', color: '#6b6560' }}>{body}</p>
-            <div style={{ fontSize: 13, color: '#8a847c' }}>{detail}</div>
+      {/* ── Features ── */}
+      <section id="features" className="landing-features-section">
+        <div className="landing-features-inner">
+          <h2 className="landing-section-title" data-reveal style={reveal}>Features</h2>
+          <div className="landing-features-bento">
+            {featureCards.map(([num, titleKey, fallbackTitle, body, detail], i) => {
+              const translatedTitle = t(titleKey);
+              const title = translatedTitle === titleKey ? fallbackTitle : translatedTitle;
+              return (
+                <div key={num} className="landing-feature-bento-card" data-reveal style={{ ...reveal, transitionDelay: `${i * 60}ms` }}>
+                  <div className="landing-feature-num">{num}</div>
+                  <h3 className="landing-feature-title">{title}</h3>
+                  <p className="landing-feature-desc">{body}</p>
+                  <div className="landing-feature-detail">{detail}</div>
+                </div>
+              );
+            })}
           </div>
-          );
-        })}
-      </section>
-
-      <section id="pricing" style={{ background: '#1a1814', color: '#fff', padding: '44px 24px' }}>
-        <div style={{ maxWidth: 1120, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 14 }}>
-          {[
-            ['Free', '$0', ['100 queries/month', '1 workspace', '5 documents'], 'Try free', false],
-            ['Pro', '$19/mo', ['1,000 queries/month', '5 workspaces', 'Usage analytics'], 'Choose Pro', true],
-            ['Business', '$49/mo', ['5,000 queries/month', 'Unlimited workspaces', 'Priority support'], 'Choose Business', false],
-          ].map(([name, price, feats, cta, active]) => (
-            <div key={name} style={{ background: active ? '#2356d8' : 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 14, padding: 20 }}>
-              <h3 style={{ margin: '0 0 6px' }}>{name}</h3>
-              <div style={{ fontSize: 32, marginBottom: 12 }}>{price}</div>
-              <div style={{ minHeight: 90 }}>{feats.map((f) => <div key={f} style={{ marginBottom: 6 }}>✓ {f}</div>)}</div>
-              <button onClick={() => setPricingModal(name)} style={{ marginTop: 6, width: '100%', borderRadius: 10, border: 'none', padding: '10px 12px', cursor: 'pointer' }}>{cta}</button>
-            </div>
-          ))}
         </div>
-        <p style={{ textAlign: 'center', marginTop: 12, color: '#b4b2a9', fontSize: 12 }}>
-          Billed monthly via Paddle · Cancel anytime from your profile
-        </p>
       </section>
 
+      {/* ── Pricing ── */}
+      <section id="pricing" className="landing-pricing-section">
+        <div className="landing-pricing-inner">
+          <h2 className="landing-section-title landing-section-title--light" data-reveal style={reveal}>Pricing</h2>
+          <div className="landing-pricing-grid">
+            {[
+              ['Free', '$0', ['100 queries/month', '1 workspace', '5 documents'], 'Try free', false],
+              ['Pro', '$19/mo', ['1,000 queries/month', '5 workspaces', 'Usage analytics'], 'Choose Pro', true],
+              ['Business', '$49/mo', ['5,000 queries/month', 'Unlimited workspaces', 'Priority support'], 'Choose Business', false],
+            ].map(([name, price, feats, cta, active]) => (
+              <div key={name} className={`landing-pricing-card ${active ? 'landing-pricing-card--pro' : ''}`}>
+                <div className="landing-pricing-card-header">
+                  <h3 className="landing-pricing-plan-name">{name}</h3>
+                  <div className="landing-pricing-price">{price}</div>
+                </div>
+                <ul className="landing-pricing-features">
+                  {feats.map((f) => (
+                    <li key={f} className="landing-pricing-feature">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => setPricingModal(name)}
+                  className={`landing-pricing-btn ${active ? 'landing-pricing-btn--active' : ''}`}
+                >
+                  {cta}
+                </button>
+              </div>
+            ))}
+          </div>
+          <p className="landing-pricing-note">
+            Billed monthly via Paddle · Cancel anytime from your profile
+          </p>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
       <section className="landing-faq" id="faq">
         <div className="landing-faq-inner">
           <h2 className="landing-section-title">
@@ -307,6 +345,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
         </div>
       </section>
 
+      {/* ── Contact ── */}
       <section className="landing-contact" id="contact">
         <div className="landing-contact-inner">
           <h2 className="landing-section-title">
@@ -319,69 +358,63 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
         </div>
       </section>
 
-      <section style={{ maxWidth: 1120, margin: '0 auto', padding: '0 24px 36px' }}>
-        <div style={{ borderRadius: 16, background: 'linear-gradient(135deg,#2a5ce0,#2356d8)', color: '#fff', padding: '30px 24px', textAlign: 'center' }}>
-          <h3 style={{ margin: '0 0 10px', fontSize: 30 }}>{t('landing_cta_headline') || 'Ready to make documents answerable?'}</h3>
-          <button onClick={onSignUp} style={{ border: 'none', borderRadius: 12, background: '#fff', color: '#2356d8', padding: '10px 16px', cursor: 'pointer' }}>{t('landing_cta_start') || 'Start with Lexara'}</button>
+      {/* ── CTA banner ── */}
+      <section className="landing-cta-banner-section">
+        <div className="landing-cta-banner-inner">
+          <div className="landing-cta-banner">
+            <h3 className="landing-cta-banner-headline">{t('landing_cta_headline') || 'Ready to make documents answerable?'}</h3>
+            <button onClick={onSignUp} className="landing-cta-banner-btn">{t('landing_cta_start') || 'Start with Lexara'}</button>
+          </div>
         </div>
       </section>
 
-      <footer style={{ borderTop: '1px solid rgba(0,0,0,0.08)', padding: '20px 24px', color: '#6b6560' }}>
-        <div style={{ maxWidth: 1120, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* ── Footer ── */}
+      <footer className="landing-footer">
+        <div className="landing-footer-inner">
           <LexaraLogo height={32} />
-          <div>
+          <div className="landing-footer-links">
             © {new Date().getFullYear()} ·
-            <button onClick={onPrivacy} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b6560', margin: '0 6px' }}>{t('landing_footer_privacy') || 'Privacy'}</button>·
-            <button onClick={onTerms} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b6560', margin: '0 6px' }}>{t('landing_footer_terms') || 'Terms'}</button>· {t('landing_footer_contact') || 'Contact'}
+            <button onClick={onPrivacy} className="landing-footer-link">{t('landing_footer_privacy') || 'Privacy'}</button>·
+            <button onClick={onTerms} className="landing-footer-link">{t('landing_footer_terms') || 'Terms'}</button>·
+            <span>{t('landing_footer_contact') || 'Contact'}</span>
           </div>
         </div>
       </footer>
 
+      {/* ── Pricing modal ── */}
       {pricingModal && (
         <div
-          style={{
-            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            zIndex: 1000, padding: 24,
-          }}
+          className="pricing-modal-overlay"
           onClick={() => setPricingModal(null)}
         >
           <div
-            style={{ background: '#fff', borderRadius: 20, padding: 36, maxWidth: 420, width: '100%', textAlign: 'center' }}
+            className="pricing-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ fontSize: 32, marginBottom: 12 }}>✦</div>
-            <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>
+            <div className="pricing-modal-icon">✦</div>
+            <h3 className="pricing-modal-title">
               {pricingModal === 'Free' ? 'Start for free' : pricingModal === 'Pro' ? 'Upgrade to Pro' : 'Upgrade to Business'}
             </h3>
-            <p style={{ fontSize: 14, color: '#5a5650', marginBottom: 24, lineHeight: 1.6 }}>
+            <p className="pricing-modal-desc">
               {pricingModal === 'Free'
-                ? 'Create a free account — 50 queries/month, 1 workspace, 5 documents. No credit card required.'
+                ? 'Create a free account — 100 queries/month, 1 workspace, 5 documents. No credit card required.'
                 : pricingModal === 'Pro'
                 ? 'Get 1,000 queries/month and 5 workspaces for $19/mo. Billed monthly via Paddle. Cancel anytime from your profile.'
                 : 'Get 5,000 queries/month and unlimited workspaces for $49/mo. Billed monthly via Paddle. Cancel anytime.'}
             </p>
             <button
               onClick={() => { setPricingModal(null); onSignUp(); }}
-              style={{
-                width: '100%', height: 46, background: '#2356d8', color: '#fff',
-                border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 600,
-                cursor: 'pointer', marginBottom: 12,
-              }}
+              className="pricing-modal-btn pricing-modal-btn--primary"
             >
               {pricingModal === 'Free' ? 'Create free account →' : 'Create account to upgrade →'}
             </button>
             <button
               onClick={() => { setPricingModal(null); onSignIn(); }}
-              style={{
-                width: '100%', height: 46, background: 'transparent', color: '#5a5650',
-                border: '1px solid rgba(0,0,0,0.12)', borderRadius: 12,
-                fontSize: 14, cursor: 'pointer',
-              }}
+              className="pricing-modal-btn pricing-modal-btn--ghost"
             >
               Sign in to existing account
             </button>
-            <p style={{ fontSize: 11, color: '#b4b2a9', marginTop: 12 }}>
+            <p className="pricing-modal-note">
               {pricingModal === 'Free' ? 'No credit card · Your data stays private' : 'Cancel anytime from your profile page'}
             </p>
           </div>
