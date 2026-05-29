@@ -70,6 +70,35 @@ export default function RegisterPage({ onSuccess, onBackToLogin, onHome }) {
 
   return (
     <div className="auth-root">
+      <div className="auth-left-panel">
+        <div className="auth-left-content">
+          <LexaraLogo height={40} />
+          <p className="auth-left-tagline">Your documents, fully answerable</p>
+          <p className="auth-left-sub">100 free queries per month. No credit card required.</p>
+          <div className="auth-left-chips">
+            <div className="auth-left-chip">
+              <span className="auth-left-chip-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              Free plan — no card needed
+            </div>
+            <div className="auth-left-chip">
+              <span className="auth-left-chip-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              Data never used for training
+            </div>
+            <div className="auth-left-chip">
+              <span className="auth-left-chip-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </span>
+              Indexed within seconds
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="auth-right-panel">
       <div className="auth-container">
         <div className="auth-logo-row">
           <LexaraLogo height={36} onClick={onHome} style={{ cursor: 'pointer' }} />
@@ -147,6 +176,7 @@ export default function RegisterPage({ onSuccess, onBackToLogin, onHome }) {
             <button type="button" className="auth-back-btn" onClick={onBackToLogin} disabled={loading}>Back to sign in</button>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
