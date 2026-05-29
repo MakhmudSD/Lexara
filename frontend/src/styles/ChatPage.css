@@ -1,3 +1,12 @@
+@keyframes msg-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .message-row { animation: none !important; }
+}
+
 .chat-page {
   display: flex;
   width: 100%;
@@ -5,6 +14,7 @@
   overflow: hidden;
   gap: 16px;
   padding: 18px;
+  background: var(--color-bg);
 }
 
 .sidebar-toggle {
@@ -38,8 +48,8 @@
   width: 220px;
   min-width: 220px;
   height: 100%;
-  background: #f7f7f6;
-  border-right: 0.5px solid rgba(0,0,0,0.1);
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -50,8 +60,8 @@
 }
 
 .sidebar-divider {
-  height: 0.5px;
-  background: rgba(0,0,0,0.08);
+  height: 1px;
+  background: var(--color-border);
   margin: 6px 0;
 }
 
@@ -69,9 +79,9 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: var(--lexara-bg);
-  border: 1px solid var(--lexara-border);
-  border-radius: 24px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-md);
   position: relative;
 }
@@ -82,10 +92,10 @@
   justify-content: space-between;
   min-height: 58px;
   padding: 0 22px;
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--glass-bg);
   backdrop-filter: blur(10px) saturate(170%);
   -webkit-backdrop-filter: blur(10px) saturate(170%);
-  border-bottom: 1px solid var(--lexara-border);
+  border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
 }
 
@@ -139,10 +149,7 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  background:
-    radial-gradient(circle at top right, rgba(35, 86, 216, 0.06), transparent 30%),
-    radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.55), transparent 24%),
-    var(--lexara-bg);
+  background: var(--color-bg);
   position: relative;
 }
 
@@ -239,24 +246,26 @@
 .chat-input-area {
   flex-shrink: 0;
   padding: 10px 16px 14px;
-  border-top: 0.5px solid rgba(0,0,0,0.08);
-  background: #ffffff;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .chat-input-wrapper {
   display: flex;
   align-items: flex-end;
   gap: 8px;
-  background: #f7f7f6;
-  border: 0.5px solid rgba(0,0,0,0.14);
-  border-radius: 12px;
+  background: var(--color-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   padding: 8px 10px;
-  transition: border-color 150ms;
+  transition: border-color 150ms, box-shadow 150ms;
 }
 
 .chat-input-wrapper:focus-within {
-  border-color: #2356d8;
-  box-shadow: 0 0 0 2px rgba(35,86,216,0.08);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-glow);
 }
 
 .chat-input-wrapper.disabled {
@@ -269,7 +278,7 @@
   background: transparent;
   border: none;
   outline: none;
-  color: #1a1814;
+  color: var(--color-text-primary);
   font-family: inherit;
   font-size: 13px;
   line-height: 1.5;
@@ -279,30 +288,31 @@
 }
 
 .chat-input::placeholder {
-  color: #9d9b96;
+  color: var(--color-text-muted);
 }
 
 .send-btn {
   flex-shrink: 0;
   width: 32px;
   height: 32px;
-  border-radius: 8px;
-  background: #2356d8;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent);
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 120ms;
+  transition: background 120ms, box-shadow 120ms;
   color: white;
 }
 
 .send-btn:hover:not(:disabled) {
-  background: #1a42b0;
+  background: var(--color-accent-hover);
+  box-shadow: var(--shadow-glow);
 }
 
 .send-btn:disabled {
-  background: rgba(0,0,0,0.12);
+  background: var(--color-border);
   cursor: not-allowed;
 }
 
@@ -402,17 +412,18 @@
 }
 
 .session-item:hover {
-  background: rgba(0,0,0,0.04);
+  background: var(--color-elevated);
 }
 
 .session-item.active {
-  background: rgba(35,86,216,0.06);
+  background: var(--lexara-blue-light);
+  border-left: 2px solid var(--color-accent);
 }
 
 .session-title {
   font-size: 13px;
   font-weight: 500;
-  color: #1a1814;
+  color: var(--color-text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -421,7 +432,7 @@
 
 .session-date {
   font-size: 11px;
-  color: #9d9b96;
+  color: var(--color-text-muted);
   margin-top: 1px;
 }
 
@@ -617,11 +628,11 @@
 .onboarding-step-title {
   font-size: 13px;
   font-weight: 500;
-  color: #1a1814;
+  color: var(--color-text-primary);
 }
 
 .onboarding-step-sub {
   font-size: 11px;
-  color: #6b6860;
+  color: var(--color-text-secondary);
   margin-top: 1px;
 }
