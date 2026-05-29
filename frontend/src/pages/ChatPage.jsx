@@ -270,11 +270,22 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
   const handleFileUpload = useCallback(async (file) => {
     if (!file || !workspaceId || !hasWorkspaceName) return;
     setIsUploading(true);
+    setUploadStatus((t('uploading_file') || 'Uploading {name}...').replace('{name}', file.name));
     setUploadProgress(0);
-    setUploadStatus('');
     try {
       await uploadDocument(file, workspaceId, null, (pct) => setUploadProgress(pct));
-      setUploadStatus(t('upload_success'));
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          role: 'system',
+          content: (t('upload_success') || '{name} uploaded and indexed. Ask your first question!').replace('{name}', file.name),
+          timestamp: new Date().toISOString(),
+        },
+      ]);
+      setUploadStatus('');
+      setUploadProgress(100);
+      setTimeout(() => setUploadProgress(0), 2000);
     } catch (err) {
       setUploadStatus(`✗ ${err.response?.data?.error?.message || t('upload_failed')}`);
     } finally {

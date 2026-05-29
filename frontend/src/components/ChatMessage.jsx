@@ -105,9 +105,17 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
     : null;
 
   const tier = topScore === null ? null
-    : topScore >= 0.75 ? 'high'
-    : topScore >= 0.55 ? 'medium'
+    : topScore >= 0.7 ? 'high'
+    : topScore >= 0.4 ? 'medium'
     : 'low';
+
+  if (role === 'system') {
+    return (
+      <div className="chat-message-system">
+        <span>{content}</span>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -181,10 +189,14 @@ export default function ChatMessage({ role, content, sources, isLoading, mode, i
 
             {tier === 'medium' && (
               <div className="confidence-badge confidence-medium">
-                {t('confidence_medium')}
+                {t('source_medium') || 'Relevant'}
               </div>
             )}
-            {tier === 'low' && <div className="confidence-badge confidence-low">{t('confidence_low')}</div>}
+            {tier === 'low' && (
+              <div className="confidence-badge confidence-low">
+                {t('source_low') || 'Possibly relevant'}
+              </div>
+            )}
           </div>
           {tier === 'high' && <div className="confidence-high-note">{t('from_your_documents')}</div>}
           {tier === 'low' && <div className="confidence-tip">{t('confidence_tip')}</div>}

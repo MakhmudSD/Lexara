@@ -3,18 +3,82 @@ import { LexaraLogo } from '../assets/LexaraLogo';
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/LandingPage.css';
 
-const faqItems = [
-  ['How fast is indexing?', 'Most PDFs and DOCX files are searchable in seconds after upload.'],
-  ['Can I use Lexara without a card?', 'Yes. Early access includes free queries and no credit card requirement.'],
-  ['Does it support multilingual docs?', 'Yes, Lexara can retrieve and answer across multilingual content.'],
-  ['Can I track token spend?', 'Yes, monitor token usage, costs, and latency in the Usage tab.'],
-  ['Is enterprise deployment available?', 'Yes, contact us for private cloud and compliance-ready deployments.'],
-];
+function FAQItem({ question, answer }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={`faq-item ${open ? 'open' : ''}`}>
+      <button
+        className="faq-question"
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+      >
+        <span>{question}</span>
+        <span className="faq-chevron">{open ? '−' : '+'}</span>
+      </button>
+      {open && (
+        <div className="faq-answer">
+          {answer}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ContactForm({ t }) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [sent, setSent] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const subject = encodeURIComponent(`Lexara inquiry from ${name}`);
+    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+    window.open(`mailto:support@lexara.app?subject=${subject}&body=${body}`);
+    setSent(true);
+    setTimeout(() => setSent(false), 5000);
+  };
+
+  return (
+    <form className="contact-form" onSubmit={handleSubmit}>
+      <div className="contact-form-row">
+        <input
+          type="text"
+          className="contact-input"
+          placeholder={t('contact_name') || 'Your name'}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <input
+          type="email"
+          className="contact-input"
+          placeholder={t('contact_email') || 'Your email'}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+      </div>
+      <textarea
+        className="contact-input contact-textarea"
+        placeholder={t('contact_message') || 'Your message...'}
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        rows={4}
+        required
+      />
+      <button type="submit" className="landing-btn-primary">
+        {sent
+          ? (t('contact_sent') || 'Opening email client...')
+          : (t('contact_send') || 'Send message →')}
+      </button>
+    </form>
+  );
+}
 
 export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) {
   const { t, lang, setLang, languageOptions } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
-  const [openFaq, setOpenFaq] = useState(0);
   const [pricingModal, setPricingModal] = useState(null);
 
   const featureCards = [
@@ -292,18 +356,36 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
         </p>
       </section>
 
-      <section id="faq" style={{ maxWidth: 980, margin: '0 auto', padding: '40px 24px' }}>
-        <h2 style={{ marginTop: 0 }}>FAQ</h2>
-        {faqItems.map(([q, a], index) => (
-          <div key={q} style={{ borderBottom: '1px solid rgba(0,0,0,0.08)', padding: '12px 0' }}>
-            <button onClick={() => setOpenFaq(openFaq === index ? -1 : index)} style={{ width: '100%', textAlign: 'left', border: 'none', background: 'transparent', padding: 0, cursor: 'pointer', fontSize: 16 }}>
-              {q}
-            </button>
-            <div style={{ maxHeight: openFaq === index ? 120 : 0, overflow: 'hidden', transition: 'max-height 240ms ease', color: '#6b6560' }}>
-              <div style={{ paddingTop: 8 }}>{a}</div>
-            </div>
+      <section className="landing-faq" id="faq">
+        <div className="landing-faq-inner">
+          <h2 className="landing-section-title">
+            {t('faq_title') || 'Frequently Asked Questions'}
+          </h2>
+          <div className="landing-faq-grid">
+            {[
+              { q: t('faq_q1') || 'How fast is document indexing?', a: t('faq_a1') || 'Most PDFs and DOCX files are searchable within seconds of upload. Larger documents (50MB+) may take up to 30 seconds.' },
+              { q: t('faq_q2') || 'Can I use Lexara without a credit card?', a: t('faq_a2') || 'Yes. The Free plan requires no payment. Upload up to 5 documents and send 50 queries per month completely free.' },
+              { q: t('faq_q3') || 'Does it support multilingual documents?', a: t('faq_a3') || 'Yes. You can upload documents in any language and ask questions in English, Uzbek, Russian, Korean, or Japanese.' },
+              { q: t('faq_q4') || 'Are my documents private?', a: t('faq_a4') || 'Yes. Your documents are stored in isolated workspaces and are never used to train our models or shared with other users.' },
+              { q: t('faq_q5') || 'What file formats are supported?', a: t('faq_a5') || 'PDF, DOCX, and TXT files up to 50MB. Support for XLSX and PPTX is on our roadmap.' },
+              { q: t('faq_q6') || 'Can I cancel my subscription anytime?', a: t('faq_a6') || 'Yes. Cancel anytime from your profile page. You keep access until the end of your billing period.' },
+            ].map((item, i) => (
+              <FAQItem key={i} question={item.q} answer={item.a} />
+            ))}
           </div>
-        ))}
+        </div>
+      </section>
+
+      <section className="landing-contact" id="contact">
+        <div className="landing-contact-inner">
+          <h2 className="landing-section-title">
+            {t('contact_title') || 'Get in touch'}
+          </h2>
+          <p className="landing-contact-sub">
+            {t('contact_sub') || 'Have a question or want to discuss a custom plan? We respond within 24 hours.'}
+          </p>
+          <ContactForm t={t} />
+        </div>
       </section>
 
       <section style={{ maxWidth: 1120, margin: '0 auto', padding: '0 24px 36px' }}>
