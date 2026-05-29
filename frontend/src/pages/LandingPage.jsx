@@ -183,7 +183,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
       <section style={{ maxWidth: 1120, margin: '0 auto', padding: '56px 24px 30px', display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 32, position: 'relative', overflow: 'hidden' }}>
         <div className="landing-hero-bg" />
         <div data-reveal style={{ ...reveal, position: 'relative', zIndex: 2 }}>
-          <div style={{ display: 'inline-flex', padding: '6px 10px', borderRadius: 999, background: '#fff', border: '1px solid rgba(0,0,0,0.08)', fontSize: 12, marginBottom: 20 }}>Early access · 50 free queries</div>
+          <div style={{ display: 'inline-flex', padding: '6px 10px', borderRadius: 999, background: '#fff', border: '1px solid rgba(0,0,0,0.08)', fontSize: 12, marginBottom: 20 }}>Early access · 100 free queries</div>
           <h1 style={{ fontSize: 68, lineHeight: 0.95, letterSpacing: '-0.03em', margin: '0 0 16px' }}>{t('landing_headline')}</h1>
           <p style={{ maxWidth: 500, color: '#6b6560', fontSize: 18, lineHeight: 1.5, margin: '0 0 24px' }}>{t('landing_subhead')}</p>
           <div style={{ display: 'flex', gap: 12 }}>
@@ -270,7 +270,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
       <section id="pricing" style={{ background: '#1a1814', color: '#fff', padding: '44px 24px' }}>
         <div style={{ maxWidth: 1120, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 14 }}>
           {[
-            ['Free', '$0', ['50 queries/month', '1 workspace', '5 documents'], 'Try free', false],
+            ['Free', '$0', ['100 queries/month', '1 workspace', '5 documents'], 'Try free', false],
             ['Pro', '$19/mo', ['1,000 queries/month', '5 workspaces', 'Usage analytics'], 'Choose Pro', true],
             ['Business', '$49/mo', ['5,000 queries/month', 'Unlimited workspaces', 'Priority support'], 'Choose Business', false],
           ].map(([name, price, feats, cta, active]) => (
