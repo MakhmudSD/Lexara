@@ -23,7 +23,7 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
     setLoginError('');
     try {
       const data = await login(email.trim(), password);
-      localStorage.setItem('authToken', data.access_token);
+      localStorage.setItem('access_token', data.access_token);
       localStorage.setItem('authUser', JSON.stringify({
         id: data.user_id,
         email: data.email,

@@ -39,7 +39,7 @@ export default function RegisterPage({ onSuccess, onBackToLogin, onHome }) {
     setError('');
     try {
       const data = await register(email.trim(), password, fullName.trim(), referralCode);
-      localStorage.setItem('authToken', data.access_token);
+      localStorage.setItem('access_token', data.access_token);
       localStorage.setItem('authUser', JSON.stringify({
         id: data.user_id,
         email: data.email,
