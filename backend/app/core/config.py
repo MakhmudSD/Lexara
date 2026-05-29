@@ -55,6 +55,12 @@ class Settings(BaseSettings):
     environment: str = "development"
     sentry_dsn: str | None = None
     
+    # Cloudflare R2 (S3-compatible) — leave blank to use local disk fallback
+    r2_endpoint_url: str = ""        # https://<account_id>.r2.cloudflarestorage.com
+    r2_access_key_id: str = ""
+    r2_secret_access_key: str = ""
+    r2_bucket_name: str = ""
+
     # Redis
     redis_url: str | None = None
     embedding_cache_ttl_seconds: int = 60 * 60 * 24  # 24 hours
@@ -124,6 +130,10 @@ def get_settings() -> Settings:
         debug=os.getenv("DEBUG", "false").lower() == "true",
         environment=os.getenv("ENVIRONMENT", "development"),
         sentry_dsn=os.getenv("SENTRY_DSN") or None,
+        r2_endpoint_url=os.getenv("R2_ENDPOINT_URL", ""),
+        r2_access_key_id=os.getenv("R2_ACCESS_KEY_ID", ""),
+        r2_secret_access_key=os.getenv("R2_SECRET_ACCESS_KEY", ""),
+        r2_bucket_name=os.getenv("R2_BUCKET_NAME", ""),
         redis_url=os.getenv("REDIS_URL", None),
         embedding_cache_ttl_seconds=int(os.getenv("EMBEDDING_CACHE_TTL", str(60 * 60 * 24))),
         retrieval_cache_ttl_seconds=int(os.getenv("RETRIEVAL_CACHE_TTL", str(60 * 5))),

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from uuid import UUID
 
@@ -14,6 +15,8 @@ from app.crud.workspace import get_workspace_or_404
 from app.db.models import Document
 from app.services.chunking import chunk_text
 
+logger = logging.getLogger(__name__)
+
 
 def process_text_document(
     db: Session,
@@ -25,14 +28,19 @@ def process_text_document(
     raw_text: str,
     file_bytes: bytes,
 ) -> tuple[Document, list[str]]:
-    """Persist the uploaded document and return chunks for background indexing."""
+    """Persist the uploaded document and return chunks for background indexing.
+
+    Storage strategy (in priority order):
+    1. Cloudflare R2 — if R2_* env vars are set, upload the original file bytes
+       and set storage_path = "r2://<bucket>/<workspace_id>/<doc_id>/<filename>"
+    2. Local disk fallback — write raw_text to uploads_data_dir as .txt.
+       storage_path = absolute local path.  Works in development and on servers
+       that mount persistent volumes.
+    """
     workspace = get_workspace_or_404(db, workspace_id)
 
     if not raw_text.strip():
         raise AppError(400, "empty_document", "The uploaded document did not contain text.")
-
-    uploads_dir = Path(settings.uploads_data_dir)
-    uploads_dir.mkdir(parents=True, exist_ok=True)
 
     document = document_crud.create_document(
         db,
@@ -44,13 +52,27 @@ def process_text_document(
         storage_path="pending",
         raw_text=raw_text,
     )
-
-    storage_path = uploads_dir / str(workspace.id) / f"{document.id}.txt"
-    storage_path.parent.mkdir(parents=True, exist_ok=True)
-    storage_path.write_text(raw_text, encoding="utf-8")
-    document.storage_path = str(storage_path)
     document.chunk_count = 0
     document.is_processed = False
+
+    # --- Storage: R2 first, local fallback ---
+    from app.services import r2_storage
+
+    if r2_storage.is_configured(settings):
+        try:
+            document.storage_path = r2_storage.upload_file(
+                settings,
+                workspace_id=str(workspace.id),
+                document_id=str(document.id),
+                filename=filename,
+                data=file_bytes,
+                content_type=content_type,
+            )
+        except Exception as exc:
+            logger.warning("R2 upload failed, falling back to local disk: %s", exc)
+            document.storage_path = _write_local(settings, workspace.id, document.id, raw_text)
+    else:
+        document.storage_path = _write_local(settings, workspace.id, document.id, raw_text)
 
     chunks = chunk_text(
         raw_text,
@@ -63,3 +85,12 @@ def process_text_document(
     db.commit()
     db.refresh(document)
     return document, chunks
+
+
+def _write_local(settings: Settings, workspace_id: UUID, document_id: UUID, raw_text: str) -> str:
+    """Write raw_text to local disk and return the absolute path."""
+    uploads_dir = Path(settings.uploads_data_dir)
+    local_path = uploads_dir / str(workspace_id) / f"{document_id}.txt"
+    local_path.parent.mkdir(parents=True, exist_ok=True)
+    local_path.write_text(raw_text, encoding="utf-8")
+    return str(local_path)

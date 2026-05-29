@@ -113,12 +113,36 @@ def upload_document(
 def download_document(
     document_id: UUID,
     db: Session = Depends(get_db),
-) -> FileResponse:
+    runtime: AppRuntime = Depends(get_runtime),
+):
     from app.crud.document import get_document_or_404
-    doc = get_document_or_404(db, document_id)
+    from app.services import r2_storage
 
+    doc = get_document_or_404(db, document_id)
+    storage_path = doc.storage_path or ""
+
+    # --- R2 path: storage_path starts with "r2://" ---
+    if storage_path.startswith("r2://"):
+        try:
+            file_bytes = r2_storage.download_file(runtime.settings, storage_path)
+        except Exception as exc:
+            logger.warning("R2 download failed for doc %s: %s", document_id, exc)
+            raise AppError(
+                404,
+                "file_not_found",
+                f"File '{doc.filename}' could not be retrieved from storage.",
+            )
+        from fastapi.responses import Response
+        return Response(
+            content=file_bytes,
+            media_type="application/octet-stream",
+            headers={"Content-Disposition": f'attachment; filename="{doc.filename}"'},
+        )
+
+    # --- Local disk fallback: legacy paths and development ---
     upload_dir = os.getenv("UPLOADS_DATA_DIR", "data/uploads")
     possible_paths = [
+        storage_path,  # absolute path stored at upload time (most common)
         os.path.join(upload_dir, str(document_id), doc.filename),
         os.path.join(upload_dir, doc.filename),
         os.path.join(upload_dir, f"{document_id}_{doc.filename}"),
@@ -126,7 +150,7 @@ def download_document(
 
     file_path = None
     for path in possible_paths:
-        if os.path.exists(path):
+        if path and os.path.exists(path):
             file_path = path
             break
 
@@ -134,8 +158,8 @@ def download_document(
         raise AppError(
             404,
             "file_not_found",
-            f"File '{doc.filename}' is no longer available on this server. "
-            "Files may be lost after server restarts. S3 storage coming soon.",
+            f"File '{doc.filename}' is no longer available. "
+            "Upload the document again or configure R2 for persistent storage.",
         )
 
     return FileResponse(
