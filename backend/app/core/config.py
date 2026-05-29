@@ -59,6 +59,12 @@ class Settings(BaseSettings):
     redis_url: str | None = None
     embedding_cache_ttl_seconds: int = 60 * 60 * 24  # 24 hours
     retrieval_cache_ttl_seconds: int = 60 * 5  # 5 minutes
+    # Paddle billing
+    paddle_api_key: str = ""
+    paddle_client_token: str = ""
+    paddle_price_pro: str = ""
+    paddle_price_business: str = ""
+
     jwt_secret_key: str = "change-me-in-production-32-chars-min"
     jwt_algorithm: str = "HS256"
     jwt_expire_hours: int = 24

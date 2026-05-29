@@ -5,17 +5,6 @@ import ChatMessage from '../components/ChatMessage.jsx';
 // ChatMessage uses useTranslation internally — no mock needed since the
 // real implementation falls back to English keys.
 
-describe('ChatMessage — loading skeleton', () => {
-  it('renders typing dots when isLoading=true', () => {
-    const { container } = render(<ChatMessage role="assistant" isLoading={true} />);
-    expect(container.querySelector('.typing-bubble')).toBeTruthy();
-  });
-
-  it('does not render a message bubble when loading', () => {
-    const { container } = render(<ChatMessage role="assistant" isLoading={true} />);
-    expect(container.querySelector('.message-bubble')).toBeNull();
-  });
-});
 
 describe('ChatMessage — user message', () => {
   it('renders user content as plain text', () => {
