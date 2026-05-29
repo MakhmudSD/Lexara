@@ -1,3 +1,52 @@
+/* ── Animated mesh gradient properties ── */
+@property --hero-c1 {
+  syntax: '<color>';
+  initial-value: #0a0a0f;
+  inherits: false;
+}
+@property --hero-c2 {
+  syntax: '<color>';
+  initial-value: #0f1428;
+  inherits: false;
+}
+@property --hero-c3 {
+  syntax: '<color>';
+  initial-value: #1a0a2e;
+  inherits: false;
+}
+
+@keyframes heroMesh {
+  0%, 100% {
+    --hero-c1: #0a0a0f;
+    --hero-c2: #0f1428;
+    --hero-c3: #1a0a2e;
+  }
+  33% {
+    --hero-c1: #0f1428;
+    --hero-c2: #1a0a2e;
+    --hero-c3: #0a0a0f;
+  }
+  66% {
+    --hero-c1: #1a0a2e;
+    --hero-c2: #0a0a0f;
+    --hero-c3: #0f1428;
+  }
+}
+
+/* ── Scroll reveal ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 640ms cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms),
+    transform 640ms cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms);
+}
+
+.reveal--in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* ── Base ── */
 .landing {
   min-height: 100dvh;
@@ -121,10 +170,15 @@
   outline: none;
 }
 
-/* ── Hero Section (always dark) ── */
+/* ── Hero Section (animated mesh gradient) ── */
 .landing-hero-section {
-  background: linear-gradient(135deg, #0a0a0f 0%, #0f1428 50%, #111827 100%);
-  padding: 72px 32px 80px;
+  background:
+    radial-gradient(ellipse 65% 80% at 15% 25%, var(--hero-c3) 0%, transparent 55%),
+    radial-gradient(ellipse 75% 55% at 85% 75%, var(--hero-c2) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 85% at 55% 5%, var(--hero-c2) 0%, transparent 50%),
+    var(--hero-c1);
+  animation: heroMesh 8s ease-in-out infinite;
+  padding: 88px 32px 96px;
   position: relative;
   overflow: hidden;
 }
@@ -134,17 +188,18 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 60% 40%, rgba(74, 122, 255, 0.12) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 80% at 20% 80%, rgba(124, 58, 237, 0.06) 0%, transparent 70%);
+    radial-gradient(ellipse 80% 60% at 60% 40%, rgba(74, 122, 255, 0.10) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 70% at 20% 80%, rgba(124, 58, 237, 0.07) 0%, transparent 65%);
   pointer-events: none;
+  z-index: 1;
 }
 
 .landing-hero-section-inner {
   max-width: 1120px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: 40px;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 48px;
   align-items: center;
   position: relative;
   z-index: 2;
@@ -169,12 +224,13 @@
 }
 
 .landing-hero-headline {
-  font-size: 64px;
+  font-size: 62px;
   font-weight: 700;
-  line-height: 0.95;
-  letter-spacing: -0.03em;
+  line-height: 0.96;
+  letter-spacing: -0.04em;
   color: #ffffff;
   margin: 0;
+  text-shadow: 0 0 80px rgba(74, 122, 255, 0.15);
 }
 
 .landing-hero-sub {
@@ -468,12 +524,13 @@
 }
 
 .landing-section-title {
-  font-size: 28px;
+  font-size: 38px;
   font-weight: 700;
   color: var(--color-text-primary);
-  letter-spacing: -0.03em;
-  margin: 0 0 36px;
+  letter-spacing: -0.04em;
+  margin: 0 0 48px;
   text-align: center;
+  line-height: 1.05;
 }
 
 .landing-section-title--light {
@@ -487,16 +544,33 @@
 }
 
 .landing-feature-bento-card {
-  padding: 24px;
+  padding: 28px;
   background: var(--color-elevated);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
+  transition: border-color 200ms ease-out, box-shadow 200ms ease-out, transform 200ms ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.landing-feature-bento-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 80% at 50% -20%, rgba(74, 122, 255, 0.06) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 200ms ease-out;
+  pointer-events: none;
 }
 
 .landing-feature-bento-card:hover {
-  border-color: var(--color-accent);
-  box-shadow: var(--shadow-md);
+  border-color: rgba(74, 122, 255, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(74, 122, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.landing-feature-bento-card:hover::before {
+  opacity: 1;
 }
 
 .landing-feature-num {
@@ -804,21 +878,26 @@
 
 .landing-cta-banner {
   border-radius: var(--radius-xl);
-  background: linear-gradient(135deg, #1a3fa8, var(--color-accent));
+  background:
+    radial-gradient(ellipse 70% 120% at 30% 50%, rgba(74, 122, 255, 0.18) 0%, transparent 60%),
+    linear-gradient(135deg, #0d1a3a 0%, #0f1428 50%, #1a0a2e 100%);
+  border: 1px solid rgba(74, 122, 255, 0.25);
   color: #ffffff;
-  padding: 40px 32px;
+  padding: 56px 40px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 24px;
+  box-shadow: 0 0 80px rgba(74, 122, 255, 0.12);
 }
 
 .landing-cta-banner-headline {
-  font-size: 28px;
+  font-size: 36px;
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
   margin: 0;
+  line-height: 1.05;
 }
 
 .landing-cta-banner-btn {
@@ -970,13 +1049,15 @@
   .landing-nav-links { display: none; }
   .landing-nav-right .landing-btn-ghost { display: none; }
 
-  .landing-hero-section { padding: 48px 20px 56px; }
+  .landing-hero-section { padding: 56px 20px 64px; }
   .landing-hero-section-inner {
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 36px;
   }
-  .landing-hero-headline { font-size: 40px; }
+  .landing-hero-headline { font-size: 40px; letter-spacing: -0.03em; }
   .landing-hero-sub { font-size: 16px; }
+  .landing-section-title { font-size: 28px; margin-bottom: 32px; }
+  .landing-cta-banner-headline { font-size: 26px; }
 
   .landing-trust-strip { padding: 14px 20px; }
 

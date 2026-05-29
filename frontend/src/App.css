@@ -177,19 +177,122 @@
   display: flex;
 }
 
-@media (max-width: 840px) {
-  .app-nav {
-    padding: 10px 16px;
-    height: auto;
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 12px;
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.hamburger span {
+  display: block;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--color-text-secondary);
+  transition: background 150ms ease;
+}
+
+.hamburger:hover span {
+  background: var(--color-text-primary);
+}
+
+.mobile-nav-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 200;
+  backdrop-filter: blur(2px);
+  animation: fadeIn 200ms ease;
+}
+
+.mobile-nav-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100dvh;
+  width: 260px;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  z-index: 201;
+  transform: translateX(-100%);
+  transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.mobile-nav-sidebar.open {
+  transform: translateX(0);
+}
+
+.mobile-nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border);
+  height: 56px;
+}
+
+.mobile-nav-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.mobile-nav-close:hover {
+  background: var(--color-elevated);
+  color: var(--color-text-primary);
+}
+
+.mobile-nav-links {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 12px;
+  gap: 4px;
+}
+
+.mobile-nav-links .nav-button {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 10px 14px;
+  font-size: 14px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: flex;
   }
 
   .nav-controls {
-    width: 100%;
-    justify-content: space-between;
-    flex-wrap: wrap;
+    display: none;
+  }
+}
+
+@media (max-width: 840px) {
+  .app-nav {
+    padding: 0 16px;
   }
 }
 

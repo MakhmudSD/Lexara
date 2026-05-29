@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LexaraLogo } from '../assets/LexaraLogo';
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/LandingPage.css';
@@ -109,32 +109,25 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const nodes = document.querySelectorAll('.reveal');
     if (prefersReducedMotion) {
-      document.querySelectorAll('[data-reveal]').forEach((el) => {
-        el.style.opacity = '1';
-        el.style.transform = 'none';
-      });
+      nodes.forEach((el) => el.classList.add('reveal--in'));
       return;
     }
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) entry.target.style.opacity = '1';
-          if (entry.isIntersecting) entry.target.style.transform = 'translateY(0px)';
+          if (entry.isIntersecting) {
+            entry.target.classList.add('reveal--in');
+            observer.unobserve(entry.target);
+          }
         });
       },
-      { threshold: 0.15 },
+      { threshold: 0.12, rootMargin: '0px 0px -32px 0px' },
     );
-    const nodes = document.querySelectorAll('[data-reveal]');
     nodes.forEach((n) => observer.observe(n));
     return () => observer.disconnect();
   }, []);
-
-  const reveal = useMemo(() => ({
-    opacity: 0,
-    transform: 'translateY(18px)',
-    transition: 'all 500ms ease',
-  }), []);
 
   const scrollToSection = (event, id) => {
     event.preventDefault();
@@ -173,7 +166,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
       {/* ── Hero ── */}
       <section className="landing-hero-section">
         <div className="landing-hero-section-inner">
-          <div className="landing-hero-left" data-reveal style={reveal}>
+          <div className="landing-hero-left reveal">
             <div className="landing-hero-badge">Early access · 100 free queries</div>
             <h1 className="landing-hero-headline">{t('landing_headline')}</h1>
             <p className="landing-hero-sub">{t('landing_subhead')}</p>
@@ -199,7 +192,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
             </div>
           </div>
 
-          <div className="landing-hero-demo-card" data-reveal style={{ ...reveal, transitionDelay: '80ms' }}>
+          <div className="landing-hero-demo-card reveal" style={{ '--reveal-delay': '120ms' }}>
             <div className="landing-hero-demo-urlbar">{t('demo_url') || 'app.lexara.ai'}</div>
             <div className="landing-hero-demo-msg landing-hero-demo-msg--user">{t('demo_q2') || 'What changed in the latest version?'}</div>
             <div className="landing-hero-demo-msg landing-hero-demo-msg--assistant">
@@ -268,13 +261,13 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
       {/* ── Features ── */}
       <section id="features" className="landing-features-section">
         <div className="landing-features-inner">
-          <h2 className="landing-section-title" data-reveal style={reveal}>Features</h2>
+          <h2 className="landing-section-title reveal">Features</h2>
           <div className="landing-features-bento">
             {featureCards.map(([num, titleKey, fallbackTitle, body, detail], i) => {
               const translatedTitle = t(titleKey);
               const title = translatedTitle === titleKey ? fallbackTitle : translatedTitle;
               return (
-                <div key={num} className="landing-feature-bento-card" data-reveal style={{ ...reveal, transitionDelay: `${i * 60}ms` }}>
+                <div key={num} className="landing-feature-bento-card reveal" style={{ '--reveal-delay': `${i * 80}ms` }}>
                   <div className="landing-feature-num">{num}</div>
                   <h3 className="landing-feature-title">{title}</h3>
                   <p className="landing-feature-desc">{body}</p>
@@ -289,7 +282,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
       {/* ── Pricing ── */}
       <section id="pricing" className="landing-pricing-section">
         <div className="landing-pricing-inner">
-          <h2 className="landing-section-title landing-section-title--light" data-reveal style={reveal}>Pricing</h2>
+          <h2 className="landing-section-title landing-section-title--light reveal">Pricing</h2>
           <div className="landing-pricing-grid">
             {[
               ['Free', '$0', ['100 queries/month', '1 workspace', '5 documents'], 'Try free', false],

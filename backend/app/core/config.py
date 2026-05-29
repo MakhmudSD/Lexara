@@ -71,6 +71,10 @@ class Settings(BaseSettings):
     paddle_price_pro: str = ""
     paddle_price_business: str = ""
 
+    # Email (Resend)
+    resend_api_key: str = ""
+    from_email: str = "noreply@lexara.app"
+
     jwt_secret_key: str = "change-me-in-production-32-chars-min"
     jwt_algorithm: str = "HS256"
     jwt_expire_hours: int = 24
@@ -145,4 +149,6 @@ def get_settings() -> Settings:
         chat_max_tokens=int(os.getenv("CHAT_MAX_TOKENS", "600")),
         chat_frequency_penalty=float(os.getenv("CHAT_FREQUENCY_PENALTY", "0.1")),
         enable_reranking=os.getenv("ENABLE_RERANKING", "false").lower() == "true",
+        resend_api_key=os.getenv("RESEND_API_KEY", ""),
+        from_email=os.getenv("FROM_EMAIL", "noreply@lexara.app"),
     )
