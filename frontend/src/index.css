@@ -1,49 +1,127 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
 
 :root {
-  /* Core palette */
-  --bg-base:     #0e0e0e;
-  --bg-surface:  #141414;
-  --bg-elevated: #1a1a1a;
-  --bg-hover:    #212121;
-  --bg-active:   #262626;
+  /* Brand */
+  --lexara-blue: #2356d8;
+  --lexara-blue-hover: #1a45c0;
+  --lexara-blue-light: #eef2ff;
+  --lexara-blue-subtle: rgba(35, 86, 216, 0.08);
 
-  /* Borders */
-  --border-subtle:  rgba(255,255,255,0.06);
-  --border-default: rgba(255,255,255,0.10);
-  --border-strong:  rgba(255,255,255,0.18);
+  /* Backgrounds */
+  --lexara-bg: #f7f5f0;
+  --lexara-bg-secondary: #f0ede8;
+  --lexara-text: #1a1814;
+  --lexara-text-secondary: #6b6560;
+  --lexara-text-tertiary: #a09890;
+  --lexara-border: rgba(0, 0, 0, 0.07);
+  --lexara-border-strong: rgba(0, 0, 0, 0.12);
+  --lexara-white: #ffffff;
+  --lexara-surface: rgba(255, 255, 255, 0.7);
 
-  /* Text */
-  --text-primary:   #e8e4dc;
-  --text-secondary: #9e9a96;
-  --text-tertiary:  #7a7876;
-  --text-inverse:   #0e0e0e;
+  /* New unified design tokens (light) */
+  --color-bg: #f7f5f0;
+  --color-surface: #ffffff;
+  --color-elevated: #f0ede8;
+  --color-border: rgba(0,0,0,0.08);
+  --color-text-primary: #1a1814;
+  --color-text-secondary: #6b6560;
+  --color-text-muted: #9d9b96;
+  --color-accent: #2356d8;
+  --color-accent-hover: #1a44b8;
+  --color-accent-glow: rgba(35,86,216,0.25);
+  --glass-bg: rgba(255,255,255,0.7);
+  --glass-border: rgba(0,0,0,0.08);
 
-  /* Accent — warm amber */
-  --accent:         #c8922a;
-  --accent-bright:  #e8a83a;
-  --accent-muted:   rgba(200,146,42,0.12);
-  --accent-glow:    rgba(200,146,42,0.08);
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.10), 0 4px 8px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 24px rgba(35,86,216,0.3);
 
-  /* Semantic */
-  --success:        #4a9e6e;
-  --success-muted:  rgba(74,158,110,0.12);
-  --error:          #c05050;
-  --error-muted:    rgba(192,80,80,0.12);
-  --warning:        #b87c3a;
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
 
-  /* Typography */
-  --font-sans:  'DM Sans', sans-serif;
-  --font-mono:  'DM Mono', monospace;
+  /* Legacy variables (kept for compatibility) */
+  --page-bg: var(--lexara-bg);
+  --surface: var(--lexara-white);
+  --surface-muted: var(--lexara-bg-secondary);
+  --surface-strong: #e7e2d8;
+  --surface-hover: #efebe2;
+  --border-subtle: var(--lexara-border);
+  --border-default: rgba(0, 0, 0, 0.14);
+  --border-strong: var(--lexara-border-strong);
+  --text-primary: var(--lexara-text);
+  --text-secondary: var(--lexara-text-secondary);
+  --text-tertiary: var(--lexara-text-tertiary);
+  --text-inverse: var(--lexara-white);
+  --accent: var(--lexara-blue);
+  --accent-muted: var(--lexara-blue-light);
+  --accent-soft: var(--lexara-blue-subtle);
+  --success: #2f855a;
+  --success-muted: rgba(47, 133, 90, 0.12);
+  --error: #c2410c;
+  --error-muted: rgba(194, 65, 12, 0.12);
+  --warning: #b7791f;
+  --font-sans: 'Inter', 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', 'Fira Code', monospace;
   --font-serif: 'Instrument Serif', serif;
-
-  /* Spacing */
-  --radius-sm:  3px;
-  --radius-md:  6px;
-  --radius-lg:  10px;
-
-  /* Transitions */
+  --transition: 150ms ease-out;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --shadow-soft: var(--shadow-md);
+  --shadow-card: var(--shadow-sm);
+}
+
+[data-theme="dark"] {
+  --color-bg: #0a0a0f;
+  --color-surface: #111118;
+  --color-elevated: #1a1a24;
+  --color-border: rgba(255,255,255,0.08);
+  /* WCAG AA: #f0f0f5 on #0a0a0f = 16:1 ✓ */
+  --color-text-primary: #f0f0f5;
+  /* WCAG AA: #c0c0d0 on #0a0a0f ≈ 11:1 ✓ */
+  --color-text-secondary: #c0c0d0;
+  /* WCAG AA: #8080a0 on #0a0a0f ≈ 5.3:1 ✓ (was #606070 ≈ 3:1 ✗) */
+  --color-text-muted: #8080a0;
+  --color-accent: #4a7aff;
+  --color-accent-hover: #6a96ff;
+  --color-accent-glow: rgba(74,122,255,0.3);
+  --glass-bg: rgba(255,255,255,0.05);
+  --glass-border: rgba(255,255,255,0.10);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,0.6);
+  --shadow-glow: 0 0 32px rgba(74,122,255,0.4);
+
+  /* Legacy token overrides so existing CSS adapts */
+  --lexara-bg: #0a0a0f;
+  --lexara-bg-secondary: #1a1a24;
+  --lexara-white: #111118;
+  --lexara-surface: rgba(255,255,255,0.05);
+  --lexara-text: #f0f0f5;
+  --lexara-text-secondary: #c0c0d0;
+  --lexara-text-tertiary: #8080a0;
+  --lexara-border: rgba(255,255,255,0.08);
+  --lexara-border-strong: rgba(255,255,255,0.14);
+  --lexara-blue: #4a7aff;
+  --lexara-blue-hover: #6a96ff;
+  --lexara-blue-light: rgba(74,122,255,0.12);
+  --lexara-blue-subtle: rgba(74,122,255,0.08);
+  --surface: #111118;
+  --surface-muted: #1a1a24;
+  --surface-strong: #252530;
+  --surface-hover: #1e1e2a;
+  --border-subtle: rgba(255,255,255,0.08);
+  --border-default: rgba(255,255,255,0.14);
+  --border-strong: rgba(255,255,255,0.20);
+  --text-primary: #f0f0f5;
+  --text-secondary: #c0c0d0;
+  --text-tertiary: #8080a0;
+  --accent: #4a7aff;
+  --accent-muted: rgba(74,122,255,0.12);
+  --accent-soft: rgba(74,122,255,0.08);
 }
 
 *, *::before, *::after {
@@ -55,45 +133,88 @@
 html, body, #root {
   width: 100%;
   height: 100%;
-  background: var(--bg-base);
-  color: var(--text-primary);
+  background: var(--color-bg);
+  color: var(--color-text-primary);
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-::selection {
-  background: var(--accent-muted);
-  color: var(--accent-bright);
+body {
+  overflow-x: hidden;
+  background: var(--color-bg);
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
-/* Scrollbar */
+[data-theme="dark"] body {
+  background: var(--color-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body { transition: none; }
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--text-primary);
+}
+
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+::-webkit-scrollbar-thumb { background: var(--lexara-border-strong); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--lexara-text-tertiary); }
 
-/* Animations */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes pulse-dot {
-  0%, 100% { opacity: 0.3; transform: scale(0.8); }
-  50%       { opacity: 1;   transform: scale(1); }
-}
-@keyframes scan-line {
-  0%   { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
-}
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* Utility */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes loadbar {
+  0% { width: 0%; }
+  50% { width: 100%; }
+  100% { width: 0%; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
 .mono { font-family: var(--font-mono); }
 .serif { font-family: var(--font-serif); }
 .fade-up { animation: fadeUp 0.4s var(--ease-out) both; }
+
+/* Suspense / tab loading spinner */
+.lexara-spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 500ms linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .lexara-spinner { animation: none; opacity: 0.4; }
+}
+
+/* Page container fade-in on tab navigation */
+.page-fade {
+  animation: pageFadeIn 150ms ease-out both;
+}
+@keyframes pageFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
