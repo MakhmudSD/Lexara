@@ -124,6 +124,11 @@ def me(
     if user is None:
         raise AppError(401, "invalid_token", "Invalid or expired token.")
 
+    # Enforce subscription expiry: downgrade to free if plan_expires_at has passed
+    if user.plan != "free" and user.plan_expires_at and user.plan_expires_at <= datetime.utcnow():
+        user.plan = "free"
+        db.commit()
+
     user_workspace_ids = [
         str(ws.id)
         for ws in db.query(Workspace).filter(

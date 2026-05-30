@@ -40,6 +40,26 @@ function App() {
     }, 300);
   };
 
+  // Keep authUser in sync when logout fires from any source (inactivity, 401, etc.)
+  useEffect(() => {
+    const sync = () => {
+      try {
+        const stored = JSON.parse(localStorage.getItem('authUser'));
+        setAuthUser(stored);
+        if (!stored) setPage('landing');
+      } catch {
+        setAuthUser(null);
+        setPage('landing');
+      }
+    };
+    window.addEventListener('auth:change', sync);
+    window.addEventListener('storage', sync);
+    return () => {
+      window.removeEventListener('auth:change', sync);
+      window.removeEventListener('storage', sync);
+    };
+  }, []);
+
   useEffect(() => {
     if (workspaceId) {
       localStorage.setItem('workspaceId', workspaceId);

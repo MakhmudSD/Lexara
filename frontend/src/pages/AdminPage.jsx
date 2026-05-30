@@ -4,8 +4,6 @@ import { deleteUser, getConversations, getTokenSummary, getTokenUsage, getUsers,
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/AdminPage.css';
 
-const TABS = ['users', 'health', 'usage', 'conversations', 'documents', 'requests', 'logs'];
-
 function formatTime(ts) {
   if (!ts) return '—';
   try {

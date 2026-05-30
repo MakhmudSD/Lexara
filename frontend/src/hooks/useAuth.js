@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import client from '../api/client';
 
 const TOKEN_KEY = 'access_token';
 const USER_KEY = 'authUser';
@@ -53,6 +54,7 @@ export function useAuth() {
   const logout = useCallback(() => {
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(TOKEN_KEY);
+    delete client.defaults.headers.common['Authorization'];
     setAuth(null);
     window.dispatchEvent(new Event('auth:change'));
   }, []);

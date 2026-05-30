@@ -271,7 +271,7 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
     { id: 'info', label: t('tab_my_info') || 'Ma\'lumotlarim' },
     { id: 'subscription', label: t('tab_subscription') || 'Obuna' },
     { id: 'promo', label: t('tab_promo') || 'Promo' },
-    { id: 'support', label: t('tab_support') || 'Support' },
+    { id: 'support', label: t('tab_help') || 'Help' },
   ];
 
   if (loading) {

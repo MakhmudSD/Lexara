@@ -69,8 +69,8 @@ def process_text_document(
                 content_type=content_type,
             )
         except Exception as exc:
-            logger.warning("R2 upload failed, falling back to local disk: %s", exc)
-            document.storage_path = _write_local(settings, workspace.id, document.id, raw_text)
+            logger.error("R2 upload failed for %s/%s: %s", workspace.id, document.id, exc)
+            raise AppError(500, "storage_error", "File could not be saved to cloud storage. Please try again.") from exc
     else:
         document.storage_path = _write_local(settings, workspace.id, document.id, raw_text)
 
