@@ -286,7 +286,7 @@
 }
 
 .app-page-enter {
-  animation: paper-shuffle 300ms var(--ease-out) both;
+  animation: ui-enter 250ms ease-out both;
 }
 @media (prefers-reduced-motion: reduce) {
   .app-page-enter { animation: none; }

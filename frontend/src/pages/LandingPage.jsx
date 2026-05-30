@@ -131,7 +131,7 @@ function PricingModal({ plan, onClose, onSignUp, onSignIn }) {
   const titleId = 'pricing-modal-title';
 
   const desc = isFree
-    ? 'Create a free account — 50 queries/month, 1 workspace, 5 documents. No credit card required.'
+    ? 'Create a free account — 100 queries/month, 1 workspace, 5 documents. No credit card required.'
     : plan === 'Pro'
     ? 'Get 1,000 queries/month and 5 workspaces for $19/mo. Billed monthly via Paddle.'
     : 'Get 5,000 queries/month and unlimited workspaces for $49/mo. Billed monthly via Paddle.';
@@ -310,7 +310,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
         <div className="hero-orb hero-orb-3" aria-hidden="true" />
         <div className="landing-hero-section-inner">
           <div className="landing-hero-left reveal">
-            <div className="landing-hero-badge">Early access · 50 free queries</div>
+            <div className="landing-hero-badge">Early access · 100 free queries</div>
             <h1 className="landing-hero-headline">{t('landing_headline')}</h1>
             <p className="landing-hero-sub">{t('landing_subhead')}</p>
             <div className="landing-hero-actions">
@@ -451,7 +451,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
           <h2 className="landing-section-title landing-section-title--light reveal">Pricing</h2>
           <div className="landing-pricing-grid">
             {[
-              ['Free', '$0', ['50 queries/month', '1 workspace', '5 documents'], 'Try free', false],
+              ['Free', '$0', ['100 queries/month', '1 workspace', '5 documents'], 'Try free', false],
               ['Pro', '$19/mo', ['1,000 queries/month', '5 workspaces', 'Usage analytics'], 'Choose Pro', true],
               ['Business', '$49/mo', ['5,000 queries/month', 'Unlimited workspaces*', 'Priority support'], 'Choose Business', false],
             ].map(([name, price, feats, cta, active]) => (
@@ -492,7 +492,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
           <div className="landing-faq-grid">
             {[
               { q: t('faq_q1') || 'How fast is document indexing?', a: t('faq_a1') || 'Most PDFs and DOCX files are searchable within seconds of upload. Larger documents (50MB+) may take up to 30 seconds.' },
-              { q: t('faq_q2') || 'Can I use Lexara without a credit card?', a: t('faq_a2') || 'Yes. The Free plan requires no payment. Upload up to 5 documents and send 50 queries per month completely free.' },
+              { q: t('faq_q2') || 'Can I use Lexara without a credit card?', a: t('faq_a2') || 'Yes. The Free plan requires no payment. Upload up to 5 documents and send 100 queries per month completely free.' },
               { q: t('faq_q3') || 'Does it support multilingual documents?', a: t('faq_a3') || 'Yes. You can upload documents in any language and ask questions in English, Uzbek, Russian, Korean, or Japanese.' },
               { q: t('faq_q4') || 'Are my documents private?', a: t('faq_a4') || 'Yes. Your documents are stored in isolated workspaces and are never used to train our models or shared with other users.' },
               { q: t('faq_q5') || 'What file formats are supported?', a: t('faq_a5') || 'PDF, DOCX, and TXT files up to 50MB. Support for XLSX and PPTX is on our roadmap.' },

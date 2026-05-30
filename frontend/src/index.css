@@ -1,42 +1,50 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
 
 :root {
-  /* Brand */
-  --lexara-blue: #2356d8;
-  --lexara-blue-hover: #1a45c0;
-  --lexara-blue-light: #eef2ff;
-  --lexara-blue-subtle: rgba(35, 86, 216, 0.08);
+  /* ── Brand (indigo accent) ── */
+  --lexara-blue: #6366f1;
+  --lexara-blue-hover: #4f46e5;
+  --lexara-blue-light: #eef0ff;
+  --lexara-blue-subtle: rgba(99, 102, 241, 0.08);
 
   /* Backgrounds */
-  --lexara-bg: #f7f5f0;
-  --lexara-bg-secondary: #f0ede8;
-  --lexara-text: #1a1814;
-  --lexara-text-secondary: #6b6560;
-  --lexara-text-tertiary: #a09890;
-  --lexara-border: rgba(0, 0, 0, 0.07);
+  --lexara-bg: #f8f9fa;
+  --lexara-bg-secondary: #f1f3f5;
+  --lexara-text: #0a0a0a;
+  --lexara-text-secondary: #52525b;
+  --lexara-text-tertiary: #71717a;
+  --lexara-border: rgba(0, 0, 0, 0.08);
   --lexara-border-strong: rgba(0, 0, 0, 0.12);
   --lexara-white: #ffffff;
-  --lexara-surface: rgba(255, 255, 255, 0.7);
+  --lexara-surface: rgba(255, 255, 255, 0.8);
 
-  /* New unified design tokens (light) */
-  --color-bg: #f7f5f0;
+  /* ── Canonical design tokens (light) ── */
+  --bg-base: #f8f9fa;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f1f3f5;
+  --border: rgba(0, 0, 0, 0.08);
+  --text-muted: #52525b;
+  --accent: #6366f1;
+
+  /* ── Unified colour tokens (light) ── */
+  --color-bg: #f8f9fa;
   --color-surface: #ffffff;
-  --color-elevated: #f0ede8;
-  --color-border: rgba(0,0,0,0.08);
-  --color-text-primary: #1a1814;
-  --color-text-secondary: #6b6560;
-  --color-text-muted: #9d9b96;
-  --color-accent: #2356d8;
-  --color-accent-hover: #1a44b8;
-  --color-accent-glow: rgba(35,86,216,0.25);
-  --glass-bg: rgba(255,255,255,0.7);
-  --glass-border: rgba(0,0,0,0.08);
+  --color-elevated: #f1f3f5;
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-text-primary: #0a0a0a;
+  --color-text-secondary: #52525b;
+  --color-text-muted: #71717a;
+  --color-accent: #6366f1;
+  --color-accent-hover: #4f46e5;
+  --color-accent-glow: rgba(99, 102, 241, 0.20);
+  --glass-bg: rgba(255, 255, 255, 0.80);
+  --glass-border: rgba(0, 0, 0, 0.08);
 
   /* Shadows */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.10), 0 4px 8px rgba(0, 0, 0, 0.04);
-  --shadow-glow: 0 0 24px rgba(35,86,216,0.3);
+  --shadow-glow: 0 0 24px rgba(99, 102, 241, 0.30);
 
   /* Radius */
   --radius-sm: 8px;
@@ -44,20 +52,19 @@
   --radius-lg: 16px;
   --radius-xl: 24px;
 
-  /* Legacy variables (kept for compatibility) */
-  --page-bg: var(--lexara-bg);
+  /* Legacy aliases (kept for compatibility) */
+  --page-bg: var(--color-bg);
   --surface: var(--lexara-white);
   --surface-muted: var(--lexara-bg-secondary);
-  --surface-strong: #e7e2d8;
-  --surface-hover: #efebe2;
-  --border-subtle: var(--lexara-border);
-  --border-default: rgba(0, 0, 0, 0.14);
+  --surface-strong: #e8eaed;
+  --surface-hover: #eef0f3;
+  --border-subtle: var(--color-border);
+  --border-default: rgba(0, 0, 0, 0.12);
   --border-strong: var(--lexara-border-strong);
-  --text-primary: var(--lexara-text);
-  --text-secondary: var(--lexara-text-secondary);
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
   --text-tertiary: var(--lexara-text-tertiary);
   --text-inverse: var(--lexara-white);
-  --accent: var(--lexara-blue);
   --accent-muted: var(--lexara-blue-light);
   --accent-soft: var(--lexara-blue-subtle);
   --success: #2f855a;
@@ -75,53 +82,58 @@
 }
 
 [data-theme="dark"] {
-  --color-bg: #0a0a0f;
-  --color-surface: #111118;
-  --color-elevated: #1a1a24;
-  --color-border: rgba(255,255,255,0.08);
-  /* WCAG AA: #f0f0f5 on #0a0a0f = 16:1 ✓ */
-  --color-text-primary: #f0f0f5;
-  /* WCAG AA: #c0c0d0 on #0a0a0f ≈ 11:1 ✓ */
-  --color-text-secondary: #c0c0d0;
-  /* WCAG AA: #8080a0 on #0a0a0f ≈ 5.3:1 ✓ (was #606070 ≈ 3:1 ✗) */
-  --color-text-muted: #8080a0;
-  --color-accent: #4a7aff;
-  --color-accent-hover: #6a96ff;
-  --color-accent-glow: rgba(74,122,255,0.3);
-  --glass-bg: rgba(255,255,255,0.05);
-  --glass-border: rgba(255,255,255,0.10);
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
-  --shadow-lg: 0 16px 48px rgba(0,0,0,0.6);
-  --shadow-glow: 0 0 32px rgba(74,122,255,0.4);
+  /* ── Canonical dark tokens ── */
+  --bg-base: #0a0a0a;
+  --bg-surface: #111111;
+  --bg-elevated: #1a1a1a;
+  --border: rgba(255, 255, 255, 0.08);
+  --text-muted: #a1a1aa;
+  --accent: #6366f1;
 
-  /* Legacy token overrides so existing CSS adapts */
-  --lexara-bg: #0a0a0f;
-  --lexara-bg-secondary: #1a1a24;
-  --lexara-white: #111118;
-  --lexara-surface: rgba(255,255,255,0.05);
-  --lexara-text: #f0f0f5;
-  --lexara-text-secondary: #c0c0d0;
-  --lexara-text-tertiary: #8080a0;
-  --lexara-border: rgba(255,255,255,0.08);
-  --lexara-border-strong: rgba(255,255,255,0.14);
-  --lexara-blue: #4a7aff;
-  --lexara-blue-hover: #6a96ff;
-  --lexara-blue-light: rgba(74,122,255,0.12);
-  --lexara-blue-subtle: rgba(74,122,255,0.08);
-  --surface: #111118;
-  --surface-muted: #1a1a24;
-  --surface-strong: #252530;
-  --surface-hover: #1e1e2a;
-  --border-subtle: rgba(255,255,255,0.08);
-  --border-default: rgba(255,255,255,0.14);
-  --border-strong: rgba(255,255,255,0.20);
-  --text-primary: #f0f0f5;
-  --text-secondary: #c0c0d0;
-  --text-tertiary: #8080a0;
-  --accent: #4a7aff;
-  --accent-muted: rgba(74,122,255,0.12);
-  --accent-soft: rgba(74,122,255,0.08);
+  /* Unified colour tokens (dark) */
+  --color-bg: #0a0a0a;
+  --color-surface: #111111;
+  --color-elevated: #1a1a1a;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #d4d4d8;
+  --color-text-muted: #a1a1aa;
+  --color-accent: #6366f1;
+  --color-accent-hover: #818cf8;
+  --color-accent-glow: rgba(99, 102, 241, 0.30);
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.10);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.40);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.50);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.70);
+  --shadow-glow: 0 0 32px rgba(99, 102, 241, 0.40);
+
+  /* Legacy overrides */
+  --lexara-bg: #0a0a0a;
+  --lexara-bg-secondary: #1a1a1a;
+  --lexara-white: #111111;
+  --lexara-surface: rgba(255, 255, 255, 0.05);
+  --lexara-text: #fafafa;
+  --lexara-text-secondary: #d4d4d8;
+  --lexara-text-tertiary: #a1a1aa;
+  --lexara-border: rgba(255, 255, 255, 0.08);
+  --lexara-border-strong: rgba(255, 255, 255, 0.14);
+  --lexara-blue: #6366f1;
+  --lexara-blue-hover: #818cf8;
+  --lexara-blue-light: rgba(99, 102, 241, 0.15);
+  --lexara-blue-subtle: rgba(99, 102, 241, 0.08);
+  --surface: #111111;
+  --surface-muted: #1a1a1a;
+  --surface-strong: #242428;
+  --surface-hover: #1e1e22;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-default: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --text-primary: #fafafa;
+  --text-secondary: #d4d4d8;
+  --text-tertiary: #a1a1aa;
+  --accent-muted: rgba(99, 102, 241, 0.15);
+  --accent-soft: rgba(99, 102, 241, 0.08);
 }
 
 *, *::before, *::after {
@@ -271,4 +283,32 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .paper-float { animation: none; }
+}
+
+/* ── Standard UI animations (250ms, ease-out, transform+opacity only) ─────── */
+
+@keyframes ui-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Page / tab switch */
+.ui-page-enter {
+  animation: ui-enter 250ms ease-out both;
+}
+
+/* Button press scale */
+button:active:not(:disabled),
+.btn-press:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-page-enter { animation: none; }
+  button:active:not(:disabled) { transform: none; }
 }

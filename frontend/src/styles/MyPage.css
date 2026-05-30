@@ -221,16 +221,24 @@
   border-color: #ef4444;
 }
 
-/* ── Plan card (current plan, glassmorphism) ── */
+/* ── Plan card (current plan — clean, readable) ── */
 .mypage-plan-card {
   border-radius: var(--radius-lg);
   padding: 20px 24px;
-  color: white;
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--color-elevated);
   border: 1px solid var(--color-border);
-  box-shadow: 0 0 0 2px var(--color-accent), var(--shadow-glow);
+  box-shadow: var(--shadow-sm);
+  /* override any inline gradient background with a tinted accent border */
+  position: relative;
+  overflow: hidden;
+}
+
+.mypage-plan-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--color-accent-glow, rgba(99,102,241,0.10)) 0%, transparent 60%);
+  pointer-events: none;
 }
 
 .mypage-plan-badge {
@@ -238,9 +246,9 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  opacity: 0.7;
   margin-bottom: 6px;
   color: var(--color-accent);
+  position: relative;
 }
 
 .mypage-plan-name {
@@ -249,12 +257,14 @@
   margin-bottom: 12px;
   color: var(--color-text-primary);
   letter-spacing: -0.03em;
+  position: relative;
 }
 
 .mypage-plan-features {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  position: relative;
 }
 
 .mypage-plan-feature {
@@ -593,29 +603,21 @@
   padding: 0 4px;
 }
 
-/* ── Paper fan-in for My Page ─────────────────────────────────────────────── */
-
-/* Header card lands first — the top sheet on the desk */
+/* ── MyPage enter animations (250ms ease-out) ── */
 .mypage-header-card {
-  animation: paper-fan 340ms var(--ease-out) both;
+  animation: ui-enter 250ms ease-out both;
 }
-
-/* Content cards stagger in beneath it */
 .mypage-section-card {
-  animation: paper-fan 360ms 60ms var(--ease-out) both;
+  animation: ui-enter 250ms 50ms ease-out both;
 }
-
-/* Upgrade plan cards fan in side-by-side */
 .mypage-upgrade-card {
-  animation: paper-fan 360ms var(--ease-out) both;
+  animation: card-enter 250ms ease-out both;
 }
 .mypage-upgrade-card:nth-child(2) {
-  animation-delay: 80ms;
+  animation-delay: 40ms;
 }
-
-/* Plan card on subscription tab */
 .mypage-plan-card {
-  animation: paper-fan 340ms var(--ease-out) both;
+  animation: ui-enter 250ms ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {

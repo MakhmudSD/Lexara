@@ -17,7 +17,7 @@ function getBarColor(pct) {
 }
 
 const PLAN_LIMITS = {
-  free:     { queries: 50,    workspaces: 1,  label: 'Free' },
+  free:     { queries: 100,    workspaces: 1,  label: 'Free' },
   pro:      { queries: 1000,  workspaces: 5,  label: 'Pro' },
   business: { queries: 5000,  workspaces: 999, label: 'Business' },
 };
@@ -35,7 +35,7 @@ const PLAN_FEATURES_KEYS = {
 };
 
 const PLAN_FEATURES_DEFAULTS = {
-  free:     ['50 queries/month', '1 workspace', '5 documents'],
+  free:     ['100 queries/month', '1 workspace', '5 documents'],
   pro:      ['1,000 queries/month', '5 workspaces', 'Unlimited documents', 'Usage analytics'],
   business: ['5,000 queries/month', 'Unlimited workspaces', 'All Pro features', 'Priority support'],
 };
@@ -383,7 +383,7 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
         <div>
           <div
             className="mypage-plan-card"
-            style={{ background: PLAN_GRADIENTS[plan] }}
+            
           >
             <div className="mypage-plan-badge">{t('current_plan_label') || 'Joriy reja'}</div>
             <div className="mypage-plan-name">{PLAN_LIMITS[plan]?.label || 'Free'}</div>
@@ -508,11 +508,17 @@ function PromoTab({ t }) {
     setPromoError('');
     setPromoSuccess('');
     try {
-      await redeemPromo(promoCode.trim().toUpperCase());
+      console.log('[promo] submitting code:', promoCode.trim().toUpperCase());
+      const result = await redeemPromo(promoCode.trim().toUpperCase());
+      console.log('[promo] response:', result);
       setPromoSuccess('Promo code applied! Your account has been upgraded.');
       setPromoCode('');
     } catch (err) {
-      const msg = err?.response?.data?.detail || err?.message || 'Invalid or expired promo code.';
+      const status = err?.status || err?.response?.status;
+      const msg = status === 404
+        ? 'Promo codes are not yet enabled on this account. Contact support.'
+        : err?.response?.data?.detail || err?.message || 'Invalid or expired promo code.';
+      console.log('[promo] error:', status, msg);
       setPromoError(msg);
     } finally {
       setPromoLoading(false);

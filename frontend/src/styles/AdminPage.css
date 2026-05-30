@@ -204,7 +204,7 @@
 
 .admin-header-note button {
   border: 1px solid rgba(0, 0, 0, 0.12);
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 999px;
   padding: 7px 12px;
   cursor: pointer;
@@ -233,9 +233,9 @@
   font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 500;
-  color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.76);
-  border: 1px solid transparent;
+  color: var(--color-text-secondary);
+  background: var(--color-elevated);
+  border: 1px solid var(--color-border);
   border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
@@ -243,12 +243,16 @@
   box-shadow: var(--shadow-card);
 }
 
-.admin-tab:hover { color: var(--text-primary); }
+.admin-tab:hover {
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+}
 
 .admin-tab.active {
-  color: var(--lexara-blue);
-  border-color: rgba(35, 86, 216, 0.18);
-  background: #ffffff;
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: var(--color-surface);
+  font-weight: 600;
 }
 
 .tab-count {
@@ -297,7 +301,7 @@
 
 .admin-skeleton-row {
   height: 40px;
-  background: #f5f4f0;
+  background: var(--color-elevated);
   border-radius: 8px;
   animation: pulse 1.5s ease-in-out infinite;
 }
@@ -510,7 +514,7 @@
 
 .user-action-btn {
   border: 1px solid var(--border-subtle);
-  background: #fff;
+  background: var(--color-surface);
   color: var(--text-secondary);
   font-size: 11px;
   padding: 5px 8px;
@@ -553,7 +557,7 @@
   height: 42px;
   border-radius: 12px;
   border: 1px solid var(--border-subtle);
-  background: #fff;
+  background: var(--color-surface);
   padding: 0 14px;
   font-family: var(--font-sans);
   font-size: 14px;
@@ -581,7 +585,7 @@
 .users-role-filter select {
   border: 1px solid var(--border-subtle);
   border-radius: 10px;
-  background: #fff;
+  background: var(--color-surface);
   height: 42px;
   padding: 0 12px;
   color: var(--text-primary);
@@ -619,7 +623,7 @@
 }
 
 .metric-card {
-  background: var(--bg-surface, #f7f7f6);
+  background: var(--bg-surface, var(--color-elevated));
   border-radius: 10px;
   padding: 14px;
 }
@@ -627,7 +631,7 @@
 .metric-label {
   font-size: 10px;
   font-weight: 500;
-  color: #9d9b96;
+  color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 6px;
@@ -636,14 +640,14 @@
 .metric-value {
   font-size: 24px;
   font-weight: 500;
-  color: #1a1814;
+  color: var(--color-text-primary);
   line-height: 1;
 }
 
 .metrics-section-title {
   font-size: 11px;
   font-weight: 500;
-  color: #9d9b96;
+  color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-bottom: 8px;
@@ -653,8 +657,8 @@
   padding: 16px;
   text-align: center;
   font-size: 13px;
-  color: #6b6860;
-  background: #f7f7f6;
+  color: var(--color-text-secondary);
+  background: var(--color-elevated);
   border-radius: 8px;
 }
 
@@ -671,9 +675,9 @@
   background: var(--accent-bg, #e8eefb);
 }
 
-/* ── Paper fan-in for Admin dashboard ────────────────────────────────────── */
+/* ── Admin content enter animation ── */
 .admin-content {
-  animation: paper-fan 300ms var(--ease-out) both;
+  animation: ui-enter 250ms ease-out both;
 }
 
 .health-card {
@@ -695,24 +699,29 @@
   .health-card { animation: none; }
 }
 
-/* ── Glassmorphism health cards ── */
+/* ── Health cards: solid on light, glass on dark ── */
 .health-card--glass {
-  background: rgba(255,255,255,0.72);
-  backdrop-filter: blur(12px) saturate(160%);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
-  border: 1px solid rgba(255,255,255,0.6);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
-  transition: transform 200ms ease, box-shadow 200ms ease;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  transition: transform 250ms ease-out, box-shadow 250ms ease-out;
 }
 
 [data-theme="dark"] .health-card--glass {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.30);
 }
 
 .health-card--glass:hover {
-  transform: perspective(900px) rotateX(1.5deg) translateY(-2px);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
+  transform: perspective(1000px) rotateX(1deg) translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
+}
+
+[data-theme="dark"] .health-card--glass:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.40);
 }
 
 .health-card-desc {
@@ -726,23 +735,23 @@
 
 /* ── Metrics bar visualization ── */
 .metric-card--glass {
-  background: rgba(255,255,255,0.72);
-  backdrop-filter: blur(12px) saturate(160%);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
-  border: 1px solid rgba(255,255,255,0.6);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
-  transition: transform 200ms ease, box-shadow 200ms ease;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  transition: transform 250ms ease-out, box-shadow 250ms ease-out;
   border-radius: 16px;
 }
 
 [data-theme="dark"] .metric-card--glass {
   background: rgba(255,255,255,0.05);
-  border-color: rgba(255,255,255,0.10);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
 .metric-card--glass:hover {
-  transform: perspective(900px) rotateX(1.5deg) translateY(-2px);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+  transform: perspective(1000px) rotateX(1deg) translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.10);
 }
 
 .metric-bar-wrap {
@@ -766,6 +775,78 @@
   margin-top: 6px;
   flex-wrap: wrap;
   opacity: 0.75;
+}
+
+/* ── Health bar chart ── */
+.health-bar-chart {
+  margin-top: 24px;
+  padding: 20px 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+[data-theme="dark"] .health-bar-chart {
+  background: var(--bg-elevated, #1a1a1a);
+}
+
+.health-bar-chart-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+
+.health-bar-row {
+  display: grid;
+  grid-template-columns: 90px 1fr 60px;
+  align-items: center;
+  gap: 12px;
+}
+
+.health-bar-name {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.health-bar-track {
+  height: 8px;
+  background: var(--color-elevated);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+@keyframes bar-grow {
+  from { width: 0%; }
+  to   { width: var(--bar-pct, 0%); }
+}
+
+.health-bar-fill {
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: 4px;
+  width: var(--bar-pct, 0%);
+  animation: bar-grow 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.health-bar-val {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  text-align: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .health-bar-fill { animation: none; }
 }
 
 /* ── User action button visual distinction ── */

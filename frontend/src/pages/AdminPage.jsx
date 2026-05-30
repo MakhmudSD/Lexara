@@ -155,18 +155,41 @@ function HealthPanel({ data }) {
     { label: 'OpenAI', value: data.openai_configured ? 'configured' : 'not set', cls: data.openai_configured ? 'ok' : 'warn', raw: null },
   ];
 
+  const numericCards = cards.filter((c) => typeof c.raw === 'number' && c.raw > 0);
+  const barMax = numericCards.length > 0 ? Math.max(...numericCards.map((c) => c.raw)) : 1;
+
   return (
-    <div className="health-grid">
-      {cards.map((card) => (
-        <div key={card.label} className="health-card health-card--glass">
-          <div className="health-card-label">{card.label}</div>
-          <div className={`health-card-value ${card.cls}`}>
-            {typeof card.raw === 'number' ? <CountUp target={card.raw} /> : String(card.value)}
+    <>
+      <div className="health-grid">
+        {cards.map((card) => (
+          <div key={card.label} className="health-card health-card--glass">
+            <div className="health-card-label">{card.label}</div>
+            <div className={`health-card-value ${card.cls}`}>
+              {typeof card.raw === 'number' ? <CountUp target={card.raw} /> : String(card.value)}
+            </div>
+            <div className="health-card-desc">{HEALTH_DESCRIPTIONS[card.label] || ''}</div>
           </div>
-          <div className="health-card-desc">{HEALTH_DESCRIPTIONS[card.label] || ''}</div>
+        ))}
+      </div>
+
+      {numericCards.length > 0 && (
+        <div className="health-bar-chart">
+          <div className="health-bar-chart-title">Relative volumes</div>
+          {numericCards.map((card) => (
+            <div key={card.label} className="health-bar-row">
+              <div className="health-bar-name">{card.label}</div>
+              <div className="health-bar-track">
+                <div
+                  className="health-bar-fill"
+                  style={{ '--bar-pct': `${Math.round((card.raw / barMax) * 100)}%` }}
+                />
+              </div>
+              <div className="health-bar-val">{card.raw.toLocaleString()}</div>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
+      )}
+    </>
   );
 }
 
@@ -406,6 +429,7 @@ function UsagePanel({ summary, usage, t }) {
 function UsersPanel({
   users,
   onReload,
+  onDeleteUser,
   t,
   search,
   onSearchChange,
@@ -433,9 +457,15 @@ function UsersPanel({
   };
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    await deleteUser(deleteTarget.user_id);
+    const targetId = deleteTarget.user_id;
     setDeleteTarget(null);
-    await onReload();
+    // optimistic removal — disappears instantly
+    onDeleteUser(targetId);
+    try {
+      await deleteUser(targetId);
+    } catch {
+      await onReload();
+    }
   };
 
   if (loading) {
@@ -944,6 +974,14 @@ export default function AdminPage({ onGoChat }) {
               <UsersPanel
                 users={data.users}
                 onReload={loadActiveTab}
+                onDeleteUser={(userId) =>
+                  setData((prev) => ({
+                    ...prev,
+                    users: (Array.isArray(prev.users) ? prev.users : []).filter(
+                      (u) => u.user_id !== userId
+                    ),
+                  }))
+                }
                 t={t}
                 search={userSearch}
                 onSearchChange={setUserSearch}
