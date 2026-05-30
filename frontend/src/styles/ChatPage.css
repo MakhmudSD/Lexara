@@ -1,6 +1,7 @@
+/* Chat message entrance — paper being placed down on the desk */
 @keyframes msg-enter {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(10px) rotate(0.4deg); }
+  to   { opacity: 1; transform: translateY(0)    rotate(0deg);   }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -644,4 +645,63 @@
   font-size: 11px;
   color: var(--color-text-secondary);
   margin-top: 1px;
+}
+
+/* ── Paper animations ─────────────────────────────────────────────────────── */
+
+/* 1. Chat panel fans in on mount — the whole sheet drops onto the desk */
+.chat-main {
+  animation: paper-fan 360ms var(--ease-out) both;
+}
+
+/* 2. Empty state: idle document rocks gently while waiting for first upload */
+.chat-empty-copy {
+  animation: paper-float 4.5s ease-in-out infinite;
+}
+
+/* 3. Suggestion chips fan in staggered — like cards being dealt */
+.chat-empty-chip {
+  animation: paper-fan 380ms var(--ease-out) both;
+  animation-fill-mode: both;
+}
+.chat-empty-chip:nth-child(1) { animation-delay: 80ms;  }
+.chat-empty-chip:nth-child(2) { animation-delay: 160ms; }
+.chat-empty-chip:nth-child(3) { animation-delay: 240ms; }
+
+/* 4. Onboarding steps cascade in like papers being stacked */
+.onboarding-step {
+  animation: paper-fan 340ms var(--ease-out) both;
+}
+.onboarding-step:nth-child(1) { animation-delay: 0ms;   }
+.onboarding-step:nth-child(2) { animation-delay: 80ms;  }
+.onboarding-step:nth-child(3) { animation-delay: 160ms; }
+
+/* 5. Sidebar sessions cascade in from the left */
+.session-item {
+  animation: paper-slide 280ms var(--ease-out) both;
+}
+.session-item:nth-child(1) { animation-delay: 0ms;   }
+.session-item:nth-child(2) { animation-delay: 40ms;  }
+.session-item:nth-child(3) { animation-delay: 80ms;  }
+.session-item:nth-child(4) { animation-delay: 120ms; }
+.session-item:nth-child(5) { animation-delay: 160ms; }
+.session-item:nth-child(6) { animation-delay: 200ms; }
+.session-item:nth-child(7) { animation-delay: 240ms; }
+.session-item:nth-child(8) { animation-delay: 280ms; }
+
+/* 6. Upload success: flip the paper over to reveal the green tick */
+.upload-status.ok {
+  animation: paper-flip 560ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Honour prefers-reduced-motion for everything above */
+@media (prefers-reduced-motion: reduce) {
+  .chat-main,
+  .chat-empty-copy,
+  .chat-empty-chip,
+  .onboarding-step,
+  .session-item,
+  .upload-status.ok {
+    animation: none !important;
+  }
 }

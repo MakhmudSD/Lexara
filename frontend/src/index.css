@@ -218,3 +218,57 @@ body {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* ── Paper / document theme animations ─────────────────────────────────────
+   All rotations ≤ 0.6 deg — tactile without being distracting.
+   The ease-out easing (--ease-out: cubic-bezier(0.16,1,0.3,1)) gives each
+   sheet a snappy release that settles naturally, like paper coming to rest.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* Fan-in: section or card drops onto the desk from slightly above, landing
+   at a dead-flat angle. Used for page-level containers on mount. */
+@keyframes paper-fan {
+  from { opacity: 0; transform: translateY(14px) rotate(-0.5deg); }
+  to   { opacity: 1; transform: translateY(0)    rotate(0deg);    }
+}
+
+/* Place: a single sheet slides up and settles — used for chat messages. */
+@keyframes paper-place {
+  from { opacity: 0; transform: translateY(10px) rotate(0.4deg); }
+  to   { opacity: 1; transform: translateY(0)    rotate(0deg);   }
+}
+
+/* Float: idle paper rocking gently on the desk — used for empty states. */
+@keyframes paper-float {
+  0%, 100% { transform: translateY(0)   rotate(-0.4deg); }
+  50%       { transform: translateY(-8px) rotate(0.4deg); }
+}
+
+/* Slide: sheets cascade in from the left — used for sidebar items. */
+@keyframes paper-slide {
+  from { opacity: 0; transform: translateX(-10px) rotate(-0.3deg); }
+  to   { opacity: 1; transform: translateX(0)     rotate(0deg);    }
+}
+
+/* Shuffle: whole page slides in slightly tilted — used for route transitions. */
+@keyframes paper-shuffle {
+  from { opacity: 0; transform: translateY(10px) rotate(0.35deg); }
+  to   { opacity: 1; transform: translateY(0)    rotate(0deg);    }
+}
+
+/* Flip: a sheet flips on the X axis — used to celebrate upload success. */
+@keyframes paper-flip {
+  0%   { transform: perspective(600px) rotateX(0deg);                  }
+  40%  { transform: perspective(600px) rotateX(-90deg) scaleY(0.85);   }
+  60%  { transform: perspective(600px) rotateX(-90deg) scaleY(0.85);   }
+  100% { transform: perspective(600px) rotateX(0deg);                  }
+}
+
+/* Utility class — attach to any element that should float indefinitely. */
+.paper-float {
+  animation: paper-float 4.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paper-float { animation: none; }
+}
