@@ -195,3 +195,26 @@ body {
 .mono { font-family: var(--font-mono); }
 .serif { font-family: var(--font-serif); }
 .fade-up { animation: fadeUp 0.4s var(--ease-out) both; }
+
+/* Suspense / tab loading spinner */
+.lexara-spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 600ms linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .lexara-spinner { animation: none; opacity: 0.5; }
+}
+
+/* Page container fade-in on tab navigation */
+.page-fade {
+  animation: pageFadeIn 150ms ease-out both;
+}
+@keyframes pageFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

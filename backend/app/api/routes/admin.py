@@ -33,14 +33,32 @@ from app.services.cleanup_service import cleanup_old_records
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 
+def _require_admin(
+    authorization: str | None = Header(default=None),
+    runtime: AppRuntime = Depends(get_runtime),
+) -> dict:
+    """Dependency: extract and validate JWT, assert role == admin."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise AppError(401, "missing_token", "Authorization token is required.")
+    token = authorization.split(" ", 1)[1].strip()
+    claims = decode_access_token(token, runtime.settings)
+    if claims.get("role") != "admin":
+        raise AppError(403, "forbidden", "Admin access required.")
+    return claims
+
+
 @router.get("/logs", response_model=list[LogEntryResponse])
-async def admin_logs(runtime: AppRuntime = Depends(get_runtime)) -> list[LogEntryResponse]:
+async def admin_logs(
+    runtime: AppRuntime = Depends(get_runtime),
+    _claims: dict = Depends(_require_admin),
+) -> list[LogEntryResponse]:
     return get_logs(runtime)
 
 
 @router.get("/requests", response_model=list[RequestHistoryResponse])
 async def admin_requests(
     runtime: AppRuntime = Depends(get_runtime),
+    _claims: dict = Depends(_require_admin),
 ) -> list[RequestHistoryResponse]:
     return get_request_history(runtime)
 
@@ -48,6 +66,7 @@ async def admin_requests(
 @router.get("/documents", response_model=list[AdminDocumentResponse])
 async def admin_documents(
     runtime: AppRuntime = Depends(get_runtime),
+    _claims: dict = Depends(_require_admin),
 ) -> list[AdminDocumentResponse]:
     return get_documents(runtime)
 
@@ -55,18 +74,23 @@ async def admin_documents(
 @router.get("/retrievals", response_model=list[RetrievalHistoryResponse])
 async def admin_retrievals(
     runtime: AppRuntime = Depends(get_runtime),
+    _claims: dict = Depends(_require_admin),
 ) -> list[RetrievalHistoryResponse]:
     return get_retrieval_history(runtime)
 
 
 @router.get("/health", response_model=HealthResponse)
-async def admin_health(runtime: AppRuntime = Depends(get_runtime)) -> HealthResponse:
+async def admin_health(
+    runtime: AppRuntime = Depends(get_runtime),
+    _claims: dict = Depends(_require_admin),
+) -> HealthResponse:
     return get_health_status(runtime)
 
 
 @router.get("/token-usage", response_model=list[TokenUsageResponse])
 async def admin_token_usage(
     db: Session = Depends(get_db),
+    _claims: dict = Depends(_require_admin),
 ) -> list[TokenUsageResponse]:
     rows = db.query(TokenUsage).order_by(TokenUsage.timestamp.desc()).limit(500).all()
     return [
@@ -90,6 +114,7 @@ async def admin_token_usage(
 @router.get("/token-summary", response_model=TokenSummaryResponse)
 async def admin_token_summary(
     db: Session = Depends(get_db),
+    _claims: dict = Depends(_require_admin),
 ) -> TokenSummaryResponse:
     rows = db.query(TokenUsage).all()
     total_requests = len(rows)
@@ -131,6 +156,7 @@ async def admin_token_summary(
 def admin_conversations(
     db: Session = Depends(get_db),
     limit: int = 50,
+    _claims: dict = Depends(_require_admin),
 ) -> list:
     try:
         from app.db.models import Conversation, ConversationTurn
@@ -165,17 +191,9 @@ def admin_conversations(
 
 @router.post("/cleanup")
 async def admin_cleanup(
-    authorization: str | None = Header(default=None),
     db: Session = Depends(get_db),
-    runtime: AppRuntime = Depends(get_runtime),
+    _claims: dict = Depends(_require_admin),
 ) -> dict[str, int]:
-    if not authorization or not authorization.startswith("Bearer "):
-        raise AppError(401, "missing_token", "Authorization token is required.")
-    token = authorization.split(" ", 1)[1].strip()
-    claims = decode_access_token(token, runtime.settings)
-    if claims.get("role") != "admin":
-        raise AppError(403, "forbidden", "Admin access required.")
-
     results = cleanup_old_records(db)
     return {
         "token_usage_deleted": int(results.get("token_usage_deleted", 0)),
@@ -184,7 +202,10 @@ async def admin_cleanup(
 
 
 @router.get("/users", response_model=list[UserAdminResponse])
-async def admin_users(db: Session = Depends(get_db)) -> list[UserAdminResponse]:
+async def admin_users(
+    db: Session = Depends(get_db),
+    _claims: dict = Depends(_require_admin),
+) -> list[UserAdminResponse]:
     rows = db.query(User).order_by(User.created_at.desc()).all()
     return [
         UserAdminResponse(
@@ -204,6 +225,7 @@ async def admin_update_user_role(
     user_id: str,
     payload: UserRoleUpdate,
     db: Session = Depends(get_db),
+    _claims: dict = Depends(_require_admin),
 ) -> UserAdminResponse:
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
@@ -226,6 +248,7 @@ async def admin_update_user_status(
     user_id: str,
     payload: UserStatusUpdate,
     db: Session = Depends(get_db),
+    _claims: dict = Depends(_require_admin),
 ) -> UserAdminResponse:
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
@@ -246,19 +269,10 @@ async def admin_update_user_status(
 @router.delete("/users/{user_id}", status_code=204)
 async def admin_delete_user(
     user_id: str,
-    authorization: str | None = Header(default=None),
     db: Session = Depends(get_db),
-    runtime: AppRuntime = Depends(get_runtime),
+    claims: dict = Depends(_require_admin),
 ) -> Response:
-    if not authorization or not authorization.startswith("Bearer "):
-        raise AppError(401, "missing_token", "Authorization token is required.")
-
-    token = authorization.split(" ", 1)[1].strip()
-    claims = decode_access_token(token, runtime.settings)
     current_user_id = claims.get("sub")
-    if not current_user_id:
-        raise AppError(401, "invalid_token", "Invalid or expired token.")
-
     if str(current_user_id) == str(user_id):
         raise AppError(400, "cannot_delete_self", "You cannot delete your own account.")
 

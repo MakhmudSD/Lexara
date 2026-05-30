@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { LexaraLogo } from '../assets/LexaraLogo';
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/LandingPage.css';
@@ -79,10 +79,92 @@ function ContactForm({ t }) {
   );
 }
 
+function TiltCard({ children, maxDeg = 8, className = '', style = {} }) {
+  const ref = useRef(null);
+  const prefersReducedMotion = useRef(
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+
+  const onMouseMove = useCallback((e) => {
+    if (prefersReducedMotion.current) return;
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    el.style.transform = `perspective(800px) rotateY(${x * maxDeg * 2}deg) rotateX(${-y * maxDeg * 2}deg) translateZ(4px)`;
+    el.style.transition = 'transform 80ms linear';
+  }, [maxDeg]);
+
+  const onMouseLeave = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.transform = '';
+    el.style.transition = 'transform 300ms ease';
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={style}
+      onMouseMove={onMouseMove}
+      onMouseLeave={onMouseLeave}
+    >
+      {children}
+    </div>
+  );
+}
+
+function CountUp({ target, duration = 1200 }) {
+  const [value, setValue] = useState(0);
+  const ref = useRef(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !started.current) {
+          started.current = true;
+          if (prefersReducedMotion) {
+            setValue(target);
+            return;
+          }
+          const start = performance.now();
+          const tick = (now) => {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setValue(Math.round(eased * target));
+            if (progress < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        }
+      },
+      { threshold: 0.5 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [target, duration]);
+
+  return <span ref={ref}>{value.toLocaleString()}</span>;
+}
+
 export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) {
   const { t, lang, setLang, languageOptions } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [pricingModal, setPricingModal] = useState(null);
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof localStorage !== 'undefined') {
+      const stored = localStorage.getItem('theme');
+      if (stored) return stored === 'dark';
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
 
   const featureCards = [
     ['01', 'landing_feature_upload_title', 'Upload. Instantly indexed.', 'PDF, DOCX, TXT parsing with chunking and local embeddings.', 'Optimized for fast first-query time.'],
@@ -90,6 +172,11 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
     ['03', 'landing_feature_conversation_title', 'Conversations, not sessions.', 'Context-aware answers with short memory for continuity.', 'Built for multi-turn work.'],
     ['04', 'landing_feature_usage_title', 'Every token accounted for.', 'Track model usage, token counts, cost, and latency.', 'Admin visibility for production ops.'],
   ];
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+  }, [darkMode]);
 
   useEffect(() => {
     document.body.style.overflow = 'auto';
@@ -101,8 +188,8 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
   }, []);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 16);
-    window.addEventListener('scroll', onScroll);
+    const onScroll = () => setScrolled(window.scrollY > 80);
+    window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
@@ -136,6 +223,13 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
 
   return (
     <div className="landing">
+      {/* ── Floating orbs ── */}
+      <div className="landing-orbs" aria-hidden="true">
+        <div className="landing-orb landing-orb--1" />
+        <div className="landing-orb landing-orb--2" />
+        <div className="landing-orb landing-orb--3" />
+      </div>
+
       {/* ── Nav ── */}
       <nav className={`landing-nav ${scrolled ? 'scrolled' : ''}`}>
         <div className="landing-nav-inner">
@@ -158,6 +252,25 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
                 </option>
               ))}
             </select>
+            <button
+              className="landing-theme-toggle"
+              onClick={() => setDarkMode(!darkMode)}
+              aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {darkMode ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="5" />
+                  <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+              )}
+            </button>
             <button onClick={onSignUp} className="landing-btn-primary">{t('landing_cta_primary')}</button>
           </div>
         </div>
@@ -171,7 +284,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
             <h1 className="landing-hero-headline">{t('landing_headline')}</h1>
             <p className="landing-hero-sub">{t('landing_subhead')}</p>
             <div className="landing-hero-actions">
-              <button onClick={onSignUp} className="landing-btn-cta-primary">{t('landing_cta_primary')}</button>
+              <button onClick={onSignUp} className="landing-btn-cta-primary landing-btn-cta-glow">{t('landing_cta_primary')}</button>
               <button onClick={onSignIn} className="landing-btn-cta-ghost">{t('landing_cta_secondary')}</button>
             </div>
             <div className="landing-hero-trust">
@@ -192,7 +305,11 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
             </div>
           </div>
 
-          <div className="landing-hero-demo-card reveal" style={{ '--reveal-delay': '120ms' }}>
+          <TiltCard
+            className="landing-hero-demo-card reveal"
+            maxDeg={8}
+            style={{ '--reveal-delay': '120ms' }}
+          >
             <div className="landing-hero-demo-urlbar">{t('demo_url') || 'app.lexara.ai'}</div>
             <div className="landing-hero-demo-msg landing-hero-demo-msg--user">{t('demo_q2') || 'What changed in the latest version?'}</div>
             <div className="landing-hero-demo-msg landing-hero-demo-msg--assistant">
@@ -206,17 +323,31 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
               {t('demo_references') || 'References: policy_v2.pdf · contract_notes.docx'}
             </div>
             <div className="landing-hero-demo-footer">{t('demo_powered') || 'Powered by GPT-4o'}</div>
-          </div>
+          </TiltCard>
         </div>
       </section>
 
-      {/* ── Trust strip ── */}
+      {/* ── Stats strip ── */}
       <div className="landing-trust-strip">
         <div className="landing-trust-strip-label">Built for people who work with dense, complex documents</div>
         <div className="landing-trust-chips">
           {['Contract review', 'Research synthesis', 'Document Q&A', 'Report analysis'].map((chip) => (
             <span key={chip} className="landing-trust-pill">{chip}</span>
           ))}
+        </div>
+        <div className="landing-stats-row">
+          <div className="landing-stat">
+            <span className="landing-stat-number"><CountUp target={1200} />+</span>
+            <span className="landing-stat-label">documents indexed</span>
+          </div>
+          <div className="landing-stat">
+            <span className="landing-stat-number"><CountUp target={50000} />+</span>
+            <span className="landing-stat-label">queries answered</span>
+          </div>
+          <div className="landing-stat">
+            <span className="landing-stat-number"><CountUp target={99} />%</span>
+            <span className="landing-stat-label">uptime</span>
+          </div>
         </div>
       </div>
 
@@ -267,12 +398,17 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
               const translatedTitle = t(titleKey);
               const title = translatedTitle === titleKey ? fallbackTitle : translatedTitle;
               return (
-                <div key={num} className="landing-feature-bento-card reveal" style={{ '--reveal-delay': `${i * 80}ms` }}>
+                <TiltCard
+                  key={num}
+                  className="landing-feature-bento-card reveal"
+                  maxDeg={5}
+                  style={{ '--reveal-delay': `${i * 80}ms` }}
+                >
                   <div className="landing-feature-num">{num}</div>
                   <h3 className="landing-feature-title">{title}</h3>
                   <p className="landing-feature-desc">{body}</p>
                   <div className="landing-feature-detail">{detail}</div>
-                </div>
+                </TiltCard>
               );
             })}
           </div>
@@ -356,7 +492,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
         <div className="landing-cta-banner-inner">
           <div className="landing-cta-banner">
             <h3 className="landing-cta-banner-headline">{t('landing_cta_headline') || 'Ready to make documents answerable?'}</h3>
-            <button onClick={onSignUp} className="landing-cta-banner-btn">{t('landing_cta_start') || 'Start with Lexara'}</button>
+            <button onClick={onSignUp} className="landing-cta-banner-btn landing-btn-cta-glow">{t('landing_cta_start') || 'Start with Lexara'}</button>
           </div>
         </div>
       </section>

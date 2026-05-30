@@ -1091,3 +1091,141 @@
   .landing-btn-cta-primary,
   .landing-btn-cta-ghost { width: 100%; text-align: center; }
 }
+
+/* ── Theme toggle button in landing nav ── */
+.landing-theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background 150ms, color 150ms, border-color 150ms;
+  flex-shrink: 0;
+}
+.landing-theme-toggle:hover {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+/* ── Floating orbs ── */
+.landing-orbs {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.landing-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+}
+.landing-orb--1 {
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, rgba(74,122,255,0.6) 0%, transparent 70%);
+  top: -120px;
+  left: -100px;
+  animation: orbDrift1 40s ease-in-out infinite;
+}
+.landing-orb--2 {
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, rgba(139,92,246,0.5) 0%, transparent 70%);
+  top: 40%;
+  right: -80px;
+  animation: orbDrift2 60s ease-in-out infinite;
+}
+.landing-orb--3 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(16,185,129,0.4) 0%, transparent 70%);
+  bottom: 10%;
+  left: 30%;
+  animation: orbDrift3 80s ease-in-out infinite;
+}
+@keyframes orbDrift1 {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(60px, 80px); }
+  66% { transform: translate(-40px, 40px); }
+}
+@keyframes orbDrift2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-80px, -60px); }
+}
+@keyframes orbDrift3 {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(50px, -40px); }
+  75% { transform: translate(-30px, 60px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-orb { animation: none; }
+}
+
+/* Ensure landing content sits above orbs */
+.landing > *:not(.landing-orbs) {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Stats row ── */
+.landing-stats-row {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+.landing-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.landing-stat-number {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.landing-stat-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ── CTA glow pulse ── */
+.landing-btn-cta-glow {
+  animation: ctaGlowPulse 2s ease-in-out infinite;
+}
+@keyframes ctaGlowPulse {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  50% { box-shadow: var(--shadow-glow, 0 0 32px rgba(74,122,255,0.4)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-btn-cta-glow { animation: none; }
+}
+
+/* ── Tilt card base (no extra styles needed — handled inline) ── */
+.landing-hero-demo-card,
+.landing-feature-bento-card {
+  will-change: transform;
+}
+
+/* ── Input placeholder dark mode fix ── */
+[data-theme="dark"] .contact-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* ── Pricing feature list text fix in dark mode ── */
+[data-theme="dark"] .landing-pricing-feature {
+  color: var(--color-text-primary);
+}

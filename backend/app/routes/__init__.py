@@ -12,4 +12,3 @@ __all__ = [
     "workspaces_router",
 ]
 
-# TODO: Add to main.py: app.include_router(auth_router)

@@ -332,6 +332,27 @@ class Referral(Base):
     )
 
 
+class SupportTicket(Base):
+    __tablename__ = "support_tickets"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
+    question = Column(Text, nullable=False)
+    answer = Column(Text, nullable=True)
+    answered_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    is_public = Column(Boolean, default=False, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    answered_at = Column(DateTime, nullable=True)
+
+    user = relationship("User", foreign_keys=[user_id])
+    answerer = relationship("User", foreign_keys=[answered_by])
+
+    __table_args__ = (
+        Index("idx_support_ticket_user_id", "user_id"),
+        Index("idx_support_ticket_is_public", "is_public"),
+    )
+
+
 class Conversation(Base):
     __tablename__ = "conversations"
 

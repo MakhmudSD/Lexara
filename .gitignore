@@ -1,47 +1,29 @@
-.env
-
-# Secrets
-.env
-backend/.env
-frontend/.env
-*.env.local
-.env.production
-
-# Logs
-*.log
-logs/
-
-# Data (persisted locally, not in git)
-backend/data/faiss/
-backend/data/uploads/
-backend/backups/
-
-# Python cache
+# Python
 __pycache__/
-*.pyc
-.pytest_cache/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.env
 *.egg-info/
+dist/
+build/
 
 # Node
 node_modules/
+.npm/
+
+# Frontend build
 frontend/dist/
 
-# macOS
-.DS_Store
-
 # IDE
-.vscode/settings.json
+.vscode/
 .idea/
 
-# Sentry
-.sentryclirc
+# OS
+.DS_Store
+Thumbs.db
 
-# TODO is tracked (do NOT gitignore it)
-# TODO.md is intentionally committed
-frontend/.env.production
-frontend/.env.local
-__pycache__/
-*.pyc
-*.pyo
-frontend/.agents/
-frontend/skills-lock.json
+# Logs
+*.log

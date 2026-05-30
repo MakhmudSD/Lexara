@@ -93,8 +93,22 @@ function App() {
     );
   }
 
+  const SuspenseFallback = () => (
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'var(--color-bg)',
+      zIndex: 100,
+    }}>
+      <div className="lexara-spinner" />
+    </div>
+  );
+
   const lazySuspense = (node) => (
-    <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: '#9d9b96', fontSize: 14 }}>Loading…</div>}>
+    <Suspense fallback={<SuspenseFallback />}>
       {node}
     </Suspense>
   );
@@ -273,7 +287,7 @@ function App() {
         </div>
       </nav>
 
-      <div className="app-content">
+      <div className="app-content page-fade" key={`${page}-${currentPage}`}>
         {accessDenied && (
           <div style={{ margin: '20px auto', color: '#dc2626', fontFamily: 'var(--font-mono)' }}>{accessDenied}</div>
         )}

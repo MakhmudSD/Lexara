@@ -13,6 +13,7 @@ from app.core.runtime import AppRuntime
 from app.db.migrate import run_migrations
 from app.routes import auth_router, chat_router, documents_router, health_router, workspaces_router
 from app.routes.billing import router as billing_router, webhook_router
+from app.routes.support import router as support_router, admin_router as support_admin_router
 from app.routes.workspaces import org_workspace_router
 
 logger = logging.getLogger(__name__)
@@ -69,6 +70,8 @@ def create_app() -> FastAPI:
     app.include_router(auth_router)
     app.include_router(billing_router)
     app.include_router(webhook_router)
+    app.include_router(support_router)
+    app.include_router(support_admin_router)
 
     @app.on_event("startup")
     def startup_event() -> None:

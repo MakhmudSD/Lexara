@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import client from '../api/client';
 import { createCheckout } from '../api/billing';
 import { useTranslation } from '../i18n/useTranslation';
@@ -39,6 +39,114 @@ const PLAN_FEATURES_DEFAULTS = {
   pro:      ['1,000 queries/month', '5 workspaces', 'Unlimited documents', 'Usage analytics'],
   business: ['5,000 queries/month', 'Unlimited workspaces', 'All Pro features', 'Priority support'],
 };
+
+function SupportTab({ t }) {
+  const [tickets, setTickets] = useState([]);
+  const [faq, setFaq] = useState([]);
+  const [question, setQuestion] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const MAX = 1000;
+
+  const loadTickets = () => {
+    client.get('/support/tickets').then((r) => setTickets(r.data)).catch(() => {});
+    client.get('/support/faq').then((r) => setFaq(r.data)).catch(() => {});
+  };
+
+  useEffect(() => { loadTickets(); }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!question.trim()) return;
+    setSubmitting(true);
+    setError('');
+    setSuccess('');
+    try {
+      await client.post('/support/tickets', { question: question.trim() });
+      setQuestion('');
+      setSuccess('Your question was submitted. We\'ll respond soon!');
+      loadTickets();
+    } catch (err) {
+      setError(err?.response?.data?.detail || 'Failed to submit. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="mypage-section-card">
+      <div className="mypage-section-title">Ask a Question</div>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <textarea
+          className="mypage-support-textarea"
+          placeholder="Describe your question or issue..."
+          value={question}
+          onChange={(e) => setQuestion(e.target.value.slice(0, MAX))}
+          rows={4}
+          required
+        />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+          <span style={{ fontSize: 11, color: question.length >= MAX * 0.9 ? '#ef4444' : 'var(--color-text-muted)' }}>
+            {question.length}/{MAX}
+          </span>
+          <button type="submit" className="mypage-btn-primary" disabled={submitting || !question.trim()}>
+            {submitting ? 'Submitting…' : 'Submit Question'}
+          </button>
+        </div>
+        {error && <div style={{ fontSize: 12, color: '#ef4444' }}>{error}</div>}
+        {success && <div style={{ fontSize: 12, color: '#22c55e' }}>{success}</div>}
+      </form>
+
+      {tickets.length > 0 && (
+        <>
+          <div className="mypage-divider" style={{ margin: '20px 0' }} />
+          <div className="mypage-section-title">My Tickets</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {tickets.map((ticket) => (
+              <div key={ticket.id} className="mypage-support-ticket">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                  <div style={{ fontSize: 13, color: 'var(--color-text-primary)', flex: 1 }}>{ticket.question}</div>
+                  <span className={`mypage-support-badge ${ticket.status === 'answered' ? 'answered' : 'pending'}`}>
+                    {ticket.status === 'answered' ? 'Answered' : 'Pending'}
+                  </span>
+                </div>
+                {ticket.answer && (
+                  <div className="mypage-support-answer">
+                    <div style={{ fontSize: 11, color: 'var(--color-text-muted)', marginBottom: 4 }}>Response:</div>
+                    <div style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>{ticket.answer}</div>
+                  </div>
+                )}
+                <div style={{ fontSize: 11, color: 'var(--color-text-muted)', marginTop: 4 }}>
+                  {new Date(ticket.created_at).toLocaleDateString()}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {faq.length > 0 && (
+        <>
+          <div className="mypage-divider" style={{ margin: '20px 0' }} />
+          <div className="mypage-section-title">Community FAQ</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {faq.map((item) => (
+              <div key={item.id} className="mypage-support-ticket">
+                <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: 6 }}>
+                  Q: {item.question}
+                </div>
+                <div style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
+                  A: {item.answer}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function MyPage({ onLogout }) {
   const { t, lang, setLang, languageOptions } = useTranslation();
@@ -150,6 +258,7 @@ export default function MyPage({ onLogout }) {
     { id: 'info', label: t('tab_my_info') || 'Ma\'lumotlarim' },
     { id: 'subscription', label: t('tab_subscription') || 'Obuna' },
     { id: 'promo', label: t('tab_promo') || 'Promo' },
+    { id: 'support', label: t('tab_support') || 'Support' },
   ];
 
   if (loading) {
@@ -390,6 +499,9 @@ export default function MyPage({ onLogout }) {
           </div>
         </div>
       )}
+
+      {/* TAB: Support */}
+      {activeTab === 'support' && <SupportTab t={t} />}
     </div>
   );
 }

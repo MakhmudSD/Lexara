@@ -44,10 +44,14 @@ def upload_document(
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
 ) -> DocumentUploadResponse:
-    safe_filename = Path(file.filename or "").name
-    if not safe_filename or safe_filename.startswith("."):
+    raw_name = Path(file.filename or "").name
+    if not raw_name or raw_name.startswith("."):
         raise AppError(400, "invalid_filename", "Invalid filename.")
-    filename = safe_filename
+    # Strip HTML/script tags and control characters to prevent XSS via filename
+    import re
+    safe_filename = re.sub(r"[<>\"'&;]", "_", raw_name)
+    safe_filename = re.sub(r"[\x00-\x1f\x7f]", "", safe_filename)
+    filename = safe_filename[:255]
     extension = _file_extension(filename)
     if extension not in ALLOWED_EXTENSIONS:
         raise AppError(

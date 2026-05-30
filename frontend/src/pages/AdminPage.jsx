@@ -528,6 +528,7 @@ export default function AdminPage({ onGoChat }) {
         requests: getRequests,
         logs: getLogs,
         retrievals: getRetrievals,
+        support: async () => null,
       };
 
       if (activeTab === 'logs') {
@@ -692,6 +693,7 @@ export default function AdminPage({ onGoChat }) {
     documents: t('admin_documents') || 'Hujjatlar',
     requests: t('admin_requests') || 'So\'rovlar',
     logs: t('admin_metrics') || 'Ko\'rsatkichlar',
+    support: 'Support',
   };
   const tabs = Object.keys(tabLabels);
 
@@ -818,8 +820,186 @@ export default function AdminPage({ onGoChat }) {
             {activeTab === 'requests' && <RequestsPanel data={data.requests} t={t} />}
             {activeTab === 'logs' && renderMetrics()}
             {activeTab === 'retrievals' && <RetrievalsPanel data={data.retrievals} t={t} />}
+            {activeTab === 'support' && <AdminSupportPanel />}
           </>
         )}
+      </div>
+    </div>
+  );
+}
+
+function AdminSupportPanel() {
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [answeringId, setAnsweringId] = useState(null);
+  const [answerText, setAnswerText] = useState('');
+  const [isPublic, setIsPublic] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const load = () => {
+    setLoading(true);
+    import('../api/client').then(({ default: client }) => {
+      client.get('/admin/support/tickets')
+        .then((r) => setTickets(Array.isArray(r.data) ? r.data : []))
+        .catch(() => setTickets([]))
+        .finally(() => setLoading(false));
+    });
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const handleAnswer = async (ticketId) => {
+    if (!answerText.trim()) return;
+    setSubmitting(true);
+    const { default: client } = await import('../api/client');
+    try {
+      await client.patch(`/admin/support/tickets/${ticketId}/answer`, {
+        answer: answerText.trim(),
+        is_public: isPublic,
+      });
+      setAnsweringId(null);
+      setAnswerText('');
+      setIsPublic(false);
+      load();
+    } catch {
+      // ignore
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleTogglePublish = async (ticketId) => {
+    const { default: client } = await import('../api/client');
+    try {
+      await client.patch(`/admin/support/tickets/${ticketId}/publish`);
+      load();
+    } catch {
+      // ignore
+    }
+  };
+
+  const unanswered = tickets.filter((t) => !t.answer).length;
+  const avg = tickets.length
+    ? tickets
+        .filter((t) => t.answered_at && t.created_at)
+        .reduce((sum, t) => sum + (new Date(t.answered_at) - new Date(t.created_at)), 0) /
+      Math.max(1, tickets.filter((t) => t.answered_at).length) / 3600000
+    : 0;
+
+  if (loading) return <div style={{ padding: 24, color: 'var(--color-text-muted)', fontSize: 13 }}>Loading tickets…</div>;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+        {[
+          ['Total', tickets.length],
+          ['Unanswered', unanswered],
+          ['Avg response', `${avg.toFixed(1)}h`],
+        ].map(([label, value]) => (
+          <div key={label} style={{
+            padding: '10px 18px',
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--color-elevated)',
+            border: '1px solid var(--color-border)',
+            minWidth: 100,
+          }}>
+            <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--color-text-primary)' }}>{value}</div>
+            <div style={{ fontSize: 11, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="admin-table-wrap">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Question</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tickets.map((ticket) => (
+              <Fragment key={ticket.id}>
+                <tr>
+                  <td style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>{ticket.user_email || ticket.user_id.slice(0, 8)}</td>
+                  <td style={{ fontSize: 13, maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ticket.question}</td>
+                  <td>
+                    <span style={{
+                      fontSize: 10,
+                      fontWeight: 600,
+                      padding: '2px 8px',
+                      borderRadius: 999,
+                      background: ticket.answer ? 'rgba(34,197,94,0.12)' : 'rgba(245,158,11,0.12)',
+                      color: ticket.answer ? '#22c55e' : '#f59e0b',
+                      textTransform: 'uppercase',
+                    }}>
+                      {ticket.answer ? (ticket.is_public ? 'FAQ' : 'Answered') : 'Pending'}
+                    </span>
+                  </td>
+                  <td style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>
+                    {new Date(ticket.created_at).toLocaleDateString()}
+                  </td>
+                  <td style={{ display: 'flex', gap: 6 }}>
+                    {!ticket.answer && (
+                      <button
+                        onClick={() => { setAnsweringId(ticket.id); setAnswerText(''); setIsPublic(false); }}
+                        style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'transparent', color: 'var(--color-accent)', cursor: 'pointer' }}
+                      >
+                        Answer
+                      </button>
+                    )}
+                    {ticket.answer && (
+                      <button
+                        onClick={() => handleTogglePublish(ticket.id)}
+                        style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'transparent', color: ticket.is_public ? '#22c55e' : 'var(--color-text-muted)', cursor: 'pointer' }}
+                      >
+                        {ticket.is_public ? 'Unpublish' : 'Publish FAQ'}
+                      </button>
+                    )}
+                  </td>
+                </tr>
+                {answeringId === ticket.id && (
+                  <tr>
+                    <td colSpan={5} style={{ padding: '8px 12px', background: 'var(--color-elevated)' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 4 }}>Q: {ticket.question}</div>
+                        <textarea
+                          rows={3}
+                          value={answerText}
+                          onChange={(e) => setAnswerText(e.target.value)}
+                          placeholder="Write your answer…"
+                          style={{ padding: '8px 10px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text-primary)', fontSize: 13, fontFamily: 'inherit', resize: 'vertical' }}
+                        />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <label style={{ fontSize: 12, color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                            <input type="checkbox" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} />
+                            Publish as FAQ
+                          </label>
+                          <button
+                            onClick={() => handleAnswer(ticket.id)}
+                            disabled={submitting || !answerText.trim()}
+                            style={{ padding: '6px 14px', borderRadius: 6, background: 'var(--color-accent)', color: '#fff', border: 'none', fontSize: 12, cursor: 'pointer', opacity: submitting ? 0.6 : 1 }}
+                          >
+                            {submitting ? 'Saving…' : 'Submit Answer'}
+                          </button>
+                          <button
+                            onClick={() => setAnsweringId(null)}
+                            style={{ padding: '6px 14px', borderRadius: 6, background: 'transparent', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)', fontSize: 12, cursor: 'pointer' }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
