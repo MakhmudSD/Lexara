@@ -57,7 +57,7 @@ describe('ChatMessage — assistant message', () => {
 
   it('shows retrieval_only badge in retrieval mode', () => {
     render(<ChatMessage role="assistant" content="Answer" mode="retrieval" />);
-    expect(screen.getByText('retrieval only — no LLM key set')).toBeTruthy();
+    expect(screen.getByText('Document search mode')).toBeTruthy();
   });
 
   it('does not show retrieval badge in rag mode', () => {

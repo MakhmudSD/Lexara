@@ -1,8 +1,84 @@
-import { Fragment, useCallback, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { getDocuments, getHealth, getLogs, getRequests, getRetrievals } from '../api/admin';
 import { deleteUser, getConversations, getTokenSummary, getTokenUsage, getUsers, updateUserRole, updateUserStatus } from '../api/usage';
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/AdminPage.css';
+
+function CountUp({ target, duration = 800 }) {
+  const [value, setValue] = useState(0);
+  const ref = useRef(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !started.current) {
+        started.current = true;
+        if (prefersReducedMotion || typeof target !== 'number') { setValue(target); return; }
+        const start = performance.now();
+        const tick = (now) => {
+          const p = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - p, 3);
+          setValue(Math.round(eased * target));
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }
+    }, { threshold: 0.4 });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [target, duration]);
+
+  if (typeof target !== 'number') return <span>{target}</span>;
+  return <span ref={ref}>{value.toLocaleString()}</span>;
+}
+
+function DeleteConfirmModal({ user, onConfirm, onCancel }) {
+  return (
+    <div
+      style={{
+        position: 'fixed', inset: 0, zIndex: 1000,
+        background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}
+      onClick={onCancel}
+    >
+      <div
+        style={{
+          background: 'var(--color-surface)', borderRadius: 16,
+          padding: '28px 32px', maxWidth: 400, width: '90%',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.25)',
+          border: '1px solid var(--color-border)',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div style={{ fontSize: 32, marginBottom: 12 }}>⚠️</div>
+        <h3 style={{ margin: '0 0 8px', fontSize: 16, color: 'var(--color-text-primary)' }}>
+          Delete user permanently?
+        </h3>
+        <p style={{ margin: '0 0 20px', fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+          This will permanently delete <strong>{user.email}</strong> and all their data, including documents, conversations, and workspaces. This cannot be undone.
+        </p>
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+          <button
+            onClick={onCancel}
+            style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid var(--color-border)', background: 'transparent', color: 'var(--color-text-secondary)', cursor: 'pointer', fontSize: 13 }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: '#dc2626', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
+          >
+            Delete permanently
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function formatTime(ts) {
   if (!ts) return '—';
@@ -49,29 +125,45 @@ function truncate(text = '', max = 80) {
   return text.length > max ? `${text.slice(0, max)}…` : text;
 }
 
+const HEALTH_DESCRIPTIONS = {
+  Status: 'Current system health',
+  Uptime: 'Time since last restart',
+  Documents: 'Total indexed documents',
+  Chunks: 'Total indexed text segments',
+  Requests: 'Total HTTP requests served',
+  Logs: 'Total log entries recorded',
+  Retrievals: 'Total vector search queries',
+  'Vector store': 'Embedding search backend',
+  'DB backend': 'Persistent storage backend',
+  OpenAI: 'LLM API configuration status',
+};
+
 function HealthPanel({ data }) {
   if (!data) return null;
   const isOk = data.status === 'ok' || data.status === 'healthy';
 
   const cards = [
-    { label: 'Status', value: (data.status || '—').toUpperCase(), cls: isOk ? 'ok' : 'err' },
-    { label: 'Uptime', value: data.uptime_seconds ? `${Math.round(data.uptime_seconds)}s` : '—', cls: '' },
-    { label: 'Documents', value: data.indexed_documents ?? '—', cls: 'accent' },
-    { label: 'Chunks', value: data.indexed_chunks ?? '—', cls: 'accent' },
-    { label: 'Requests', value: data.total_requests ?? '—', cls: '' },
-    { label: 'Logs', value: data.total_logs ?? '—', cls: '' },
-    { label: 'Retrievals', value: data.total_retrievals ?? '—', cls: '' },
-    { label: 'Vector store', value: data.vector_backend || 'faiss', cls: '' },
-    { label: 'DB backend', value: data.persistence_backend || 'postgresql', cls: '' },
-    { label: 'OpenAI', value: data.openai_configured ? 'configured' : 'not set', cls: data.openai_configured ? 'ok' : 'warn' },
+    { label: 'Status', value: (data.status || '—').toUpperCase(), cls: isOk ? 'ok' : 'err', raw: null },
+    { label: 'Uptime', value: data.uptime_seconds ? `${Math.round(data.uptime_seconds)}s` : '—', cls: '', raw: null },
+    { label: 'Documents', value: data.indexed_documents ?? '—', cls: 'accent', raw: data.indexed_documents },
+    { label: 'Chunks', value: data.indexed_chunks ?? '—', cls: 'accent', raw: data.indexed_chunks },
+    { label: 'Requests', value: data.total_requests ?? '—', cls: '', raw: data.total_requests },
+    { label: 'Logs', value: data.total_logs ?? '—', cls: '', raw: data.total_logs },
+    { label: 'Retrievals', value: data.total_retrievals ?? '—', cls: '', raw: data.total_retrievals },
+    { label: 'Vector store', value: data.vector_backend || 'faiss', cls: '', raw: null },
+    { label: 'DB backend', value: data.persistence_backend || 'postgresql', cls: '', raw: null },
+    { label: 'OpenAI', value: data.openai_configured ? 'configured' : 'not set', cls: data.openai_configured ? 'ok' : 'warn', raw: null },
   ];
 
   return (
     <div className="health-grid">
       {cards.map((card) => (
-        <div key={card.label} className="health-card">
+        <div key={card.label} className="health-card health-card--glass">
           <div className="health-card-label">{card.label}</div>
-          <div className={`health-card-value ${card.cls}`}>{String(card.value)}</div>
+          <div className={`health-card-value ${card.cls}`}>
+            {typeof card.raw === 'number' ? <CountUp target={card.raw} /> : String(card.value)}
+          </div>
+          <div className="health-card-desc">{HEALTH_DESCRIPTIONS[card.label] || ''}</div>
         </div>
       ))}
     </div>
@@ -321,6 +413,7 @@ function UsersPanel({
   onRoleFilterChange,
   loading,
 }) {
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const sourceUsers = Array.isArray(users) ? users : [];
   const filteredUsers = sourceUsers.filter((user) => {
     const haystack = `${user.email || ''} ${user.full_name || ''}`.toLowerCase();
@@ -335,13 +428,13 @@ function UsersPanel({
     await onReload();
   };
   const handleToggleStatus = async (user) => {
-    if (user.is_active && !window.confirm('Deactivate this user?')) return;
     await updateUserStatus(user.user_id, !user.is_active);
     await onReload();
   };
-  const handleDelete = async (user) => {
-    if (!window.confirm(t('confirm_delete_user') || 'Permanently delete this user? This cannot be undone.')) return;
-    await deleteUser(user.user_id);
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    await deleteUser(deleteTarget.user_id);
+    setDeleteTarget(null);
     await onReload();
   };
 
@@ -358,6 +451,13 @@ function UsersPanel({
 
   return (
     <div>
+      {deleteTarget && (
+        <DeleteConfirmModal
+          user={deleteTarget}
+          onConfirm={handleDelete}
+          onCancel={() => setDeleteTarget(null)}
+        />
+      )}
       <div className="users-toolbar">
         <input
           type="search"
@@ -410,14 +510,22 @@ function UsersPanel({
                     </span>
                   </td>
                   <td className="td-mono">{formatJoinedDate(user.created_at)}</td>
-                  <td style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <td style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                     <button className="user-action-btn" onClick={() => handleToggleRole(user)}>
                       {user.role === 'admin' ? t('admin_make_user') : t('admin_make_admin')}
                     </button>
-                    <button className="user-action-btn secondary" onClick={() => handleToggleStatus(user)}>
+                    <button
+                      className={`user-action-btn secondary ${user.is_active ? 'deactivate' : 'activate'}`}
+                      onClick={() => handleToggleStatus(user)}
+                      title={user.is_active ? 'Temporarily block this user from logging in. Data is preserved.' : 'Re-enable this user\'s access.'}
+                    >
                       {user.is_active ? t('admin_deactivate') : t('admin_activate')}
                     </button>
-                    <button className="user-action-btn danger" onClick={() => handleDelete(user)}>
+                    <button
+                      className="user-action-btn danger"
+                      onClick={() => setDeleteTarget(user)}
+                      title="Permanently delete user and all their data. Cannot be undone."
+                    >
                       {t('admin_delete')}
                     </button>
                   </td>
@@ -602,26 +710,56 @@ export default function AdminPage({ onGoChat }) {
     return (
       <div>
         <div className="metrics-grid">
-          <div className="metric-card">
-            <div className="metric-label">{t('admin_total_requests') || 'Jami so\'rovlar'}</div>
-            <div className="metric-value">{totalReqs}</div>
+          <div className="metric-card metric-card--glass">
+            <div className="metric-label">{t('admin_total_requests') || 'Total Requests'}</div>
+            <div className="metric-value"><CountUp target={totalReqs} /></div>
+            <div className="metric-bar-wrap">
+              <div className="metric-bar-fill" style={{ width: '100%', background: '#2356d8' }} />
+            </div>
           </div>
-          <div className="metric-card">
-            <div className="metric-label">{t('admin_error_rate') || 'Xato darajasi'}</div>
-            <div className="metric-value" style={{ color: errorRate > 5 ? '#ef4444' : '#22c55e' }}>
+          <div className="metric-card metric-card--glass">
+            <div className="metric-label">{t('admin_error_rate') || 'Error Rate'}</div>
+            <div className="metric-value" style={{
+              color: errorRate > 5 ? '#ef4444' : errorRate >= 1 ? '#f59e0b' : '#22c55e'
+            }}>
               {errorRate}%
             </div>
-          </div>
-          <div className="metric-card">
-            <div className="metric-label">{t('admin_avg_response') || 'O\'rt. javob vaqti'}</div>
-            <div className="metric-value">
-              {avgLatency > 0 ? `${(avgLatency / 1000).toFixed(1)}s` : '—'}
+            <div className="metric-bar-wrap">
+              <div className="metric-bar-fill" style={{
+                width: `${Math.min(errorRate * 10, 100)}%`,
+                background: errorRate > 5 ? '#ef4444' : errorRate >= 1 ? '#f59e0b' : '#22c55e',
+              }} />
+            </div>
+            <div className="metric-bar-legend">
+              <span style={{ color: '#22c55e' }}>● &lt;1% OK</span>
+              <span style={{ color: '#f59e0b' }}>● 1–5% warn</span>
+              <span style={{ color: '#ef4444' }}>● &gt;5% critical</span>
             </div>
           </div>
-          <div className="metric-card">
-            <div className="metric-label">{t('admin_slow_queries') || 'Sekin so\'rovlar (>3s)'}</div>
+          <div className="metric-card metric-card--glass">
+            <div className="metric-label">{t('admin_avg_response') || 'Avg Response'}</div>
+            <div className="metric-value" style={{
+              color: avgLatency > 3000 ? '#ef4444' : avgLatency > 1000 ? '#f59e0b' : '#22c55e'
+            }}>
+              {avgLatency > 0 ? `${(avgLatency / 1000).toFixed(1)}s` : '—'}
+            </div>
+            <div className="metric-bar-wrap">
+              <div className="metric-bar-fill" style={{
+                width: `${Math.min((avgLatency / 5000) * 100, 100)}%`,
+                background: avgLatency > 3000 ? '#ef4444' : avgLatency > 1000 ? '#f59e0b' : '#22c55e',
+              }} />
+            </div>
+          </div>
+          <div className="metric-card metric-card--glass">
+            <div className="metric-label">{t('admin_slow_queries') || 'Slow Queries (&gt;3s)'}</div>
             <div className="metric-value" style={{ color: slowReqs.length > 0 ? '#f59e0b' : '#22c55e' }}>
-              {slowReqs.length}
+              <CountUp target={slowReqs.length} />
+            </div>
+            <div className="metric-bar-wrap">
+              <div className="metric-bar-fill" style={{
+                width: totalReqs > 0 ? `${Math.min((slowReqs.length / totalReqs) * 100 * 5, 100)}%` : '0%',
+                background: slowReqs.length > 0 ? '#f59e0b' : '#22c55e',
+              }} />
             </div>
           </div>
         </div>
@@ -691,7 +829,7 @@ export default function AdminPage({ onGoChat }) {
     documents: t('admin_documents') || 'Hujjatlar',
     requests: t('admin_requests') || 'So\'rovlar',
     logs: t('admin_metrics') || 'Ko\'rsatkichlar',
-    support: 'Support',
+    support: 'Questions',
   };
   const tabs = Object.keys(tabLabels);
 

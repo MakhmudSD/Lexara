@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import client from '../api/client';
-import { createCheckout } from '../api/billing';
+import { createCheckout, redeemPromo } from '../api/billing';
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/MyPage.css';
 
@@ -271,7 +271,7 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
     { id: 'info', label: t('tab_my_info') || 'Ma\'lumotlarim' },
     { id: 'subscription', label: t('tab_subscription') || 'Obuna' },
     { id: 'promo', label: t('tab_promo') || 'Promo' },
-    { id: 'support', label: t('tab_help') || 'Help' },
+    { id: 'support', label: 'FAQ' },
   ];
 
   if (loading) {
@@ -476,8 +476,52 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
 
       {/* TAB: Promo */}
       {activeTab === 'promo' && (
-        <div className="mypage-section-card">
-          <div className="mypage-promo-hero">
+        <PromoTab t={t} />
+      )}
+
+      {/* TAB: Support / FAQ */}
+      {activeTab === 'support' && <SupportTab t={t} />}
+    </div>
+  );
+}
+
+function PromoTab({ t }) {
+  const user = (() => {
+    try { return JSON.parse(localStorage.getItem('authUser') || '{}'); }
+    catch { return {}; }
+  })();
+
+  const referralCode = user.id
+    ? `LEX-${user.id.toString().replace(/-/g,'').substring(0,6).toUpperCase()}`
+    : 'LEX-XXXXXX';
+  const referralLink = `${window.location.origin}?ref=${referralCode}`;
+
+  const [promoCode, setPromoCode] = useState('');
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [promoError, setPromoError] = useState('');
+  const [promoSuccess, setPromoSuccess] = useState('');
+
+  const handleRedeemPromo = async (e) => {
+    e.preventDefault();
+    if (!promoCode.trim()) return;
+    setPromoLoading(true);
+    setPromoError('');
+    setPromoSuccess('');
+    try {
+      await redeemPromo(promoCode.trim().toUpperCase());
+      setPromoSuccess('Promo code applied! Your account has been upgraded.');
+      setPromoCode('');
+    } catch (err) {
+      const msg = err?.response?.data?.detail || err?.message || 'Invalid or expired promo code.';
+      setPromoError(msg);
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+
+  return (
+    <div className="mypage-section-card">
+      <div className="mypage-promo-hero">
             <div className="mypage-promo-icon">
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{color:'var(--color-accent)'}}>
                 <polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
@@ -527,11 +571,31 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
           <div className="mypage-promo-note">
             {t('promo_note') || '* Mukofot hozircha qo\'lda beriladi. Tez orada avtomatik bo\'ladi.'}
           </div>
-        </div>
-      )}
 
-      {/* TAB: Support */}
-      {activeTab === 'support' && <SupportTab t={t} />}
-    </div>
+          <div className="mypage-divider" />
+
+          <div className="mypage-section-title">Redeem a promo code</div>
+          <form onSubmit={handleRedeemPromo} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                className="mypage-referral-input"
+                placeholder="Enter code (e.g. LEXARA2024)"
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                maxLength={32}
+                style={{ flex: 1 }}
+              />
+              <button
+                type="submit"
+                className="mypage-referral-copy-btn"
+                disabled={promoLoading || !promoCode.trim()}
+              >
+                {promoLoading ? '...' : 'Apply'}
+              </button>
+            </div>
+            {promoError && <div style={{ fontSize: 12, color: '#ef4444' }}>{promoError}</div>}
+            {promoSuccess && <div style={{ fontSize: 12, color: '#22c55e' }}>{promoSuccess}</div>}
+          </form>
+        </div>
   );
 }

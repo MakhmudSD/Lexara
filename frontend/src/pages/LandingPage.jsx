@@ -24,60 +24,6 @@ function FAQItem({ question, answer }) {
   );
 }
 
-function ContactForm({ t }) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
-  const [sent, setSent] = useState(false);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const subject = encodeURIComponent(`Lexara inquiry from ${name}`);
-    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
-    window.open(`mailto:support@lexara.app?subject=${subject}&body=${body}`);
-    setSent(true);
-    setTimeout(() => setSent(false), 5000);
-  };
-
-  return (
-    <form className="contact-form" onSubmit={handleSubmit}>
-      <div className="contact-form-row">
-        <input
-          type="text"
-          className="contact-input"
-          placeholder={t('contact_name') || 'Your name'}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-        <input
-          type="email"
-          className="contact-input"
-          placeholder={t('contact_email') || 'Your email'}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-      </div>
-      <textarea
-        className="contact-input contact-textarea"
-        placeholder={t('contact_message') || 'Your message...'}
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        rows={4}
-        required
-      />
-      <button type="submit" className="landing-btn-primary landing-btn-submit" disabled={sent}>
-        {sent
-          ? (t('contact_sent') || 'Email client opened ✓')
-          : (t('contact_send') || 'Open email client →')}
-      </button>
-      <p className="contact-form-note">
-        {t('contact_note') || 'Opens your email app with a pre-filled message to support@lexara.app'}
-      </p>
-    </form>
-  );
-}
 
 function TiltCard({ children, maxDeg = 8, className = '', style = {} }) {
   const ref = useRef(null);
@@ -555,19 +501,6 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
               <FAQItem key={i} question={item.q} answer={item.a} />
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ── Contact ── */}
-      <section className="landing-contact" id="contact">
-        <div className="landing-contact-inner">
-          <h2 className="landing-section-title">
-            {t('contact_title') || 'Get in touch'}
-          </h2>
-          <p className="landing-contact-sub">
-            {t('contact_sub') || 'Have a question or want to discuss a custom plan? We respond within 24 hours.'}
-          </p>
-          <ContactForm t={t} />
         </div>
       </section>
 

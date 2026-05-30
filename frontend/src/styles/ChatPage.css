@@ -258,15 +258,14 @@
   align-items: flex-end;
   gap: 8px;
   background: var(--color-elevated);
-  border: 1px solid var(--color-border);
+  border: none;
   border-radius: var(--radius-md);
   padding: 8px 10px;
-  transition: border-color 150ms, box-shadow 150ms;
+  transition: box-shadow 150ms;
 }
 
 .chat-input-wrapper:focus-within {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px var(--color-accent-glow);
+  box-shadow: none;
 }
 
 .chat-input-wrapper.disabled {

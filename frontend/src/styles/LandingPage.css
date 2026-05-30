@@ -75,6 +75,19 @@
   border-bottom-color: rgba(255, 255, 255, 0.08);
 }
 
+/* Light mode: make the nav visible against the warm off-white background */
+[data-theme="light"] .landing-nav.scrolled,
+:root:not([data-theme="dark"]) .landing-nav.scrolled {
+  background: rgba(247, 245, 240, 0.9);
+  border-bottom-color: rgba(0, 0, 0, 0.10);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.07), 0 2px 12px rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .landing-nav-link,
+:root:not([data-theme="dark"]) .landing-nav-link {
+  color: var(--color-text-secondary);
+}
+
 .landing-nav-inner {
   max-width: 1120px;
   margin: 0 auto;
@@ -181,6 +194,17 @@
   padding: 88px 32px 96px;
   position: relative;
   overflow: hidden;
+}
+
+/* Light mode hero: warm radial gradient depth instead of dark mesh */
+[data-theme="light"] .landing-hero-section,
+:root:not([data-theme="dark"]) .landing-hero-section {
+  background:
+    radial-gradient(ellipse 70% 60% at 20% 30%, rgba(35,86,216,0.09) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 70% at 80% 70%, rgba(124,58,237,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 90% 50% at 50% 0%, rgba(35,86,216,0.05) 0%, transparent 55%),
+    var(--color-bg);
+  animation: none;
 }
 
 .landing-hero-section::before {
@@ -565,8 +589,12 @@
 
 .landing-feature-bento-card:hover {
   border-color: rgba(74, 122, 255, 0.4);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(74, 122, 255, 0.1);
-  transform: translateY(-2px);
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.04),
+    0 8px 24px rgba(0,0,0,0.12),
+    0 20px 48px rgba(0,0,0,0.08),
+    0 0 0 1px rgba(74, 122, 255, 0.1);
+  transform: perspective(1000px) rotateX(1deg) translateY(-3px);
 }
 
 .landing-feature-bento-card:hover::before {
@@ -635,6 +663,8 @@
 
 .landing-pricing-card:hover {
   border-color: rgba(255, 255, 255, 0.20);
+  transform: perspective(1000px) rotateX(1deg) translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .landing-pricing-card--pro {
