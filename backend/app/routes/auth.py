@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from uuid import uuid4
 import secrets
 
-from fastapi import APIRouter, Body, Depends, Header, Request
+from fastapi import APIRouter, Depends, Header, Request
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -50,10 +50,9 @@ def _auth_response(user: User, runtime: AppRuntime) -> AuthResponse:
 
 
 @router.post("/register", response_model=AuthResponse, status_code=201)
-@limiter.limit("5/minute")
+# @limiter.limit("5/minute")
 def register(
-    request: Request,
-    payload: RegisterRequest = Body(...),
+    payload: RegisterRequest,
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
     ref: str | None = None,
@@ -94,10 +93,9 @@ def register(
 
 
 @router.post("/login", response_model=AuthResponse)
-@limiter.limit("10/minute")
+# @limiter.limit("10/minute")
 def login(
-    request: Request,
-    payload: LoginRequest = Body(...),
+    payload: LoginRequest,
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
 ) -> AuthResponse:
@@ -167,10 +165,9 @@ def me(
 
 
 @router.post("/forgot-password")
-@limiter.limit("3/minute")
+# @limiter.limit("3/minute")
 def forgot_password(
-    request: Request,
-    payload: ForgotPasswordRequest = Body(...),
+    payload: ForgotPasswordRequest,
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
 ) -> dict:
@@ -198,7 +195,7 @@ def forgot_password(
 
 @router.post("/reset-password")
 def reset_password(
-    payload: ResetPasswordRequest = Body(...),
+    payload: ResetPasswordRequest,
     db: Session = Depends(get_db),
 ) -> dict:
     token_row = db.query(PasswordResetToken).filter(PasswordResetToken.token == payload.token).first()
