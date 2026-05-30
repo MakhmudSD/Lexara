@@ -444,6 +444,37 @@
   box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 16px 64px rgba(0,0,0,0.08);
 }
 
+[data-theme="light"] .landing-hero-demo-urlbar,
+:root:not([data-theme="dark"]) .landing-hero-demo-urlbar {
+  color: var(--color-text-muted);
+  border-bottom-color: var(--color-border);
+}
+
+[data-theme="light"] .landing-hero-demo-msg--user,
+:root:not([data-theme="dark"]) .landing-hero-demo-msg--user {
+  background: var(--color-accent);
+  color: #ffffff;
+  border-color: var(--color-accent);
+}
+
+[data-theme="light"] .landing-hero-demo-msg--assistant,
+:root:not([data-theme="dark"]) .landing-hero-demo-msg--assistant {
+  background: var(--color-elevated);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+[data-theme="light"] .landing-hero-demo-list-item,
+:root:not([data-theme="dark"]) .landing-hero-demo-list-item {
+  color: var(--color-text-secondary);
+}
+
+[data-theme="light"] .landing-hero-demo-footer,
+:root:not([data-theme="dark"]) .landing-hero-demo-footer {
+  color: var(--color-text-muted);
+  border-top-color: var(--color-border);
+}
+
 .landing-hero-demo-urlbar {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding-bottom: 10px;

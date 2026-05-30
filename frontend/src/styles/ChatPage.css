@@ -265,8 +265,7 @@
 }
 
 .chat-input-wrapper:focus-within {
-  border-color: var(--accent, var(--color-accent));
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .chat-input {
@@ -298,26 +297,29 @@
 
 .send-btn {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--color-accent);
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 150ms, box-shadow 150ms, transform 150ms;
+  transition: opacity 150ms, box-shadow 150ms, transform 150ms;
   color: white;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.30);
 }
 
 .send-btn:hover:not(:disabled) {
-  background: var(--color-accent-hover);
-  box-shadow: var(--shadow-glow);
+  opacity: 0.88;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.40);
+  transform: translateY(-1px);
 }
 
 .send-btn:active:not(:disabled) {
-  transform: scale(0.97);
+  transform: scale(0.95) translateY(0);
+  box-shadow: 0 1px 4px rgba(99, 102, 241, 0.25);
 }
 
 .send-btn:focus-visible {
@@ -327,6 +329,7 @@
 
 .send-btn:disabled {
   background: var(--color-border);
+  box-shadow: none;
   cursor: not-allowed;
 }
 
