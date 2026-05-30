@@ -32,12 +32,13 @@ export function LexaraIcon({ size = 36, className, onClick, style }) {
   );
 }
 
-export function LexaraLogo({ height = 36, className, onClick, style }) {
+export function LexaraLogo({ height = 36, className, onClick, style, textColor }) {
   const markSize = height;
   const gap = 12;
   const textWidth = Math.max(90, height * 2.5);
   const width = markSize + gap + textWidth;
   const baselineY = height * 0.69;
+  const resolvedTextColor = textColor || 'currentColor';
 
   return (
     <svg
@@ -67,7 +68,7 @@ export function LexaraLogo({ height = 36, className, onClick, style }) {
       <text
         x={markSize + gap}
         y={baselineY}
-        fill="#1a1814"
+        fill={resolvedTextColor}
         fontFamily="'DM Sans', sans-serif"
         fontWeight="700"
         fontSize={height * 0.63}

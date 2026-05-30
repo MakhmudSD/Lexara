@@ -1,5 +1,6 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { getDocuments, getHealth, getLogs, getRequests, getRetrievals } from '../api/admin';
 import { deleteUser, getConversations, getTokenSummary, getTokenUsage, getUsers, updateUserRole, updateUserStatus } from '../api/usage';
 import { useTranslation } from '../i18n/useTranslation';
@@ -224,11 +225,12 @@ function DocumentsPanel({ data, t }) {
           <tr>
             <th>{t('admin_filename')}</th>
             <th>{t('admin_workspace')}</th>
+            <th>User ID</th>
             <th>{t('admin_type')}</th>
             <th>{t('admin_chunks')}</th>
             <th>{t('admin_size')}</th>
             <th>{t('admin_uploaded')}</th>
-            <th>Yuklab olish</th>
+            <th>Download</th>
           </tr>
         </thead>
         <tbody>
@@ -236,6 +238,7 @@ function DocumentsPanel({ data, t }) {
             <tr key={doc.document_id}>
               <td className="td-primary">{doc.filename}</td>
               <td className="td-mono">{shortId(doc.workspace_id)}</td>
+              <td className="td-mono">{shortId(doc.user_id || doc.owner_id)}</td>
               <td className="td-mono">{doc.content_type?.split('/')[1] ?? doc.content_type}</td>
               <td className="td-mono">{doc.chunk_count}</td>
               <td className="td-mono">{doc.file_size ? `${(doc.file_size / 1024).toFixed(1)}k` : doc.size_bytes ? `${(doc.size_bytes / 1024).toFixed(1)}k` : '—'}</td>
@@ -247,6 +250,7 @@ function DocumentsPanel({ data, t }) {
                   className="admin-download-link"
                   target="_blank"
                   rel="noreferrer"
+                  title={doc.storage_path?.startsWith('r2://') ? 'Download from R2 storage' : 'Download file'}
                 >
                   ↓
                 </a>
@@ -860,6 +864,42 @@ export default function AdminPage({ onGoChat }) {
             </div>
           </>
         )}
+
+      </div>
+    );
+  };
+
+  const renderMetricsChart = () => {
+    const requests = Array.isArray(data.requests) ? data.requests : [];
+    const logs = Array.isArray(data.logs) ? data.logs : [];
+    const slowReqs = requests.filter((r) => (r.duration_ms || r.latency_ms || 0) > 3000);
+    const errorLogs = logs.filter((l) => l.level === 'ERROR' || l.level === 'error');
+    const chartData = [
+      { name: 'Requests', value: requests.length },
+      { name: 'Documents', value: data.documents?.length ?? 0 },
+      { name: 'Logs', value: logs.length },
+      { name: 'Slow', value: slowReqs.length },
+      { name: 'Errors', value: errorLogs.length },
+    ];
+    return (
+      <div style={{ marginTop: 24 }}>
+        <div className="metrics-section-title">System activity overview</div>
+        <ResponsiveContainer width="100%" height={200}>
+          <BarChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+            <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false} allowDecimals={false} />
+            <Tooltip
+              contentStyle={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 8, fontSize: 12 }}
+              labelStyle={{ color: 'var(--color-text-primary)' }}
+              itemStyle={{ color: 'var(--color-text-secondary)' }}
+            />
+            <Bar dataKey="value" radius={[4, 4, 0, 0]} animationDuration={800}>
+              {chartData.map((entry, index) => (
+                <Cell key={index} fill={index >= 3 ? '#ef4444' : '#6366f1'} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     );
   };
@@ -940,33 +980,34 @@ export default function AdminPage({ onGoChat }) {
               <>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
                   <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                    <div style={{ minWidth: 180, padding: 14, borderRadius: 12, background: '#ecfdf5', color: '#166534' }}>
+                    <div style={{ minWidth: 180, padding: 14, borderRadius: 12, background: 'rgba(34,197,94,0.10)', border: '1px solid rgba(34,197,94,0.20)', color: '#22c55e' }}>
                       <div style={{ fontSize: 11, opacity: 0.8 }}>🟢 High</div>
                       <div style={{ fontSize: 18, fontWeight: 700 }}>{conversationTotals.high}</div>
                       <div style={{ fontSize: 12, opacity: 0.8 }}>{conversationPercent(conversationTotals.high)}%</div>
                     </div>
-                    <div style={{ minWidth: 180, padding: 14, borderRadius: 12, background: '#fffbeb', color: '#92400e' }}>
+                    <div style={{ minWidth: 180, padding: 14, borderRadius: 12, background: 'rgba(245,158,11,0.10)', border: '1px solid rgba(245,158,11,0.20)', color: '#f59e0b' }}>
                       <div style={{ fontSize: 11, opacity: 0.8 }}>🟡 Medium</div>
                       <div style={{ fontSize: 18, fontWeight: 700 }}>{conversationTotals.medium}</div>
                       <div style={{ fontSize: 12, opacity: 0.8 }}>{conversationPercent(conversationTotals.medium)}%</div>
                     </div>
-                    <div style={{ minWidth: 180, padding: 14, borderRadius: 12, background: '#fef2f2', color: '#991b1b' }}>
+                    <div style={{ minWidth: 180, padding: 14, borderRadius: 12, background: 'rgba(220,38,38,0.10)', border: '1px solid rgba(220,38,38,0.20)', color: '#ef4444' }}>
                       <div style={{ fontSize: 11, opacity: 0.8 }}>🔴 Low</div>
                       <div style={{ fontSize: 18, fontWeight: 700 }}>{conversationTotals.low}</div>
                       <div style={{ fontSize: 12, opacity: 0.8 }}>{conversationPercent(conversationTotals.low)}%</div>
                       {conversationPercent(conversationTotals.low) > 20 && (
-                        <div style={{ marginTop: 6, fontSize: 11, color: '#991b1b' }}>
+                        <div style={{ marginTop: 6, fontSize: 11, color: '#ef4444' }}>
                           ⚠ More than 20% of conversations need review
                         </div>
                       )}
                     </div>
                   </div>
                   <label style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, minWidth: 220 }}>
-                    <span style={{ fontSize: 12, color: '#6b7280' }}>Score filter</span>
+                    <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Score filter</span>
                     <select
                       value={conversationScoreFilter}
                       onChange={(event) => setConversationScoreFilter(event.target.value)}
-                      style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #d1d5db', background: '#ffffff' }}
+                      className="conversation-score-filter"
+                      style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}
                     >
                       <option value="all">All scores</option>
                       <option value="high">High (≥75%)</option>
@@ -1005,7 +1046,7 @@ export default function AdminPage({ onGoChat }) {
             )}
             {activeTab === 'documents' && <DocumentsPanel data={data.documents} t={t} />}
             {activeTab === 'requests' && <RequestsPanel data={data.requests} t={t} />}
-            {activeTab === 'logs' && renderMetrics()}
+            {activeTab === 'logs' && <>{renderMetrics()}{renderMetricsChart()}</>}
             {activeTab === 'retrievals' && <RetrievalsPanel data={data.retrievals} t={t} />}
             {activeTab === 'support' && <AdminSupportPanel />}
           </>

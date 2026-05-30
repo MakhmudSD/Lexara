@@ -88,6 +88,12 @@
   color: var(--color-text-secondary);
 }
 
+/* Logo brand text uses currentColor — set explicit color per theme */
+.landing-nav-logo {
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
 .landing-nav-inner {
   max-width: 1120px;
   margin: 0 auto;
@@ -205,6 +211,80 @@
     radial-gradient(ellipse 90% 50% at 50% 0%, rgba(35,86,216,0.05) 0%, transparent 55%),
     var(--color-bg);
   animation: none;
+}
+
+/* Light mode hero text — override dark hardcoded white */
+[data-theme="light"] .landing-hero-headline,
+:root:not([data-theme="dark"]) .landing-hero-headline {
+  color: var(--color-text-primary);
+  text-shadow: none;
+}
+
+[data-theme="light"] .landing-hero-sub,
+:root:not([data-theme="dark"]) .landing-hero-sub {
+  color: var(--color-text-secondary);
+}
+
+[data-theme="light"] .landing-hero-badge,
+:root:not([data-theme="dark"]) .landing-hero-badge {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.20);
+  color: var(--color-accent);
+}
+
+[data-theme="light"] .landing-trust-chip,
+:root:not([data-theme="dark"]) .landing-trust-chip {
+  color: var(--color-text-secondary);
+}
+
+[data-theme="light"] .landing-trust-sep,
+:root:not([data-theme="dark"]) .landing-trust-sep {
+  color: var(--color-text-muted);
+}
+
+[data-theme="light"] .landing-btn-cta-ghost,
+:root:not([data-theme="dark"]) .landing-btn-cta-ghost {
+  color: var(--color-text-primary);
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+[data-theme="light"] .landing-btn-cta-ghost:hover,
+:root:not([data-theme="dark"]) .landing-btn-cta-ghost:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--color-text-primary);
+}
+
+[data-theme="light"] .landing-btn-ghost,
+:root:not([data-theme="dark"]) .landing-btn-ghost {
+  color: var(--color-text-secondary);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .landing-btn-ghost:hover,
+:root:not([data-theme="dark"]) .landing-btn-ghost:hover {
+  color: var(--color-text-primary);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .landing-lang-select,
+:root:not([data-theme="dark"]) .landing-lang-select {
+  color: var(--color-text-secondary);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .landing-theme-toggle,
+:root:not([data-theme="dark"]) .landing-theme-toggle {
+  color: var(--color-text-secondary);
+}
+
+[data-theme="light"] .landing-nav-link,
+:root:not([data-theme="dark"]) .landing-nav-link {
+  color: var(--color-text-secondary);
+}
+
+[data-theme="light"] .landing-nav-link:hover,
+:root:not([data-theme="dark"]) .landing-nav-link:hover {
+  color: var(--color-text-primary);
 }
 
 .landing-hero-section::before {
@@ -1346,4 +1426,98 @@
 /* ── Pricing feature list text fix in dark mode ── */
 [data-theme="dark"] .landing-pricing-feature {
   color: var(--color-text-primary);
+}
+
+/* ── FloatingDocs 3D component ── */
+.floating-docs-wrap {
+  position: absolute;
+  bottom: -20px;
+  left: -60px;
+  width: 260px;
+  height: 200px;
+  perspective: 900px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.floating-doc-card {
+  position: absolute;
+  width: 180px;
+  background: #f7f5f0;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.10);
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+.floating-doc-card:nth-child(1) { bottom: 0; left: 0; }
+.floating-doc-card:nth-child(2) { bottom: 30px; left: 40px; }
+.floating-doc-card:nth-child(3) { bottom: 10px; left: 80px; }
+
+[data-theme="dark"] .floating-doc-card {
+  background: #1e1e24;
+  border-color: rgba(255,255,255,0.08);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.50), 0 2px 8px rgba(0,0,0,0.30);
+}
+
+.floating-doc-topbar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.floating-doc-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.15);
+}
+
+[data-theme="dark"] .floating-doc-dot {
+  background: rgba(255,255,255,0.15);
+}
+
+.floating-doc-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.floating-doc-line {
+  font-size: 8px;
+  color: rgba(0,0,0,0.5);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .floating-doc-line {
+  color: rgba(255,255,255,0.5);
+}
+
+.floating-doc-badge {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(99,102,241,0.12);
+  color: var(--color-accent);
+}
+
+/* Ensure hero right column is position:relative so floating-docs can be absolute */
+.landing-hero-section-inner > .landing-hero-demo-card {
+  position: relative;
+}
+
+/* ── Hero right column wrapper ── */
+.landing-hero-right {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

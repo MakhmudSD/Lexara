@@ -80,6 +80,89 @@ function TiltCard({ children, maxDeg = 8, className = '', style = {} }) {
   );
 }
 
+function FloatingDocs({ heroRef }) {
+  const wrapRef = useRef(null);
+  const prefersReducedMotion = useRef(
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap || prefersReducedMotion.current) return;
+    const cards = Array.from(wrap.querySelectorAll('.floating-doc-card'));
+    if (!cards.length) return;
+
+    const tl = gsap.timeline({ delay: 0.3 });
+    cards.forEach((card, i) => {
+      tl.fromTo(card, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out' }, i * 0.12);
+    });
+
+    const bobs = cards.map((card, i) =>
+      gsap.to(card, {
+        y: i % 2 === 0 ? -8 : -12,
+        duration: 2.8 + i * 0.4,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: -1,
+        delay: i * 0.5,
+      })
+    );
+
+    const onMouseMove = (e) => {
+      const hero = heroRef?.current;
+      if (!hero) return;
+      const rect = hero.getBoundingClientRect();
+      const xRatio = (e.clientX - rect.left) / rect.width - 0.5;
+      const yRatio = (e.clientY - rect.top) / rect.height - 0.5;
+      cards.forEach((card, i) => {
+        const depth = (i + 1) * 6;
+        gsap.to(card, { x: xRatio * depth, y: yRatio * depth * 0.4, duration: 0.6, ease: 'power2.out', overwrite: 'auto' });
+      });
+    };
+
+    const hero = heroRef?.current;
+    if (hero) hero.addEventListener('mousemove', onMouseMove);
+    return () => {
+      tl.kill();
+      bobs.forEach((b) => b.kill());
+      if (hero) hero.removeEventListener('mousemove', onMouseMove);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <div ref={wrapRef} className="floating-docs-wrap" aria-hidden="true">
+      <div className="floating-doc-card" style={{ transform: 'rotateY(-14deg) scale(0.88)', zIndex: 1, opacity: 0 }}>
+        <div className="floating-doc-topbar"><span className="floating-doc-dot" /><span className="floating-doc-dot" /><span className="floating-doc-dot" /></div>
+        <div className="floating-doc-lines">
+          <div className="floating-doc-line" style={{ opacity: 0.25 }}>████████████ ██████</div>
+          <div className="floating-doc-line" style={{ opacity: 0.40 }}>██████████████ ███</div>
+          <div className="floating-doc-line" style={{ opacity: 0.55 }}>████████ ██████████</div>
+        </div>
+        <div className="floating-doc-badge">PDF</div>
+      </div>
+      <div className="floating-doc-card" style={{ transform: 'rotateY(2deg) scale(0.94)', zIndex: 2, opacity: 0 }}>
+        <div className="floating-doc-topbar"><span className="floating-doc-dot" /><span className="floating-doc-dot" /><span className="floating-doc-dot" /></div>
+        <div className="floating-doc-lines">
+          <div className="floating-doc-line" style={{ opacity: 0.25 }}>██████████████████</div>
+          <div className="floating-doc-line" style={{ opacity: 0.40 }}>████████ █████████</div>
+          <div className="floating-doc-line" style={{ opacity: 0.55 }}>██████████████ ███</div>
+        </div>
+        <div className="floating-doc-badge">DOCX</div>
+      </div>
+      <div className="floating-doc-card" style={{ transform: 'rotateY(16deg) scale(0.84)', zIndex: 1, opacity: 0 }}>
+        <div className="floating-doc-topbar"><span className="floating-doc-dot" /><span className="floating-doc-dot" /><span className="floating-doc-dot" /></div>
+        <div className="floating-doc-lines">
+          <div className="floating-doc-line" style={{ opacity: 0.25 }}>███████ ██████████</div>
+          <div className="floating-doc-line" style={{ opacity: 0.40 }}>████████████ █████</div>
+          <div className="floating-doc-line" style={{ opacity: 0.55 }}>██████████ ███████</div>
+        </div>
+        <div className="floating-doc-badge">TXT</div>
+      </div>
+    </div>
+  );
+}
+
 function CountUp({ target }) {
   const prefersReduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const [value, setValue] = useState(prefersReduced ? target : 0);
@@ -199,6 +282,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
   const [pricingModal, setPricingModal] = useState(null);
   const headlineRef = useRef(null);
   const featuresRef = useRef(null);
+  const heroSectionRef = useRef(null);
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof localStorage !== 'undefined') {
       const stored = localStorage.getItem('theme');
@@ -324,7 +408,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
       {/* ── Nav ── */}
       <nav className={`landing-nav ${scrolled ? 'scrolled' : ''}`}>
         <div className="landing-nav-inner">
-          <LexaraLogo height={32} />
+          <LexaraLogo height={32} className="landing-nav-logo" />
           <div className="landing-nav-links">
             <a href="#features" className="landing-nav-link" onClick={(e) => scrollToSection(e, 'features')}>{t('landing_nav_features') || 'Features'}</a>
             <a href="#pricing" className="landing-nav-link" onClick={(e) => scrollToSection(e, 'pricing')}>{t('landing_nav_pricing') || 'Pricing'}</a>
@@ -368,7 +452,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
       </nav>
 
       {/* ── Hero ── */}
-      <section className="landing-hero-section">
+      <section className="landing-hero-section" ref={heroSectionRef}>
         <div className="hero-orb hero-orb-1" aria-hidden="true" />
         <div className="hero-orb hero-orb-2" aria-hidden="true" />
         <div className="hero-orb hero-orb-3" aria-hidden="true" />
@@ -399,25 +483,28 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
             </div>
           </div>
 
-          <TiltCard
-            className="landing-hero-demo-card reveal"
-            maxDeg={8}
-            style={{ '--reveal-delay': '120ms' }}
-          >
-            <div className="landing-hero-demo-urlbar">{t('demo_url') || 'app.lexara.ai'}</div>
-            <div className="landing-hero-demo-msg landing-hero-demo-msg--user">{t('demo_q2') || 'What changed in the latest version?'}</div>
-            <div className="landing-hero-demo-msg landing-hero-demo-msg--assistant">
-              {t('demo_a2_intro') || 'Version 3.2 introduces three changes:'}
-              <div className="landing-hero-demo-list-item">1. {t('demo_a2_l1') || 'Better retrieval ranking for long legal docs.'}</div>
-              <div className="landing-hero-demo-list-item">2. {t('demo_a2_l2') || 'Faster indexing for DOCX and scanned PDFs.'}</div>
-              <div className="landing-hero-demo-list-item">3. {t('demo_a2_l3') || 'Updated usage analytics for clearer spend tracking.'}</div>
-            </div>
-            <div className="landing-hero-demo-msg landing-hero-demo-msg--user">{t('demo_q3') || 'Show source lines for the ranking update.'}</div>
-            <div className="landing-hero-demo-msg landing-hero-demo-msg--assistant">
-              {t('demo_references') || 'References: policy_v2.pdf · contract_notes.docx'}
-            </div>
-            <div className="landing-hero-demo-footer">{t('demo_powered') || 'Powered by GPT-4o'}</div>
-          </TiltCard>
+          <div className="landing-hero-right">
+            <TiltCard
+              className="landing-hero-demo-card reveal"
+              maxDeg={8}
+              style={{ '--reveal-delay': '120ms' }}
+            >
+              <div className="landing-hero-demo-urlbar">{t('demo_url') || 'app.lexara.ai'}</div>
+              <div className="landing-hero-demo-msg landing-hero-demo-msg--user">{t('demo_q2') || 'What changed in the latest version?'}</div>
+              <div className="landing-hero-demo-msg landing-hero-demo-msg--assistant">
+                {t('demo_a2_intro') || 'Version 3.2 introduces three changes:'}
+                <div className="landing-hero-demo-list-item">1. {t('demo_a2_l1') || 'Better retrieval ranking for long legal docs.'}</div>
+                <div className="landing-hero-demo-list-item">2. {t('demo_a2_l2') || 'Faster indexing for DOCX and scanned PDFs.'}</div>
+                <div className="landing-hero-demo-list-item">3. {t('demo_a2_l3') || 'Updated usage analytics for clearer spend tracking.'}</div>
+              </div>
+              <div className="landing-hero-demo-msg landing-hero-demo-msg--user">{t('demo_q3') || 'Show source lines for the ranking update.'}</div>
+              <div className="landing-hero-demo-msg landing-hero-demo-msg--assistant">
+                {t('demo_references') || 'References: policy_v2.pdf · contract_notes.docx'}
+              </div>
+              <div className="landing-hero-demo-footer">{t('demo_powered') || 'Powered by Lexara AI'}</div>
+            </TiltCard>
+            <FloatingDocs heroRef={heroSectionRef} />
+          </div>
         </div>
       </section>
 

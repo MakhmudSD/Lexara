@@ -853,3 +853,60 @@
 .user-action-btn.secondary.activate:hover {
   background: rgba(34,197,94,0.12);
 }
+
+/* ── Dark mode explicit overrides ── */
+[data-theme="dark"] .admin-tab {
+  color: var(--color-text-secondary) !important;
+  background: var(--color-elevated) !important;
+  border-color: var(--color-border) !important;
+}
+
+[data-theme="dark"] .admin-tab:hover {
+  color: var(--color-text-primary) !important;
+  background: var(--color-surface) !important;
+}
+
+[data-theme="dark"] .admin-tab.active {
+  color: var(--color-accent) !important;
+  border-color: var(--color-accent) !important;
+  background: var(--color-surface) !important;
+}
+
+[data-theme="dark"] .tab-count {
+  background: var(--surface-strong) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text-muted) !important;
+}
+
+[data-theme="dark"] .users-role-filter select {
+  background: var(--color-surface) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border) !important;
+  color-scheme: dark;
+}
+
+[data-theme="dark"] .users-search {
+  background: var(--color-surface) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border) !important;
+}
+
+[data-theme="dark"] .users-search::placeholder {
+  color: var(--color-text-muted) !important;
+}
+
+[data-theme="dark"] .admin-header-row h1 {
+  color: var(--color-text-primary) !important;
+}
+
+[data-theme="dark"] .admin-empty-state {
+  background: var(--color-elevated) !important;
+  border-color: var(--color-border) !important;
+}
+
+[data-theme="dark"] .conversation-score-filter select {
+  background: var(--color-surface) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border) !important;
+  color-scheme: dark;
+}
