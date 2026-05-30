@@ -36,7 +36,7 @@ class TestUserPlan:
     def test_plan_limits_lookup(self):
         from app.core.config import PLAN_LIMITS
         # str enum keys work with string-keyed dict
-        assert PLAN_LIMITS[UserPlan.FREE]["monthly_queries"] == 50
+        assert PLAN_LIMITS[UserPlan.FREE]["monthly_queries"] == 100
         assert PLAN_LIMITS[UserPlan.PRO]["monthly_queries"] == 1000
         assert PLAN_LIMITS[UserPlan.BUSINESS]["monthly_queries"] == 5000
 

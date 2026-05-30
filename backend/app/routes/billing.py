@@ -96,7 +96,7 @@ async def create_checkout(
         )
 
     if response.status_code not in (200, 201):
-        logger.error(f"Paddle checkout error: {response.status_code} {response.text}")
+        logger.error("Paddle checkout error: status=%s", response.status_code)
         raise AppError(502, "paddle_error", "Could not create checkout session.")
 
     data = response.json()
@@ -221,8 +221,11 @@ async def _handle_subscription_active(db: Session, data: dict) -> None:
 
     user.plan = plan
     user.plan_expires_at = plan_expires_at
+    subscription_id = data.get("id")
+    if subscription_id:
+        user.subscription_id = subscription_id
     db.commit()
-    logger.info(f"Upgraded user {user.email} to {plan} until {plan_expires_at}")
+    logger.info("Upgraded user %s to %s until %s", user.email, plan, plan_expires_at)
 
     # Referral reward rule: referrer gets 30 days Pro when referred user makes first payment
     try:

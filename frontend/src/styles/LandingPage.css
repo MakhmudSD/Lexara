@@ -619,6 +619,7 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-bottom: 20px;
+  align-items: stretch;
 }
 
 .landing-pricing-card {
@@ -628,7 +629,7 @@
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  height: 100%;
   transition: border-color 150ms, box-shadow 150ms;
 }
 

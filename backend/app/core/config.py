@@ -13,7 +13,7 @@ DEFAULT_SQLITE_DB_PATH = str(Path(__file__).resolve().parents[2] / "data" / "rag
 
 
 class Settings(BaseSettings):
-    model_config = {"env_file": ".env", "case_sensitive": False}
+    model_config = {"env_file": ".env", "case_sensitive": False, "extra": "ignore"}
 
     # OpenAI (optional — not used in retrieval-only MVP)
     openai_api_key: str | None

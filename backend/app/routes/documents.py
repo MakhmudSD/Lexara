@@ -194,7 +194,15 @@ def _process_embeddings_background(
     chunks: list[str],
     settings: Settings,
     vector_store,
+    _attempt: int = 1,
 ) -> None:
+    """Run embedding + vector store indexing for a document.
+
+    Retries up to 3 times on transient failures. Railway restarts kill
+    in-flight background tasks, so keep processing idempotent — chunks
+    and embeddings are upserted, not duplicated.
+    """
+    max_attempts = 3
     db = SessionLocal()
     try:
         document = db.query(Document).filter(Document.id == document_id).first()
@@ -218,8 +226,28 @@ def _process_embeddings_background(
         document_crud.mark_document_processed(db, document_id, len(chunk_records))
         db.commit()
         get_retrieval_cache().clear()
+        logger.info("Background embedding done: doc=%s chunks=%d", document_id, len(chunk_records))
     except Exception as exc:  # pragma: no cover - background logging
         db.rollback()
-        logger.exception("Background embedding failed: %s", exc)
+        if _attempt < max_attempts:
+            import time
+            wait = 2 ** _attempt  # 2s, 4s back-off
+            logger.warning(
+                "Background embedding attempt %d/%d failed for doc %s, retrying in %ds: %s",
+                _attempt, max_attempts, document_id, wait, exc,
+            )
+            time.sleep(wait)
+            _process_embeddings_background(
+                document_id=document_id,
+                chunks=chunks,
+                settings=settings,
+                vector_store=vector_store,
+                _attempt=_attempt + 1,
+            )
+        else:
+            logger.exception(
+                "Background embedding permanently failed after %d attempts for doc %s",
+                max_attempts, document_id,
+            )
     finally:
         db.close()

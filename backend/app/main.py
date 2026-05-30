@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes.admin import router as admin_router
 from app.core.config import get_settings
 from app.core.exceptions import register_exception_handlers
+from app.core.limiter import limiter
 from app.core.middleware import RequestContextMiddleware
 from app.core.runtime import AppRuntime
 from app.db.migrate import run_migrations
@@ -19,6 +20,7 @@ ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:3000",
     "https://lexara-top.vercel.app",
+    "https://lexara-mvp.vercel.app",
     "http://127.0.0.1:5173",
 ]
 
@@ -38,14 +40,22 @@ def create_app() -> FastAPI:
     env_origins = [origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "").split(",") if origin.strip()]
     allowed_origins = list(dict.fromkeys([*ALLOWED_ORIGINS, *env_origins]))
 
+    # Register rate-limiter state so @limiter.limit() decorators work
+    app.state.limiter = limiter
+    try:
+        from slowapi.errors import RateLimitExceeded
+        from slowapi import _rate_limit_exceeded_handler
+        app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    except ImportError:
+        pass
+
     app.add_middleware(RequestContextMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins,
         allow_credentials=True,
-        allow_origin_regex=r"https://.*\.vercel\.app",
         allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        allow_headers=["*"],
+        allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
         expose_headers=["X-Request-ID"],
     )
     register_exception_handlers(app)

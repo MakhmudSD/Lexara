@@ -296,6 +296,22 @@
   }
 }
 
+/* ── Global interactive states (premium minimal) ── */
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.nav-button:active,
+.theme-toggle:active,
+.mypage-tab-btn:active {
+  transform: scale(0.97);
+}
+
 .my-page {
   width: 100%;
   padding: 24px;

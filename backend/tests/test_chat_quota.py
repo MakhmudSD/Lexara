@@ -56,7 +56,7 @@ class TestCheckQuota:
 
     def test_at_limit_raises_429(self, db):
         user = _make_user(db, plan=UserPlan.FREE)
-        _add_usages(db, str(user.id), 50)  # free limit is exactly 50
+        _add_usages(db, str(user.id), 100)  # free limit is 100
         with pytest.raises(AppError) as exc_info:
             _check_quota(db, str(user.id))
         assert exc_info.value.status_code == 429
@@ -64,14 +64,14 @@ class TestCheckQuota:
 
     def test_pro_plan_higher_limit(self, db):
         user = _make_user(db, plan=UserPlan.PRO)
-        _add_usages(db, str(user.id), 50)  # 50 < 1000 for pro
+        _add_usages(db, str(user.id), 100)  # 100 < 1000 for pro
         _check_quota(db, str(user.id))  # must not raise
 
     def test_expired_plan_falls_back_to_free(self, db):
         from datetime import timedelta
         expired_at = datetime.utcnow() - timedelta(days=1)
         user = _make_user(db, plan=UserPlan.PRO, plan_expires_at=expired_at)
-        _add_usages(db, str(user.id), 50)  # 50 = free limit after expiry
+        _add_usages(db, str(user.id), 100)  # 100 = free limit after expiry
         with pytest.raises(AppError) as exc_info:
             _check_quota(db, str(user.id))
         assert exc_info.value.status_code == 429
@@ -80,5 +80,5 @@ class TestCheckQuota:
         from datetime import timedelta
         future = datetime.utcnow() + timedelta(days=30)
         user = _make_user(db, plan=UserPlan.PRO, plan_expires_at=future)
-        _add_usages(db, str(user.id), 50)
-        _check_quota(db, str(user.id))  # must not raise — 50 < 1000
+        _add_usages(db, str(user.id), 100)
+        _check_quota(db, str(user.id))  # must not raise — 100 < 1000

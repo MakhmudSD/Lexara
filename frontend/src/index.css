@@ -79,9 +79,12 @@
   --color-surface: #111118;
   --color-elevated: #1a1a24;
   --color-border: rgba(255,255,255,0.08);
+  /* WCAG AA: #f0f0f5 on #0a0a0f = 16:1 ✓ */
   --color-text-primary: #f0f0f5;
-  --color-text-secondary: #a0a0b0;
-  --color-text-muted: #606070;
+  /* WCAG AA: #c0c0d0 on #0a0a0f ≈ 11:1 ✓ */
+  --color-text-secondary: #c0c0d0;
+  /* WCAG AA: #8080a0 on #0a0a0f ≈ 5.3:1 ✓ (was #606070 ≈ 3:1 ✗) */
+  --color-text-muted: #8080a0;
   --color-accent: #4a7aff;
   --color-accent-hover: #6a96ff;
   --color-accent-glow: rgba(74,122,255,0.3);
@@ -98,8 +101,8 @@
   --lexara-white: #111118;
   --lexara-surface: rgba(255,255,255,0.05);
   --lexara-text: #f0f0f5;
-  --lexara-text-secondary: #a0a0b0;
-  --lexara-text-tertiary: #606070;
+  --lexara-text-secondary: #c0c0d0;
+  --lexara-text-tertiary: #8080a0;
   --lexara-border: rgba(255,255,255,0.08);
   --lexara-border-strong: rgba(255,255,255,0.14);
   --lexara-blue: #4a7aff;
@@ -114,8 +117,8 @@
   --border-default: rgba(255,255,255,0.14);
   --border-strong: rgba(255,255,255,0.20);
   --text-primary: #f0f0f5;
-  --text-secondary: #a0a0b0;
-  --text-tertiary: #606070;
+  --text-secondary: #c0c0d0;
+  --text-tertiary: #8080a0;
   --accent: #4a7aff;
   --accent-muted: rgba(74,122,255,0.12);
   --accent-soft: rgba(74,122,255,0.08);

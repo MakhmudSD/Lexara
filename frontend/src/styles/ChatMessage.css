@@ -211,8 +211,13 @@
 
 .confidence-medium {
   background: rgba(245, 158, 11, 0.12);
-  color: #92400e;
+  color: #b45309;
   border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+[data-theme="dark"] .confidence-medium {
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.15);
 }
 
 .confidence-low {
