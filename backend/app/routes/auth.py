@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from uuid import uuid4
 import secrets
 
-from fastapi import APIRouter, Depends, Header, Request
+from fastapi import APIRouter, Body, Depends, Header, Request
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -97,7 +97,7 @@ def register(
 @limiter.limit("10/minute")
 def login(
     request: Request,
-    payload: LoginRequest,
+    payload: LoginRequest = Body(...),
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
 ) -> AuthResponse:
