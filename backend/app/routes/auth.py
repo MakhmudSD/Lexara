@@ -53,7 +53,7 @@ def _auth_response(user: User, runtime: AppRuntime) -> AuthResponse:
 @limiter.limit("5/minute")
 def register(
     request: Request,
-    payload: RegisterRequest,
+    payload: RegisterRequest = Body(...),
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
     ref: str | None = None,
@@ -170,7 +170,7 @@ def me(
 @limiter.limit("3/minute")
 def forgot_password(
     request: Request,
-    payload: ForgotPasswordRequest,
+    payload: ForgotPasswordRequest = Body(...),
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
 ) -> dict:
@@ -198,7 +198,7 @@ def forgot_password(
 
 @router.post("/reset-password")
 def reset_password(
-    payload: ResetPasswordRequest,
+    payload: ResetPasswordRequest = Body(...),
     db: Session = Depends(get_db),
 ) -> dict:
     token_row = db.query(PasswordResetToken).filter(PasswordResetToken.token == payload.token).first()
