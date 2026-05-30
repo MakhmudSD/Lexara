@@ -1,4 +1,5 @@
-from uuid import UUID
+from uuid import UUID, uuid4
+from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -16,8 +17,10 @@ def create_document(
     file_size_bytes: int,
     storage_path: str,
     raw_text: str,
+    document_id: Optional[UUID] = None,
 ) -> Document:
     document = Document(
+        id=document_id or uuid4(),
         organization_id=organization_id,
         workspace_id=workspace_id,
         filename=filename,

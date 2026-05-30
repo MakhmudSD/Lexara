@@ -1,7 +1,7 @@
 import logging
 import os
 from pathlib import Path
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, UploadFile
 from fastapi.responses import FileResponse
@@ -21,6 +21,7 @@ from app.services.file_parsers.docx_parser import parse_docx_bytes
 from app.services.file_parsers.pdf_parser import parse_pdf_bytes
 from app.services.file_parsers.txt_parser import parse_txt_bytes
 from app.services.embeddings import embed_texts
+from app.services import r2_service
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 logger = logging.getLogger(__name__)
@@ -77,6 +78,18 @@ def upload_document(
     if len(file_bytes) > runtime.settings.max_upload_size_bytes:
         raise AppError(400, "file_too_large", "Uploaded file exceeds the maximum allowed size.")
 
+    # Upload to R2 *before* text extraction so the original binary is persisted
+    # even if the parsing step fails.  Key: {workspace_id}/{document_id}/{filename}
+    document_id = uuid4()
+    r2_path: str | None = None
+    if r2_service.is_configured():
+        key = f"{workspace_id}/{document_id}/{filename}"
+        try:
+            r2_path = r2_service.upload_to_r2(file_bytes, key, content_type)
+        except Exception as exc:
+            logger.error("R2 upload failed for key %s: %s", key, exc)
+            raise AppError(500, "storage_error", "File could not be saved to cloud storage. Please try again.") from exc
+
     raw_text = _parse_uploaded_file(extension, file_bytes)
     if not raw_text.strip():
         raise AppError(400, "empty_document", "The uploaded document did not contain extractable text.")
@@ -89,6 +102,8 @@ def upload_document(
         content_type=content_type,
         file_bytes=file_bytes,
         raw_text=raw_text,
+        document_id=document_id,
+        storage_path=r2_path,
     )
     get_retrieval_cache().clear()
     background_tasks.add_task(
