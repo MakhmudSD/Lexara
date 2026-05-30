@@ -1,200 +1,138 @@
 import { useState } from 'react';
-import { useTranslation } from '../i18n/useTranslation';
 import '../styles/ChatMessage.css';
 
-function escapeHtml(text = '') {
-  return String(text)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function formatInline(text = '') {
-  return text
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>');
-}
-
-function renderMarkdown(text = '') {
-  const escaped = escapeHtml(text);
-  const lines = escaped.split(/\r?\n/);
-  const blocks = [];
-  let paragraph = [];
-  let listItems = [];
-
-  const flushParagraph = () => {
-    if (!paragraph.length) return;
-    blocks.push(`<p>${paragraph.join('<br/>')}</p>`);
-    paragraph = [];
-  };
-
-  const flushList = () => {
-    if (!listItems.length) return;
-    blocks.push(`<ol>${listItems.map((item) => `<li>${item}</li>`).join('')}</ol>`);
-    listItems = [];
-  };
-
-  for (const rawLine of lines) {
-    const line = rawLine.trim();
-    const numbered = line.match(/^(\d+)\.\s+(.+)$/);
-
-    if (!line) {
-      flushParagraph();
-      flushList();
-      continue;
+function renderInline(text) {
+  const parts = [];
+  const regex = /\*\*(.+?)\*\*|\*(.+?)\*/g;
+  let last = 0;
+  let m;
+  while ((m = regex.exec(text)) !== null) {
+    if (m.index > last) parts.push(text.slice(last, m.index));
+    if (m[0].startsWith('**')) {
+      parts.push(<strong key={m.index}>{m[1]}</strong>);
+    } else {
+      parts.push(<em key={m.index}>{m[2]}</em>);
     }
-
-    if (numbered) {
-      flushParagraph();
-      listItems.push(formatInline(numbered[2]));
-      continue;
-    }
-
-    flushList();
-    paragraph.push(formatInline(line));
+    last = m.index + m[0].length;
   }
+  if (last < text.length) parts.push(text.slice(last));
+  return parts;
+}
 
-  flushParagraph();
-  flushList();
-  return blocks.join('');
+function renderMarkdown(text) {
+  if (!text) return null;
+  const lines = text.split('\n');
+  const elements = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (/^\d+\. /.test(line)) {
+      const items = [];
+      while (i < lines.length && /^\d+\. /.test(lines[i])) {
+        const m = lines[i].match(/^\d+\. (.+)$/);
+        items.push(<li key={i}>{renderInline(m ? m[1] : lines[i])}</li>);
+        i++;
+      }
+      elements.push(<ol key={`ol-${i}`}>{items}</ol>);
+      continue;
+    }
+    if (line.trim()) {
+      elements.push(<p key={i}>{renderInline(line)}</p>);
+    }
+    i++;
+  }
+  return elements;
+}
+
+function ConfidenceBadge({ score }) {
+  if (score >= 0.75) return <span className="confidence-high">✓ From your documents</span>;
+  if (score >= 0.55) return <span className="confidence-medium">medium confidence</span>;
+  return <span className="confidence-low">low confidence</span>;
 }
 
 function SourceCard({ source }) {
-  const score = source.score || 0;
-  const scoreClass = score >= 0.75 ? 'high' : score >= 0.55 ? 'medium' : 'low';
-  const filename = source.filename || `doc:${String(source.document_id).slice(0, 8)}`;
-  const preview = source.text ? `${source.text.substring(0, 120)}${source.text.length > 120 ? '…' : ''}` : '';
+  const scorePercent = Math.round(source.score * 100);
+  const filename = source.filename || `doc:${source.document_id?.substring(0, 6)}`;
+  const rawText = source.text || '';
+  const preview = rawText.length > 120 ? rawText.substring(0, 120) + '…' : rawText;
 
   return (
     <div className="source-card">
       <div className="source-card-header">
-        <span className={`source-score-dot ${scoreClass}`} aria-hidden="true" />
-        <span className="source-filename" title={filename}>
-          {filename}
-        </span>
+        <span className="source-filename" title={source.filename}>{filename}</span>
+        <div className="source-score-bar-wrap">
+          <span className="source-score-value">{scorePercent}%</span>
+          <div className="source-score-bar">
+            <div className="source-score-fill" style={{ width: `${scorePercent}%` }} />
+          </div>
+        </div>
       </div>
-      <p className="source-preview">
-        {preview}
-      </p>
+      <p className="source-preview">{preview}</p>
+      {source.chunk_id && (
+        <div className="source-chunk-id">chunk:{source.chunk_id}</div>
+      )}
     </div>
   );
 }
 
-function formatTime(timestamp) {
-  if (!timestamp) return '';
-  try {
-    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  } catch {
-    return '';
-  }
-}
-
-export default function ChatMessage({ role, content, sources, mode, isStreaming, timestamp }) {
-  const { t } = useTranslation();
+export default function ChatMessage({ role, content, sources, isLoading, isStreaming, mode, timestamp }) {
   const [showSources, setShowSources] = useState(false);
   const isUser = role === 'user';
   const hasRealSources = sources && sources.length > 0;
-  const hasAnswer = role === 'assistant' && content && content.trim();
-  const showThinking = !isUser && isStreaming && (!content || content.length === 0);
-  const renderedAnswer = !isUser && content ? renderMarkdown(content) : '';
 
-  const topScore = sources?.length > 0
-    ? Math.max(...sources.map((s) => s.score || 0))
-    : null;
-
-  const tier = topScore === null ? null
-    : topScore >= 0.7 ? 'high'
-    : topScore >= 0.4 ? 'medium'
-    : 'low';
-
-  if (role === 'system') {
+  if (isLoading || (isStreaming && !content)) {
     return (
-      <div className="chat-message-system">
-        <span>{content}</span>
+      <div className="message-row assistant">
+        <div className="message-role assistant-role"><span>system</span></div>
+        <div className="thinking-wrap">
+          <div className="typing-bubble">
+            <div className="typing-dot" />
+            <div className="typing-dot" />
+            <div className="typing-dot" />
+          </div>
+        </div>
       </div>
     );
   }
 
+  const maxScore = hasRealSources ? Math.max(...sources.map(s => s.score)) : 0;
 
   return (
     <div className={`message-row ${isUser ? 'user' : 'assistant'}`}>
-      <div className={`message-bubble ${isUser ? 'user-bubble' : 'assistant-bubble'}`}>
-        {!isUser && mode === 'retrieval' && (
-          <div className="retrieval-badge">{t('retrieval_only_badge')}</div>
-        )}
-        {hasAnswer ? (
-          <div className="answer-block">
-            {isUser ? (
-              <p className="message-text">
-                {content}
-                {isStreaming && <span className="cursor" aria-hidden="true" />}
-              </p>
-            ) : (
-              <>
-                <div className="message-text" dangerouslySetInnerHTML={{ __html: renderedAnswer }} />
-                {isStreaming && <span className="cursor" aria-hidden="true" />}
-              </>
-            )}
-          </div>
-        ) : (
-          content ? (
-            isUser ? (
-              <p className="message-text">
-                {content}
-                {isStreaming && <span className="cursor" aria-hidden="true" />}
-              </p>
-            ) : (
-              <>
-                <div className="message-text" dangerouslySetInnerHTML={{ __html: renderedAnswer }} />
-                {isStreaming && <span className="cursor" aria-hidden="true" />}
-              </>
-            )
-          ) : (
-            showThinking ? (
-              <div className="thinking-wrap">
-                <div className="typing-bubble">
-                  <div className="typing-dot" />
-                  <div className="typing-dot" />
-                  <div className="typing-dot" />
-                </div>
-                <div className="thinking-text">{t('thinking')}</div>
-              </div>
-            ) : (isStreaming ? <span className="cursor" aria-hidden="true" /> : null)
-          )
+      <div className={`message-role ${isUser ? 'user-role' : 'assistant-role'}`}>
+        <span>{isUser ? 'you' : 'system'}</span>
+        {timestamp && (
+          <span className="message-timestamp">{new Date(timestamp).toLocaleTimeString()}</span>
         )}
       </div>
 
-      {timestamp && <span className="message-timestamp">{formatTime(timestamp)}</span>}
-
-      {hasRealSources && (
-        <div className="sources-section">
-          <div className="sources-meta-row">
-            <button className="sources-toggle-btn" type="button" onClick={() => setShowSources((value) => !value)}>
-              <span>{sources.length} {t('references')}</span>
-              <span className="sources-arrow">{showSources ? '↑' : '↓'}</span>
-            </button>
-
-            {tier === 'medium' && (
-              <div className="confidence-badge confidence-medium">
-                {t('source_medium') || 'Relevant'}
-              </div>
-            )}
-            {tier === 'low' && (
-              <div className="confidence-badge confidence-low">
-                {t('source_low') || 'Possibly relevant'}
-              </div>
-            )}
+      <div className={`message-bubble ${isUser ? 'user-bubble' : 'assistant-bubble'}`}>
+        {isUser ? (
+          <p className="message-text">{content}</p>
+        ) : (
+          <div className="message-text">
+            {renderMarkdown(content)}
+            {isStreaming && <span className="cursor" />}
           </div>
-          {tier === 'high' && <div className="confidence-high-note">{t('from_your_documents')}</div>}
-          {tier === 'low' && <div className="confidence-tip">{t('confidence_tip')}</div>}
+        )}
+        {mode === 'retrieval' && (
+          <div className="retrieval-badge">retrieval only — no LLM key set</div>
+        )}
+      </div>
 
+      {!isUser && hasRealSources && (
+        <div className="sources-section">
+          <ConfidenceBadge score={maxScore} />
+          <button
+            className="sources-toggle"
+            onClick={() => setShowSources(s => !s)}
+          >
+            <span>{sources.length} references</span>
+            <span className={`sources-toggle-chevron ${showSources ? 'open' : ''}`}>›</span>
+          </button>
           {showSources && (
             <div className="sources-grid">
-              {sources.map((source, index) => (
-                <SourceCard key={index} source={source} />
-              ))}
+              {sources.map((src, i) => <SourceCard key={i} source={src} />)}
             </div>
           )}
         </div>
