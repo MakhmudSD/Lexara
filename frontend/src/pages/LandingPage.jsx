@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { LexaraLogo } from '../assets/LexaraLogo';
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/LandingPage.css';
+
+gsap.registerPlugin(ScrollTrigger);
 
 function FAQItem({ question, answer }) {
   const [open, setOpen] = useState(false);
@@ -38,15 +42,29 @@ function TiltCard({ children, maxDeg = 8, className = '', style = {} }) {
     const rect = el.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
-    el.style.transform = `perspective(800px) rotateY(${x * maxDeg * 2}deg) rotateX(${-y * maxDeg * 2}deg) translateZ(4px)`;
-    el.style.transition = 'transform 80ms linear';
+    // GSAP for smooth interpolated tilt
+    gsap.to(el, {
+      rotateY: x * maxDeg * 2,
+      rotateX: -y * maxDeg * 2,
+      transformPerspective: 1200,
+      z: 6,
+      duration: 0.18,
+      ease: 'power2.out',
+      overwrite: 'auto',
+    });
   }, [maxDeg]);
 
   const onMouseLeave = useCallback(() => {
     const el = ref.current;
     if (!el) return;
-    el.style.transform = '';
-    el.style.transition = 'transform 300ms ease';
+    gsap.to(el, {
+      rotateY: 0,
+      rotateX: 0,
+      z: 0,
+      duration: 0.45,
+      ease: 'power3.out',
+      overwrite: 'auto',
+    });
   }, []);
 
   return (
@@ -62,40 +80,34 @@ function TiltCard({ children, maxDeg = 8, className = '', style = {} }) {
   );
 }
 
-function CountUp({ target, duration = 1200 }) {
-  const [value, setValue] = useState(0);
+function CountUp({ target }) {
+  const prefersReduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const [value, setValue] = useState(prefersReduced ? target : 0);
   const ref = useRef(null);
-  const started = useRef(false);
+  const triggered = useRef(false);
 
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
     const el = ref.current;
     if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !started.current) {
-          started.current = true;
-          if (prefersReducedMotion) {
-            setValue(target);
-            return;
-          }
-          const start = performance.now();
-          const tick = (now) => {
-            const elapsed = now - start;
-            const progress = Math.min(elapsed / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            setValue(Math.round(eased * target));
-            if (progress < 1) requestAnimationFrame(tick);
-          };
-          requestAnimationFrame(tick);
-        }
+    const counter = { val: 0 };
+    const st = ScrollTrigger.create({
+      trigger: el,
+      start: 'top 85%',
+      onEnter: () => {
+        if (triggered.current) return;
+        triggered.current = true;
+        gsap.to(counter, {
+          val: target,
+          duration: 1.4,
+          ease: 'power2.out',
+          onUpdate: () => setValue(Math.round(counter.val)),
+        });
       },
-      { threshold: 0.5 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [target, duration]);
+    });
+    return () => st.kill();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target]);
 
   return <span ref={ref}>{value.toLocaleString()}</span>;
 }
@@ -185,6 +197,8 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
   const { t, lang, setLang, languageOptions } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [pricingModal, setPricingModal] = useState(null);
+  const headlineRef = useRef(null);
+  const featuresRef = useRef(null);
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof localStorage !== 'undefined') {
       const stored = localStorage.getItem('theme');
@@ -241,6 +255,56 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
     );
     nodes.forEach((n) => observer.observe(n));
     return () => observer.disconnect();
+  }, []);
+
+  // ── GSAP: hero headline word-split stagger ─────────────────────────────────
+  useEffect(() => {
+    const el = headlineRef.current;
+    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const original = el.innerHTML;
+    const words = el.textContent.trim().split(/\s+/);
+    el.innerHTML = words
+      .map((w) => `<span class="gsap-word" style="display:inline-block;overflow:hidden;vertical-align:bottom"><span class="gsap-word-inner" style="display:inline-block">${w}</span></span>`)
+      .join(' ');
+    const inners = el.querySelectorAll('.gsap-word-inner');
+    const ctx = gsap.context(() => {
+      gsap.from(inners, {
+        y: 60,
+        opacity: 0,
+        duration: 0.7,
+        ease: 'power3.out',
+        stagger: 0.08,
+        delay: 0.1,
+      });
+    });
+    return () => {
+      ctx.revert();
+      if (el) el.innerHTML = original;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── GSAP: feature cards ScrollTrigger stagger ──────────────────────────────
+  useEffect(() => {
+    const container = featuresRef.current;
+    if (!container || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cards = container.querySelectorAll('.landing-feature-bento-card');
+    const ctx = gsap.context(() => {
+      gsap.from(cards, {
+        y: 40,
+        opacity: 0,
+        duration: 0.6,
+        ease: 'power3.out',
+        stagger: 0.1,
+        scrollTrigger: {
+          trigger: container,
+          start: 'top 78%',
+          toggleActions: 'play none none none',
+        },
+      });
+    });
+    return () => ctx.revert();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const scrollToSection = (event, id) => {
@@ -311,7 +375,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
         <div className="landing-hero-section-inner">
           <div className="landing-hero-left reveal">
             <div className="landing-hero-badge">Early access · 100 free queries</div>
-            <h1 className="landing-hero-headline">{t('landing_headline')}</h1>
+            <h1 ref={headlineRef} className="landing-hero-headline">{t('landing_headline')}</h1>
             <p className="landing-hero-sub">{t('landing_subhead')}</p>
             <div className="landing-hero-actions">
               <button onClick={onSignUp} className="landing-btn-cta-primary landing-btn-cta-glow">{t('landing_cta_primary')}</button>
@@ -423,7 +487,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
       <section id="features" className="landing-features-section">
         <div className="landing-features-inner">
           <h2 className="landing-section-title reveal">Features</h2>
-          <div className="landing-features-bento">
+          <div ref={featuresRef} className="landing-features-bento">
             {featureCards.map(([num, titleKey, fallbackTitle, body, detail], i) => {
               const translatedTitle = t(titleKey);
               const title = translatedTitle === titleKey ? fallbackTitle : translatedTitle;

@@ -1,4 +1,5 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import { gsap } from 'gsap';
 import { getDocuments, getHealth, getLogs, getRequests, getRetrievals } from '../api/admin';
 import { deleteUser, getConversations, getTokenSummary, getTokenUsage, getUsers, updateUserRole, updateUserStatus } from '../api/usage';
 import { useTranslation } from '../i18n/useTranslation';
@@ -139,6 +140,18 @@ const HEALTH_DESCRIPTIONS = {
 };
 
 function HealthPanel({ data }) {
+  const gridRef = useRef(null);
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!grid || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cards = grid.querySelectorAll('.health-card');
+    gsap.fromTo(cards,
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', stagger: 0.05 }
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
+
   if (!data) return null;
   const isOk = data.status === 'ok' || data.status === 'healthy';
 
@@ -160,7 +173,7 @@ function HealthPanel({ data }) {
 
   return (
     <>
-      <div className="health-grid">
+      <div ref={gridRef} className="health-grid">
         {cards.map((card) => (
           <div key={card.label} className="health-card health-card--glass">
             <div className="health-card-label">{card.label}</div>

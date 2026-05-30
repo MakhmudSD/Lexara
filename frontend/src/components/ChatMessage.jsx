@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { gsap } from 'gsap';
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/ChatMessage.css';
 
@@ -94,6 +95,19 @@ function formatTime(timestamp) {
 export default function ChatMessage({ role, content, sources, mode, isStreaming, timestamp }) {
   const { t } = useTranslation();
   const [showSources, setShowSources] = useState(false);
+  const rowRef = useRef(null);
+
+  useEffect(() => {
+    const el = rowRef.current;
+    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    gsap.fromTo(
+      el,
+      { opacity: 0, y: 16 },
+      { opacity: 1, y: 0, duration: 0.2, ease: 'power2.out' }
+    );
+  // run only on mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const isUser = role === 'user';
   const hasRealSources = sources && sources.length > 0;
   const hasAnswer = role === 'assistant' && content && content.trim();
@@ -119,7 +133,7 @@ export default function ChatMessage({ role, content, sources, mode, isStreaming,
 
 
   return (
-    <div className={`message-row ${isUser ? 'user' : 'assistant'}`}>
+    <div ref={rowRef} className={`message-row ${isUser ? 'user' : 'assistant'}`}>
       <div className={`message-bubble ${isUser ? 'user-bubble' : 'assistant-bubble'}`}>
         {!isUser && mode === 'retrieval' && (
           <div className="retrieval-badge">{t('retrieval_only_badge')}</div>

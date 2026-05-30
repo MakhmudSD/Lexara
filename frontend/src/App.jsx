@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { gsap } from 'gsap';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 const ChatPage = lazy(() => import('./pages/ChatPage'));
@@ -31,13 +32,29 @@ function App() {
   const [accessDenied, setAccessDenied] = useState('');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [intendedPlan, setIntendedPlan] = useState(() => sessionStorage.getItem('intended_plan') || null);
+  const contentRef = useRef(null);
 
+  // GSAP page transition: fade+slide out, swap state, fade+slide in
   const navigate = (newPage) => {
+    const el = contentRef.current;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!el || reduced) {
+      setTransitioning(true);
+      window.setTimeout(() => { setPage(newPage); setTransitioning(false); }, 0);
+      return;
+    }
+    gsap.to(el, {
+      opacity: 0,
+      y: -16,
+      duration: 0.18,
+      ease: 'power2.in',
+      onComplete: () => {
+        setPage(newPage);
+        setTransitioning(false);
+        gsap.fromTo(el, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' });
+      },
+    });
     setTransitioning(true);
-    window.setTimeout(() => {
-      setPage(newPage);
-      setTransitioning(false);
-    }, 300);
   };
 
   // Keep authUser in sync when logout fires from any source (inactivity, 401, etc.)
@@ -194,9 +211,23 @@ function App() {
   }
 
   const goAppSection = (section) => {
-    setPage('app');
-    setCurrentPage(section);
-    window.location.hash = '';
+    const el = contentRef.current;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (el && !reduced && section !== currentPage) {
+      gsap.to(el, {
+        opacity: 0, y: -12, duration: 0.15, ease: 'power2.in',
+        onComplete: () => {
+          setPage('app');
+          setCurrentPage(section);
+          window.location.hash = '';
+          gsap.fromTo(el, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' });
+        },
+      });
+    } else {
+      setPage('app');
+      setCurrentPage(section);
+      window.location.hash = '';
+    }
   };
 
   const closeMobileNav = () => setMobileNavOpen(false);
@@ -324,7 +355,7 @@ function App() {
         </div>
       </nav>
 
-      <div className="app-content app-page-enter" key={`${page}-${currentPage}`}>
+      <div ref={contentRef} className="app-content" key={`${page}-${currentPage}`}>
         {accessDenied && (
           <div style={{ margin: '20px auto', color: '#dc2626', fontFamily: 'var(--font-mono)' }}>{accessDenied}</div>
         )}
