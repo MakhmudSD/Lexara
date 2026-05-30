@@ -337,7 +337,12 @@ function App() {
           />
         )}
         {page === 'admin' && authUser.role?.toLowerCase() === 'admin' && lazySuspense(<AdminPage onGoChat={() => goAppSection('chat')} />)}
-        {page === 'app' && currentPage === 'mypage' && lazySuspense(<MyPage authUser={authUser} onLogout={() => { setAuthUser(null); navigate('landing'); }} intendedPlan={intendedPlan} onIntendedPlanConsumed={() => setIntendedPlan(null)} />)}
+        {page === 'app' && currentPage === 'mypage' && lazySuspense(<MyPage authUser={authUser} onLogout={() => {
+              localStorage.removeItem('access_token');
+              localStorage.removeItem('authUser');
+              setAuthUser(null);
+              navigate('landing');
+            }} intendedPlan={intendedPlan} onIntendedPlanConsumed={() => setIntendedPlan(null)} />)}
       </div>
     </div>
   );
