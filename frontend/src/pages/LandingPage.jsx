@@ -154,6 +154,87 @@ function CountUp({ target, duration = 1200 }) {
   return <span ref={ref}>{value.toLocaleString()}</span>;
 }
 
+function PricingModal({ plan, onClose, onSignUp, onSignIn }) {
+  const dialogRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    dialogRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  const handlePrimary = () => {
+    sessionStorage.setItem('intended_plan', plan.toLowerCase());
+    setLoading(true);
+    onClose();
+    onSignUp();
+  };
+
+  const handleSecondary = () => {
+    onClose();
+    onSignIn();
+  };
+
+  const isFree = plan === 'Free';
+  const title = isFree ? 'Start for free' : `Upgrade to ${plan}`;
+  const titleId = 'pricing-modal-title';
+
+  const desc = isFree
+    ? 'Create a free account — 50 queries/month, 1 workspace, 5 documents. No credit card required.'
+    : plan === 'Pro'
+    ? 'Get 1,000 queries/month and 5 workspaces for $19/mo. Billed monthly via Paddle.'
+    : 'Get 5,000 queries/month and unlimited workspaces for $49/mo. Billed monthly via Paddle.';
+
+  const note = isFree
+    ? 'No credit card · Your data stays private'
+    : 'Email support@lexara.app to cancel';
+
+  return (
+    <div
+      className="pricing-modal-overlay"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div
+        ref={dialogRef}
+        className="pricing-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="pricing-modal-icon" aria-hidden="true">✦</div>
+        <h3 id={titleId} className="pricing-modal-title">{title}</h3>
+        <p className="pricing-modal-desc">{desc}</p>
+        <button
+          className="pricing-modal-btn pricing-modal-btn--primary"
+          onClick={handlePrimary}
+          disabled={loading}
+          aria-busy={loading}
+        >
+          {loading
+            ? <span className="lexara-spinner" aria-label="Loading…" style={{ width: 16, height: 16, margin: '0 auto' }} />
+            : isFree ? 'Create free account →' : 'Create account to upgrade →'}
+        </button>
+        <button
+          className="pricing-modal-btn pricing-modal-btn--ghost"
+          onClick={handleSecondary}
+          disabled={loading}
+        >
+          Sign in to existing account
+        </button>
+        <p className="pricing-modal-note">{note}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) {
   const { t, lang, setLang, languageOptions } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
@@ -283,7 +364,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
         <div className="hero-orb hero-orb-3" aria-hidden="true" />
         <div className="landing-hero-section-inner">
           <div className="landing-hero-left reveal">
-            <div className="landing-hero-badge">Early access · 100 free queries</div>
+            <div className="landing-hero-badge">Early access · 50 free queries</div>
             <h1 className="landing-hero-headline">{t('landing_headline')}</h1>
             <p className="landing-hero-sub">{t('landing_subhead')}</p>
             <div className="landing-hero-actions">
@@ -424,9 +505,9 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
           <h2 className="landing-section-title landing-section-title--light reveal">Pricing</h2>
           <div className="landing-pricing-grid">
             {[
-              ['Free', '$0', ['100 queries/month', '1 workspace', '5 documents'], 'Try free', false],
+              ['Free', '$0', ['50 queries/month', '1 workspace', '5 documents'], 'Try free', false],
               ['Pro', '$19/mo', ['1,000 queries/month', '5 workspaces', 'Usage analytics'], 'Choose Pro', true],
-              ['Business', '$49/mo', ['5,000 queries/month', 'Unlimited workspaces', 'Priority support'], 'Choose Business', false],
+              ['Business', '$49/mo', ['5,000 queries/month', 'Unlimited workspaces*', 'Priority support'], 'Choose Business', false],
             ].map(([name, price, feats, cta, active]) => (
               <div key={name} className={`landing-pricing-card ${active ? 'landing-pricing-card--pro' : ''}`}>
                 <div className="landing-pricing-card-header">
@@ -451,7 +532,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
             ))}
           </div>
           <p className="landing-pricing-note">
-            Billed monthly via Paddle · Cancel anytime from your profile
+            Billed monthly via Paddle · Email support to cancel · * Fair use limits apply
           </p>
         </div>
       </section>
@@ -469,7 +550,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
               { q: t('faq_q3') || 'Does it support multilingual documents?', a: t('faq_a3') || 'Yes. You can upload documents in any language and ask questions in English, Uzbek, Russian, Korean, or Japanese.' },
               { q: t('faq_q4') || 'Are my documents private?', a: t('faq_a4') || 'Yes. Your documents are stored in isolated workspaces and are never used to train our models or shared with other users.' },
               { q: t('faq_q5') || 'What file formats are supported?', a: t('faq_a5') || 'PDF, DOCX, and TXT files up to 50MB. Support for XLSX and PPTX is on our roadmap.' },
-              { q: t('faq_q6') || 'Can I cancel my subscription anytime?', a: t('faq_a6') || 'Yes. Cancel anytime from your profile page. You keep access until the end of your billing period.' },
+              { q: t('faq_q6') || 'Can I cancel my subscription anytime?', a: t('faq_a6') || 'Yes. Email support@lexara.app to cancel. You keep access until the end of your billing period.' },
             ].map((item, i) => (
               <FAQItem key={i} question={item.q} answer={item.a} />
             ))}
@@ -515,42 +596,12 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
 
       {/* ── Pricing modal ── */}
       {pricingModal && (
-        <div
-          className="pricing-modal-overlay"
-          onClick={() => setPricingModal(null)}
-        >
-          <div
-            className="pricing-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="pricing-modal-icon">✦</div>
-            <h3 className="pricing-modal-title">
-              {pricingModal === 'Free' ? 'Start for free' : pricingModal === 'Pro' ? 'Upgrade to Pro' : 'Upgrade to Business'}
-            </h3>
-            <p className="pricing-modal-desc">
-              {pricingModal === 'Free'
-                ? 'Create a free account — 100 queries/month, 1 workspace, 5 documents. No credit card required.'
-                : pricingModal === 'Pro'
-                ? 'Get 1,000 queries/month and 5 workspaces for $19/mo. Billed monthly via Paddle. Cancel anytime from your profile.'
-                : 'Get 5,000 queries/month and unlimited workspaces for $49/mo. Billed monthly via Paddle. Cancel anytime.'}
-            </p>
-            <button
-              onClick={() => { setPricingModal(null); onSignUp(); }}
-              className="pricing-modal-btn pricing-modal-btn--primary"
-            >
-              {pricingModal === 'Free' ? 'Create free account →' : 'Create account to upgrade →'}
-            </button>
-            <button
-              onClick={() => { setPricingModal(null); onSignIn(); }}
-              className="pricing-modal-btn pricing-modal-btn--ghost"
-            >
-              Sign in to existing account
-            </button>
-            <p className="pricing-modal-note">
-              {pricingModal === 'Free' ? 'No credit card · Your data stays private' : 'Cancel anytime from your profile page'}
-            </p>
-          </div>
-        </div>
+        <PricingModal
+          plan={pricingModal}
+          onClose={() => setPricingModal(null)}
+          onSignUp={onSignUp}
+          onSignIn={onSignIn}
+        />
       )}
     </div>
   );

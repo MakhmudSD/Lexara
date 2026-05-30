@@ -30,6 +30,7 @@ function App() {
   const [authMode, setAuthMode] = useState('login');
   const [accessDenied, setAccessDenied] = useState('');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [intendedPlan, setIntendedPlan] = useState(() => sessionStorage.getItem('intended_plan') || null);
 
   const navigate = (newPage) => {
     setTransitioning(true);
@@ -137,7 +138,16 @@ function App() {
   if (page === 'register') {
     return (
       <RegisterPage
-        onSuccess={(user) => { setAuthUser(user); setPage('app'); }}
+        onSuccess={(user) => {
+          const plan = sessionStorage.getItem('intended_plan');
+          sessionStorage.removeItem('intended_plan');
+          setAuthUser(user);
+          if (plan && plan !== 'free') {
+            setIntendedPlan(plan);
+            setCurrentPage('mypage');
+          }
+          setPage('app');
+        }}
         onBackToLogin={() => { setAuthMode('login'); navigate('login'); }}
         onHome={() => navigate('landing')}
       />
@@ -147,7 +157,16 @@ function App() {
   if (!authUser || page === 'login') {
     return (
       <LoginPage
-        onLogin={(user) => { setAuthUser(user); setPage('app'); }}
+        onLogin={(user) => {
+          const plan = sessionStorage.getItem('intended_plan');
+          sessionStorage.removeItem('intended_plan');
+          setAuthUser(user);
+          if (plan && plan !== 'free') {
+            setIntendedPlan(plan);
+            setCurrentPage('mypage');
+          }
+          setPage('app');
+        }}
         onRegister={() => { setAuthMode('register'); navigate('register'); }}
         onHome={() => navigate('landing')}
       />
@@ -298,7 +317,7 @@ function App() {
           />
         )}
         {page === 'admin' && authUser.role?.toLowerCase() === 'admin' && lazySuspense(<AdminPage onGoChat={() => goAppSection('chat')} />)}
-        {page === 'app' && currentPage === 'mypage' && lazySuspense(<MyPage authUser={authUser} onLogout={() => { setAuthUser(null); navigate('landing'); }} />)}
+        {page === 'app' && currentPage === 'mypage' && lazySuspense(<MyPage authUser={authUser} onLogout={() => { setAuthUser(null); navigate('landing'); }} intendedPlan={intendedPlan} onIntendedPlanConsumed={() => setIntendedPlan(null)} />)}
       </div>
     </div>
   );

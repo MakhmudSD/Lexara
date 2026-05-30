@@ -568,3 +568,27 @@
   border-radius: var(--radius-sm);
   border-left: 2px solid var(--color-accent);
 }
+
+.mypage-intent-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--lexara-blue-subtle);
+  border: 1px solid rgba(74, 122, 255, 0.25);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--color-text-primary);
+  margin-bottom: 12px;
+}
+.mypage-intent-dismiss {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  line-height: 1;
+  flex-shrink: 0;
+  padding: 0 4px;
+}

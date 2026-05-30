@@ -148,7 +148,7 @@ function SupportTab({ t }) {
   );
 }
 
-export default function MyPage({ onLogout }) {
+export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed }) {
   const { t, lang, setLang, languageOptions } = useTranslation();
   const [activeTab, setActiveTab] = useState('info');
   const [stats, setStats] = useState({ total_queries: 0, total_tokens: 0, total_cost_usd: 0 });
@@ -189,12 +189,25 @@ export default function MyPage({ onLogout }) {
   }, []);
 
   useEffect(() => {
-    if (window.Paddle && import.meta.env.VITE_PADDLE_CLIENT_TOKEN) {
-      window.Paddle.Initialize({
-        token: import.meta.env.VITE_PADDLE_CLIENT_TOKEN,
-      });
+    if (!import.meta.env.VITE_PADDLE_CLIENT_TOKEN) return;
+    if (window.Paddle) {
+      window.Paddle.Initialize({ token: import.meta.env.VITE_PADDLE_CLIENT_TOKEN });
+      return;
     }
+    const script = document.createElement('script');
+    script.src = 'https://cdn.paddle.com/paddle/v2/paddle.js';
+    script.defer = true;
+    script.onload = () => {
+      window.Paddle.Initialize({ token: import.meta.env.VITE_PADDLE_CLIENT_TOKEN });
+    };
+    document.head.appendChild(script);
   }, []);
+
+  useEffect(() => {
+    if (intendedPlan && plan === 'free') {
+      setActiveTab('subscription');
+    }
+  }, [intendedPlan]);
 
   const handleUpgrade = async (plan) => {
     try {
@@ -381,6 +394,23 @@ export default function MyPage({ onLogout }) {
             </div>
           </div>
 
+          {plan === 'free' && (
+            <>
+              {upgradeError && (
+                <div className="mypage-error-banner">{upgradeError}</div>
+              )}
+              {intendedPlan && intendedPlan !== 'free' && (
+                <div className="mypage-intent-banner">
+                  <span>You selected <strong>{intendedPlan.charAt(0).toUpperCase() + intendedPlan.slice(1)}</strong> — complete your upgrade below.</span>
+                  <button
+                    className="mypage-intent-dismiss"
+                    onClick={() => onIntendedPlanConsumed?.()}
+                    aria-label="Dismiss"
+                  >×</button>
+                </div>
+              )}
+            </>
+          )}
           {plan === 'free' && (
             <div className="mypage-upgrade-grid">
               <div className="mypage-upgrade-card">
