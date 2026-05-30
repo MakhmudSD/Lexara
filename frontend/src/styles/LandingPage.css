@@ -1214,6 +1214,51 @@
   .landing-btn-cta-glow { animation: none; }
 }
 
+/* ── Hero section orbs ── */
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(80px);
+  opacity: 0.35;
+  z-index: 0;
+}
+.hero-orb-1 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(74,122,255,0.4), transparent);
+  top: -100px; left: -100px;
+  animation: orbFloat1 40s ease-in-out infinite;
+}
+.hero-orb-2 {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(124,58,237,0.3), transparent);
+  top: 50%; right: -80px;
+  animation: orbFloat2 60s ease-in-out infinite;
+}
+.hero-orb-3 {
+  width: 250px; height: 250px;
+  background: radial-gradient(circle, rgba(74,122,255,0.2), transparent);
+  bottom: -50px; left: 40%;
+  animation: orbFloat3 80s ease-in-out infinite;
+}
+@keyframes orbFloat1 {
+  0%,100% { transform: translate(0,0); }
+  33% { transform: translate(60px, 40px); }
+  66% { transform: translate(-30px, 80px); }
+}
+@keyframes orbFloat2 {
+  0%,100% { transform: translate(0,0); }
+  50% { transform: translate(-80px, -60px); }
+}
+@keyframes orbFloat3 {
+  0%,100% { transform: translate(0,0); }
+  40% { transform: translate(50px, -40px); }
+  80% { transform: translate(-40px, 30px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-orb { animation: none; }
+}
+
 /* ── Tilt card base (no extra styles needed — handled inline) ── */
 .landing-hero-demo-card,
 .landing-feature-bento-card {

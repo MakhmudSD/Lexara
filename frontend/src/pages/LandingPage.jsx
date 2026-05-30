@@ -278,6 +278,9 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
 
       {/* ── Hero ── */}
       <section className="landing-hero-section">
+        <div className="hero-orb hero-orb-1" aria-hidden="true" />
+        <div className="hero-orb hero-orb-2" aria-hidden="true" />
+        <div className="hero-orb hero-orb-3" aria-hidden="true" />
         <div className="landing-hero-section-inner">
           <div className="landing-hero-left reveal">
             <div className="landing-hero-badge">Early access · 100 free queries</div>

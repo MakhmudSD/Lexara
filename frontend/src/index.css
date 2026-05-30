@@ -198,16 +198,16 @@ body {
 
 /* Suspense / tab loading spinner */
 .lexara-spinner {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border: 2px solid var(--color-border);
   border-top-color: var(--color-accent);
   border-radius: 50%;
-  animation: spin 600ms linear infinite;
+  animation: spin 500ms linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
-  .lexara-spinner { animation: none; opacity: 0.5; }
+  .lexara-spinner { animation: none; opacity: 0.4; }
 }
 
 /* Page container fade-in on tab navigation */

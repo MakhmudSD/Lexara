@@ -95,15 +95,13 @@ function App() {
 
   const SuspenseFallback = () => (
     <div style={{
-      position: 'fixed',
-      inset: 0,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'var(--color-bg)',
-      zIndex: 100,
+      position: 'fixed', inset: 0,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      background: 'var(--color-bg)', zIndex: 100,
+      flexDirection: 'column', gap: 16,
     }}>
       <div className="lexara-spinner" />
+      <span style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>Loading…</span>
     </div>
   );
 
@@ -287,7 +285,7 @@ function App() {
         </div>
       </nav>
 
-      <div className="app-content page-fade" key={`${page}-${currentPage}`}>
+      <div className="app-content app-page-enter" key={`${page}-${currentPage}`}>
         {accessDenied && (
           <div style={{ margin: '20px auto', color: '#dc2626', fontFamily: 'var(--font-mono)' }}>{accessDenied}</div>
         )}
