@@ -96,7 +96,7 @@ async def create_checkout(
         )
 
     if response.status_code not in (200, 201):
-        logger.error("Paddle checkout error: status=%s", response.status_code)
+        logger.error(f"Paddle checkout error: {response.status_code} {response.text}")
         raise AppError(502, "paddle_error", "Could not create checkout session.")
 
     data = response.json()
@@ -139,7 +139,7 @@ async def paddle_webhook(request: Request, db: Session = Depends(get_db)) -> JSO
         if event_type in ("subscription.created", "subscription.updated"):
             await _handle_subscription_active(db, event_data)
 
-        elif event_type in ("subscription.canceled", "subscription.expired"):
+        elif event_type == "subscription.canceled":
             await _handle_subscription_canceled(db, event_data)
 
         elif event_type == "subscription.past_due":
@@ -221,11 +221,8 @@ async def _handle_subscription_active(db: Session, data: dict) -> None:
 
     user.plan = plan
     user.plan_expires_at = plan_expires_at
-    subscription_id = data.get("id")
-    if subscription_id:
-        user.subscription_id = subscription_id
     db.commit()
-    logger.info("Upgraded user %s to %s until %s", user.email, plan, plan_expires_at)
+    logger.info(f"Upgraded user {user.email} to {plan} until {plan_expires_at}")
 
     # Referral reward rule: referrer gets 30 days Pro when referred user makes first payment
     try:
@@ -250,7 +247,7 @@ async def _handle_subscription_active(db: Session, data: dict) -> None:
 
 
 async def _handle_subscription_canceled(db: Session, data: dict) -> None:
-    """Downgrade user to free when subscription is canceled or expired."""
+    """Downgrade user to free when subscription is canceled."""
     custom_data = data.get("custom_data") or {}
     user_id = custom_data.get("user_id")
 
@@ -268,39 +265,17 @@ async def _handle_subscription_canceled(db: Session, data: dict) -> None:
         try:
             plan_expires_at = datetime.fromisoformat(effective_at.replace("Z", "+00:00")).replace(tzinfo=None)
             user.plan_expires_at = plan_expires_at
-            if plan_expires_at <= datetime.utcnow():
-                user.plan = "free"
-                logger.info(f"Subscription canceled and expired for {user.email} — downgraded to free")
-            else:
-                logger.info(f"Subscription canceled for {user.email}, will expire {plan_expires_at}")
             db.commit()
+            logger.info(f"Subscription canceled for {user.email}, expires {plan_expires_at}")
         except (ValueError, AttributeError):
             pass
-    else:
-        # No effective date — downgrade immediately
-        user.plan = "free"
-        user.plan_expires_at = None
-        db.commit()
-        logger.info(f"Subscription canceled for {user.email} — downgraded to free immediately")
 
 
 async def _handle_subscription_past_due(db: Session, data: dict) -> None:
-    """Downgrade user to free when subscription is past due."""
+    """Log past due subscriptions."""
     custom_data = data.get("custom_data") or {}
     user_id = custom_data.get("user_id")
-
-    if not user_id:
-        logger.warning("Subscription past_due webhook missing user_id")
-        return
-
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        return
-
-    user.plan = "free"
-    user.plan_expires_at = None
-    db.commit()
-    logger.warning(f"Subscription past due for {user.email} — downgraded to free")
+    logger.warning(f"Subscription past due for user: {user_id}")
 
 
 async def _handle_transaction_completed(db: Session, data: dict) -> None:
