@@ -292,10 +292,10 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
   });
 
   const featureCards = [
-    ['01', 'landing_feature_upload_title', 'Upload. Instantly indexed.', 'PDF, DOCX, TXT parsing with chunking and local embeddings.', 'Optimized for fast first-query time.'],
-    ['02', 'landing_feature_ask_title', 'Ask anything, naturally.', 'Grounded responses with references and retrieval fallback mode.', 'Low-latency streaming responses.'],
-    ['03', 'landing_feature_conversation_title', 'Conversations, not sessions.', 'Context-aware answers with short memory for continuity.', 'Built for multi-turn work.'],
-    ['04', 'landing_feature_usage_title', 'Every token accounted for.', 'Track model usage, token counts, cost, and latency.', 'Admin visibility for production ops.'],
+    ['01', 'landing_feature_upload_title', 'Upload. Instantly indexed.', 'landing_feature_upload_body', 'PDF, DOCX, TXT parsing with chunking and local embeddings.', 'landing_feature_upload_detail', 'Optimized for fast first-query time.'],
+    ['02', 'landing_feature_ask_title', 'Ask anything, naturally.', 'landing_feature_ask_body', 'Grounded responses with references and retrieval fallback mode.', 'landing_feature_ask_detail', 'Low-latency streaming responses.'],
+    ['03', 'landing_feature_conversation_title', 'Conversations, not sessions.', 'landing_feature_conversation_body', 'Context-aware answers with short memory for continuity.', 'landing_feature_conversation_detail', 'Built for multi-turn work.'],
+    ['04', 'landing_feature_usage_title', 'Every token accounted for.', 'landing_feature_usage_body', 'Track model usage, token counts, cost, and latency.', 'landing_feature_usage_detail', 'Admin visibility for production ops.'],
   ];
 
   useEffect(() => {
@@ -510,24 +510,29 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
 
       {/* ── Stats strip ── */}
       <div className="landing-trust-strip">
-        <div className="landing-trust-strip-label">Built for people who work with dense, complex documents</div>
+        <div className="landing-trust-strip-label">{t('stats_strip_label') || 'Built for people who work with dense, complex documents'}</div>
         <div className="landing-trust-chips">
-          {['Contract review', 'Research synthesis', 'Document Q&A', 'Report analysis'].map((chip) => (
+          {[
+            t('stats_chip_contract') || 'Contract review',
+            t('stats_chip_research') || 'Research synthesis',
+            t('stats_chip_qa') || 'Document Q&A',
+            t('stats_chip_report') || 'Report analysis',
+          ].map((chip) => (
             <span key={chip} className="landing-trust-pill">{chip}</span>
           ))}
         </div>
         <div className="landing-stats-row">
           <div className="landing-stat">
             <span className="landing-stat-number"><CountUp target={1200} />+</span>
-            <span className="landing-stat-label">documents indexed</span>
+            <span className="landing-stat-label">{t('stat_docs_label') || 'documents indexed'}</span>
           </div>
           <div className="landing-stat">
             <span className="landing-stat-number"><CountUp target={50000} />+</span>
-            <span className="landing-stat-label">queries answered</span>
+            <span className="landing-stat-label">{t('stat_queries_label') || 'queries answered'}</span>
           </div>
           <div className="landing-stat">
             <span className="landing-stat-number"><CountUp target={99} />%</span>
-            <span className="landing-stat-label">uptime</span>
+            <span className="landing-stat-label">{t('stat_uptime_label') || 'uptime'}</span>
           </div>
         </div>
       </div>
@@ -573,11 +578,15 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
       {/* ── Features ── */}
       <section id="features" className="landing-features-section">
         <div className="landing-features-inner">
-          <h2 className="landing-section-title reveal">Features</h2>
+          <h2 className="landing-section-title reveal">{t('landing_features_title') || 'Features'}</h2>
           <div ref={featuresRef} className="landing-features-bento">
-            {featureCards.map(([num, titleKey, fallbackTitle, body, detail], i) => {
+            {featureCards.map(([num, titleKey, fallbackTitle, bodyKey, fallbackBody, detailKey, fallbackDetail], i) => {
               const translatedTitle = t(titleKey);
               const title = translatedTitle === titleKey ? fallbackTitle : translatedTitle;
+              const translatedBody = t(bodyKey);
+              const body = translatedBody === bodyKey ? fallbackBody : translatedBody;
+              const translatedDetail = t(detailKey);
+              const detail = translatedDetail === detailKey ? fallbackDetail : translatedDetail;
               return (
                 <TiltCard
                   key={num}
@@ -599,12 +608,12 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
       {/* ── Pricing ── */}
       <section id="pricing" className="landing-pricing-section">
         <div className="landing-pricing-inner">
-          <h2 className="landing-section-title landing-section-title--light reveal">Pricing</h2>
+          <h2 className="landing-section-title landing-section-title--light reveal">{t('landing_pricing_title') || 'Pricing'}</h2>
           <div className="landing-pricing-grid">
             {[
-              ['Free', '$0', ['100 queries/month', '1 workspace', '5 documents'], 'Try free', false],
-              ['Pro', '$19/mo', ['1,000 queries/month', '5 workspaces', 'Usage analytics'], 'Choose Pro', true],
-              ['Business', '$49/mo', ['5,000 queries/month', 'Unlimited workspaces*', 'Priority support'], 'Choose Business', false],
+              ['Free', '$0', ['100 queries/month', '1 workspace', '5 documents'], t('pricing_cta_free') || 'Try free', false],
+              ['Pro', '$19/mo', ['1,000 queries/month', '5 workspaces', 'Usage analytics'], t('pricing_cta_pro') || 'Choose Pro', true],
+              ['Business', '$49/mo', ['5,000 queries/month', 'Unlimited workspaces*', 'Priority support'], t('pricing_cta_business') || 'Choose Business', false],
             ].map(([name, price, feats, cta, active]) => (
               <div key={name} className={`landing-pricing-card ${active ? 'landing-pricing-card--pro' : ''}`}>
                 <div className="landing-pricing-card-header">
@@ -629,7 +638,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
             ))}
           </div>
           <p className="landing-pricing-note">
-            Billed monthly via Paddle · Email support to cancel · * Fair use limits apply
+            {t('landing_pricing_note') || 'Billed monthly via Paddle · Email support to cancel · * Fair use limits apply'}
           </p>
         </div>
       </section>

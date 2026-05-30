@@ -92,26 +92,26 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
       <div className="auth-left-panel">
         <div className="auth-left-content">
           <LexaraLogo height={40} />
-          <p className="auth-left-tagline">Query your documents with precision</p>
-          <p className="auth-left-sub">Upload PDFs, ask questions, get cited answers in seconds.</p>
+          <p className="auth-left-tagline">{t('login_left_tagline') || 'Query your documents with precision'}</p>
+          <p className="auth-left-sub">{t('login_left_sub') || 'Upload PDFs, ask questions, get cited answers in seconds.'}</p>
           <div className="auth-left-chips">
             <div className="auth-left-chip">
               <span className="auth-left-chip-icon">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </span>
-              Private &amp; isolated workspaces
+              {t('login_chip_private') || 'Private & isolated workspaces'}
             </div>
             <div className="auth-left-chip">
               <span className="auth-left-chip-icon">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
               </span>
-              PDF, DOCX, TXT support
+              {t('login_chip_formats') || 'PDF, DOCX, TXT support'}
             </div>
             <div className="auth-left-chip">
               <span className="auth-left-chip-icon">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
               </span>
-              Streaming answers with sources
+              {t('login_chip_streaming') || 'Streaming answers with sources'}
             </div>
           </div>
         </div>
@@ -123,8 +123,8 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
           <LexaraLogo height={36} onClick={onHome} style={{ cursor: 'pointer' }} />
         </div>
         <div className="auth-heading">
-          <h1>Welcome back</h1>
-          <p>Sign in to your workspace</p>
+          <h1>{t('login_welcome') || 'Welcome back'}</h1>
+          <p>{t('login_subtitle') || 'Sign in to your workspace'}</p>
         </div>
         <div className="auth-card">
           <form className="auth-form" onSubmit={(event) => {
@@ -132,7 +132,7 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
             handleLogin();
           }}>
             <div className="auth-field">
-              <label className="auth-label" htmlFor="login-email">Email</label>
+              <label className="auth-label" htmlFor="login-email">{t('login_email_label') || 'Email'}</label>
               <input
                 id="login-email"
                 className={`auth-input ${loginError ? 'error' : ''}`}
@@ -150,8 +150,8 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
             </div>
             <div className="auth-field">
               <div className="auth-label-row">
-                <label className="auth-label" htmlFor="login-password">Password</label>
-                <button type="button" className="auth-forgot" disabled={loading} onClick={() => setForgotModal(true)}>Forgot password?</button>
+                <label className="auth-label" htmlFor="login-password">{t('login_password_label') || 'Password'}</label>
+                <button type="button" className="auth-forgot" disabled={loading} onClick={() => setForgotModal(true)}>{t('login_forgot_btn') || 'Forgot password?'}</button>
               </div>
               <input
                 id="login-password"
@@ -175,20 +175,20 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
             </div>
             <button type="button" className="auth-btn" disabled={loading} onClick={handleLogin}>
               {loading && <span className="auth-btn-spinner" />}
-              <span>{loading ? 'Signing in…' : 'Sign in'}</span>
+              <span>{loading ? (t('login_btn_loading') || 'Signing in…') : (t('login_btn') || 'Sign in')}</span>
             </button>
           </form>
           <hr className="auth-divider" />
           <div className="auth-footer">
-            <span>Don&apos;t have an account? </span>
-            <button type="button" onClick={onRegister} disabled={loading}>Create one</button>
+            <span>{t('login_no_account') || "Don't have an account?"} </span>
+            <button type="button" onClick={onRegister} disabled={loading}>{t('login_create') || 'Create one'}</button>
           </div>
-          <p className="auth-admin-note">Need admin access? Ask your team administrator.</p>
+          <p className="auth-admin-note">{t('login_admin_note') || 'Need admin access? Ask your team administrator.'}</p>
           <div className="auth-footer">
-            <button type="button" className="auth-back-btn" onClick={onHome}>← Back to home</button>
+            <button type="button" className="auth-back-btn" onClick={onHome}>{t('login_back') || '← Back to home'}</button>
           </div>
         </div>
-        <p className="auth-legal">By signing in you agree to our <span>Terms</span> and <span>Privacy Policy</span></p>
+        <p className="auth-legal">{t('login_legal') || 'By signing in you agree to our'} <span>{t('login_terms') || 'Terms'}</span> and <span>{t('login_privacy') || 'Privacy Policy'}</span></p>
       </div>
       </div>
 
@@ -196,12 +196,12 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
         <div className="auth-modal-overlay" onClick={() => setForgotModal(false)}>
           <div className="auth-modal" onClick={(event) => event.stopPropagation()}>
             <div className="auth-modal-header">
-              <h2>{showReset ? 'Reset password' : 'Forgot password'}</h2>
+              <h2>{showReset ? (t('reset_title') || 'Reset password') : (t('forgot_title') || 'Forgot password')}</h2>
               <button type="button" className="auth-modal-close" onClick={() => setForgotModal(false)}>×</button>
             </div>
             {!showReset ? (
               <form className="auth-modal-form" onSubmit={handleForgot}>
-                <label className="auth-label" htmlFor="forgot-email">Email</label>
+                <label className="auth-label" htmlFor="forgot-email">{t('forgot_email_label') || 'Email'}</label>
                 <input
                   id="forgot-email"
                   className="auth-input"
@@ -213,13 +213,13 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
                   disabled={forgotLoading}
                 />
                 <button type="submit" className="auth-btn" disabled={forgotLoading}>
-                  {forgotLoading ? 'Sending…' : 'Send reset token'}
+                  {forgotLoading ? (t('forgot_sending') || 'Sending…') : (t('forgot_send_btn') || 'Send reset token')}
                 </button>
                 {forgotStatus && <p className="auth-modal-status">{forgotStatus}</p>}
               </form>
             ) : (
               <form className="auth-modal-form" onSubmit={handleReset}>
-                <label className="auth-label" htmlFor="reset-token">Reset token</label>
+                <label className="auth-label" htmlFor="reset-token">{t('reset_token_label') || 'Reset token'}</label>
                 <input
                   id="reset-token"
                   className="auth-input"
@@ -229,20 +229,20 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
                   required
                   disabled={forgotLoading}
                 />
-                <label className="auth-label" htmlFor="new-password">New password</label>
+                <label className="auth-label" htmlFor="new-password">{t('reset_new_password_label') || 'New password'}</label>
                 <input
                   id="new-password"
                   className="auth-input"
                   type="password"
                   value={newPassword}
                   onChange={(event) => setNewPassword(event.target.value)}
-                  placeholder="At least 8 characters"
+                  placeholder={t('reset_min_chars') || 'At least 8 characters'}
                   minLength={8}
                   required
                   disabled={forgotLoading}
                 />
                 <button type="submit" className="auth-btn" disabled={forgotLoading}>
-                  {forgotLoading ? 'Resetting…' : 'Reset password'}
+                  {forgotLoading ? (t('reset_btn_loading') || 'Resetting…') : (t('reset_btn') || 'Reset password')}
                 </button>
                 {forgotStatus && <p className="auth-modal-status">{forgotStatus}</p>}
               </form>
