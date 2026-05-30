@@ -8,25 +8,8 @@ from fastapi import APIRouter, Depends, Header, Request
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-try:  # pragma: no cover - optional dependency fallback for local builds
-    from slowapi import Limiter
-    from slowapi.util import get_remote_address
-except ImportError:  # pragma: no cover
-    class _NoopLimiter:
-        def limit(self, *_args, **_kwargs):
-            def decorator(func):
-                return func
-
-            return decorator
-
-    def get_remote_address(request):  # type: ignore[override]
-        return getattr(getattr(request, "client", None), "host", "unknown")
-
-    limiter = _NoopLimiter()
-else:
-    limiter = Limiter(key_func=get_remote_address)
-
 from app.core.dependencies import get_db, get_runtime
+from app.core.limiter import limiter
 from app.services.email_service import send_password_reset_email
 from app.core.enums import UserRole, ReferralStatus
 from app.core.exceptions import AppError
@@ -67,6 +50,7 @@ def _auth_response(user: User, runtime: AppRuntime) -> AuthResponse:
 
 
 @router.post("/register", response_model=AuthResponse, status_code=201)
+@limiter.limit("5/minute")
 def register(
     request: Request,
     payload: RegisterRequest,
@@ -110,6 +94,7 @@ def register(
 
 
 @router.post("/login", response_model=AuthResponse)
+@limiter.limit("10/minute")
 def login(
     request: Request,
     payload: LoginRequest,
@@ -177,6 +162,7 @@ def me(
 
 
 @router.post("/forgot-password")
+@limiter.limit("3/minute")
 def forgot_password(
     request: Request,
     payload: ForgotPasswordRequest,

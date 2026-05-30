@@ -49,6 +49,7 @@ class User(Base):
     is_active = Column(Boolean, default=True, index=True)
     plan = Column(String(50), default=UserPlan.FREE, nullable=False)
     plan_expires_at = Column(DateTime, nullable=True)
+    subscription_id = Column(String(100), nullable=True, index=True)
     referral_code = Column(String(20), nullable=True, unique=True, index=True)
     deleted_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
