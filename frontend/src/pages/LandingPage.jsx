@@ -750,7 +750,17 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
                 active: false,
               },
             ].map(({ key, name, price, feats, cta, active }) => (
-              <div key={key} className={`landing-pricing-card ${active ? 'landing-pricing-card--pro' : ''}`}>
+              <div
+                key={key}
+                className={`landing-pricing-card ${active ? 'landing-pricing-card--pro' : ''}`}
+                onMouseMove={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const mx = ((e.clientX - rect.left) / rect.width * 100).toFixed(1) + '%';
+                  const my = ((e.clientY - rect.top) / rect.height * 100).toFixed(1) + '%';
+                  e.currentTarget.style.setProperty('--mx', mx);
+                  e.currentTarget.style.setProperty('--my', my);
+                }}
+              >
                 <div className="landing-pricing-card-header">
                   <h3 className="landing-pricing-plan-name">{name}</h3>
                   <div className="landing-pricing-price">{price}</div>

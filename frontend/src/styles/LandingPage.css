@@ -801,7 +801,29 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  transition: border-color 250ms ease-out, box-shadow 250ms ease-out, transform 250ms ease-out;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+/* Mouse-tracked shimmer layer */
+.landing-pricing-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.15) 0%,
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.landing-pricing-card:hover::before {
+  opacity: 1;
 }
 
 /* Light mode: solid cards */
@@ -814,9 +836,9 @@
 }
 
 .landing-pricing-card:hover {
-  border-color: rgba(255, 255, 255, 0.22);
-  transform: perspective(1000px) rotateX(1deg) translateY(-4px);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.20), 0 2px 8px rgba(0,0,0,0.10);
+  border-color: rgba(255, 255, 255, 0.28);
+  transform: perspective(1000px) rotateX(1deg) translateY(-8px);
+  box-shadow: 0 20px 60px rgba(99, 102, 241, 0.25), 0 4px 16px rgba(0,0,0,0.20);
 }
 
 [data-theme="light"] .landing-pricing-card:hover,
@@ -828,6 +850,12 @@
 .landing-pricing-card--pro {
   border-color: var(--color-accent);
   box-shadow: 0 0 0 1px var(--color-accent), 0 0 32px rgba(74, 122, 255, 0.25);
+  animation: proBorderPulse 2.8s ease-in-out infinite;
+}
+
+@keyframes proBorderPulse {
+  0%, 100% { border-color: var(--color-accent); box-shadow: 0 0 0 1px var(--color-accent), 0 0 32px rgba(74,122,255,0.25); }
+  50%       { border-color: #818cf8;             box-shadow: 0 0 0 1px #818cf8,             0 0 44px rgba(129,140,248,0.35); }
 }
 
 .landing-pricing-card-header {
@@ -1342,8 +1370,17 @@
   left: 30%;
 }
 
-/* Ensure landing content sits above orbs */
-.landing > *:not(.landing-orbs) {
+/* Ensure section content sits above the fixed orbs (z-index:0).
+   Only target actual sections — NOT landing-progress or ThreeBackground
+   wrappers, which rely on position:fixed and must not be in normal flow. */
+.landing-hero-section,
+.landing-trust-strip,
+.landing-features-section,
+.landing-pricing-section,
+.landing-faq,
+.landing-contact,
+.landing-cta-banner-section,
+.landing-footer {
   position: relative;
   z-index: 1;
 }

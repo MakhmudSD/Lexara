@@ -100,16 +100,24 @@ export default function ThreeBackground() {
     const papers = [];
     const rng = seeded(42);
 
-    for (let i = 0; i < PAPER_COUNT; i++) {
-      const pw = 2.8 + rng() * 1.8;
-      const ph = pw * (280 / 210);
-      const geo = new THREE.PlaneGeometry(pw, ph);
+    // Horizontal fan — landscape docs spread across viewport width.
+    // First 6 use exact positions; remaining use random fill.
+    const DOC_CONFIG = [
+      { x: -10, y:  2, z: -10, rotY:  0.40 },
+      { x:  -7, y: -1, z:  -8, rotY:  0.25 },
+      { x: -4.5,y:  3, z: -12, rotY:  0.15 },
+      { x:  4.5,y: -2, z: -11, rotY: -0.15 },
+      { x:   7, y:  1, z:  -9, rotY: -0.25 },
+      { x:  10, y: -1, z: -10, rotY: -0.40 },
+    ];
 
-      // Dark mode: warm cream (barely visible against dark backgrounds)
-      // Light mode: medium warm grey — clearly visible against light sections
+    for (let i = 0; i < PAPER_COUNT; i++) {
+      // Landscape proportions: 3.2 wide × 2.4 tall (like actual documents)
+      const geo = new THREE.PlaneGeometry(3.2, 2.4);
+
       const opacity = isDark
-        ? (0.04 + rng() * 0.04)   // 0.04–0.08 — barely-there on dark
-        : (0.08 + rng() * 0.08);  // 0.08–0.16 — visible on white without dominating
+        ? (0.04 + rng() * 0.04)   // 0.04–0.08 on dark
+        : (0.08 + rng() * 0.08);  // 0.08–0.16 on light
 
       const mat = new THREE.MeshBasicMaterial({
         map: paperTex,
@@ -120,18 +128,35 @@ export default function ThreeBackground() {
       });
 
       const mesh = new THREE.Mesh(geo, mat);
-      const yFrac = i / PAPER_COUNT;
+      const cfg = DOC_CONFIG[i];
 
-      mesh.position.set(
-        (rng() - 0.5) * 30,
-        WORLD_DEPTH * 0.55 - yFrac * WORLD_DEPTH * 1.1,
-        -(10 + rng() * 18)
-      );
-      mesh.rotation.set(
-        (rng() - 0.5) * 0.28,
-        (rng() - 0.5) * 0.38,
-        (rng() - 0.5) * Math.PI * 0.5
-      );
+      if (cfg) {
+        // Use the prescribed horizontal-fan position
+        const yFrac = i / PAPER_COUNT;
+        mesh.position.set(
+          cfg.x,
+          cfg.y - yFrac * WORLD_DEPTH * 0.6,  // stagger down as user scrolls
+          cfg.z
+        );
+        mesh.rotation.set(
+          (rng() - 0.5) * 0.18,
+          cfg.rotY,
+          (rng() - 0.5) * 0.22
+        );
+      } else {
+        // Random fill for extra papers beyond DOC_CONFIG
+        const yFrac = i / PAPER_COUNT;
+        mesh.position.set(
+          (rng() - 0.5) * 24,
+          WORLD_DEPTH * 0.55 - yFrac * WORLD_DEPTH * 1.1,
+          -(10 + rng() * 16)
+        );
+        mesh.rotation.set(
+          (rng() - 0.5) * 0.28,
+          (rng() - 0.5) * 0.38,
+          (rng() - 0.5) * Math.PI * 0.5
+        );
+      }
 
       mesh.userData = {
         baseY: mesh.position.y,
