@@ -85,12 +85,10 @@ def create_app() -> FastAPI:
                 "SET" if settings.openai_api_key else "NOT SET",
                 settings.chat_model,
             )
-            # Pre-load embedding model once so the first request doesn't pay the
-            # download + init cost and trigger a Railway proxy timeout.
             try:
                 from app.services.embedding_service import _get_model
-                _get_model(settings.local_embedding_model)
-                logger.info("embedding_model_loaded model=%s", settings.local_embedding_model)
+                _get_model()  # no-op for OpenAI path; validates import only
+                logger.info("embedding_backend=openai model=%s", settings.embedding_model)
             except Exception as emb_exc:
                 logger.warning("embedding_model_preload_failed: %s", emb_exc)
             logger.info("Backend initialized successfully")
