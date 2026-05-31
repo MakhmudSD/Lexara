@@ -16,22 +16,16 @@ function makeDocTexture(accentColor, docType, lines) {
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
 
-  // Paper gradient
-  const bg = ctx.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0, '#ffffff');
-  bg.addColorStop(1, '#f4f5f8');
-  ctx.fillStyle = bg;
+  // Paper background
+  ctx.fillStyle = '#fafaf8';
+  ctx.beginPath();
   ctx.roundRect(0, 0, W, H, 18);
   ctx.fill();
 
-  // Drop shadow (inner)
-  ctx.shadowColor = 'rgba(0,0,0,0.06)';
-  ctx.shadowBlur = 20;
-
-  // Left accent bar
-  ctx.shadowColor = 'transparent';
+  // Left accent bar (6px only)
   ctx.fillStyle = accentColor;
-  ctx.roundRect(0, 0, 10, H, [18, 0, 0, 18]);
+  ctx.beginPath();
+  ctx.roundRect(0, 0, 6, H, [18, 0, 0, 18]);
   ctx.fill();
 
   // Header area
@@ -53,16 +47,16 @@ function makeDocTexture(accentColor, docType, lines) {
   ctx.font = 'bold 18px sans-serif';
   ctx.fillText(lines[0] || 'Document Title', 28, 42);
 
-  // Paragraph lines
-  const lineColors = ['#c8ccd8', '#b8bcc8', '#d0d4de', '#a8acb8', '#c0c4d0'];
+  // Paragraph lines — gray, 6px height
   let y = 100;
   for (let i = 0; i < 12; i++) {
     const w = 200 + Math.sin(i * 1.7) * 140 + Math.cos(i * 0.9) * 60;
-    ctx.fillStyle = lineColors[i % lineColors.length];
-    ctx.roundRect(28, y, Math.min(w, W - 56), 9, 4);
+    ctx.fillStyle = '#e0e0e0';
+    ctx.beginPath();
+    ctx.roundRect(14, y, Math.min(w, W - 28), 6, 3);
     ctx.fill();
-    y += 20;
-    if (i === 3 || i === 7) y += 14; // paragraph break
+    y += 18;
+    if (i === 3 || i === 7) y += 12;
   }
 
   // Highlight block
@@ -99,6 +93,16 @@ function makeDocTexture(accentColor, docType, lines) {
 
   return new THREE.CanvasTexture(canvas);
 }
+
+const DOC_POSITIONS = [
+  { x: -8.0, y:  1.5, z: -10 },
+  { x: -6.5, y: -2.0, z: -11 },
+  { x: -5.5, y:  2.5, z:  -9 },
+  { x:  5.5, y: -1.5, z: -12 },
+  { x:  6.5, y:  2.0, z:  -8 },
+  { x:  7.5, y: -2.5, z: -11 },
+  { x:  8.5, y:  1.0, z: -10 },
+];
 
 const DOC_CONFIG = [
   { accent: '#2356d8', type: 'PDF',  lines: ['Contract Agreement', 'Per clause 14.2, either party may...', '1'] },
@@ -314,7 +318,7 @@ function ThreeScene({ scrollY, heroRef }) {
     const orbitRadius = 6;
 
     DOC_CONFIG.forEach((cfg, i) => {
-      const geo = new THREE.PlaneGeometry(4, 5.5);
+      const geo = new THREE.PlaneGeometry(2.8, 3.8);
       const tex = makeDocTexture(cfg.accent, cfg.type, cfg.lines);
       const mat = new THREE.MeshStandardMaterial({
         map: tex, transparent: true, opacity: 0,
@@ -322,11 +326,9 @@ function ThreeScene({ scrollY, heroRef }) {
       });
       const mesh = new THREE.Mesh(geo, mat);
 
-      // Final orbital positions
-      const angle = (i / DOC_CONFIG.length) * Math.PI * 2;
-      const finalX = Math.cos(angle) * orbitRadius * 0.9;
-      const finalY = Math.sin(angle) * 2.5;
-      const finalZ = Math.sin(angle) * orbitRadius * 0.5 - 2;
+      // Explicit spread positions — left cluster (0-2) and right cluster (3-6)
+      const angle = (i / DOC_CONFIG.length) * Math.PI * 2; // kept for bobbing/scroll spread
+      const { x: finalX, y: finalY, z: finalZ } = DOC_POSITIONS[i];
 
       // Start far back
       mesh.position.set(
@@ -349,7 +351,7 @@ function ThreeScene({ scrollY, heroRef }) {
         delay: 0.4 + i * 0.12,
       });
       gsap.to(mesh.material, {
-        opacity: 0.92,
+        opacity: 0.5,
         duration: 0.8, ease: 'power2.out',
         delay: 0.4 + i * 0.12,
       });
@@ -438,7 +440,7 @@ function ThreeScene({ scrollY, heroRef }) {
         const { finalX, finalY, finalZ, angle } = mesh.userData;
         mesh.position.x = finalX + Math.sin(t * 0.4 + i) * 0.18 + scrollFrac * Math.cos(angle) * 4;
         mesh.position.y = finalY + Math.cos(t * 0.35 + i * 0.7) * 0.22 + scrollFrac * Math.sin(angle) * 2;
-        mesh.material.opacity = Math.max(0, 0.92 - scrollFrac * 1.4);
+        mesh.material.opacity = Math.max(0, 0.5 - scrollFrac * 1.4);
       });
 
       renderer.render(scene, camera);
