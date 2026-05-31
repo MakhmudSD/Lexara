@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, Header, Response
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, Response
 from sqlalchemy.orm import Session
 
 from app.api.schemas.admin import (
@@ -273,13 +273,27 @@ async def admin_delete_user(
     return Response(status_code=204)
 
 
-@router.post("/faiss/rebuild")
+@router.post("/faiss/rebuild", status_code=202)
 async def admin_faiss_rebuild(
-    db: Session = Depends(get_db),
+    background_tasks: BackgroundTasks,
     runtime: AppRuntime = Depends(get_runtime),
     _claims: dict = Depends(_require_admin),
 ) -> dict:
-    """Re-embed all workspace chunks from PostgreSQL into FAISS using the current model."""
+    """Kick off async re-embedding of all workspace chunks (returns 202 immediately)."""
+    import logging
     from app.services.faiss_rebuild import rebuild_faiss_from_db
-    rebuilt = rebuild_faiss_from_db(db, runtime.settings)
-    return {"rebuilt_workspaces": rebuilt, "model": runtime.settings.local_embedding_model}
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+
+    logger = logging.getLogger(__name__)
+    settings = runtime.settings
+
+    def _do_rebuild() -> None:
+        engine = create_engine(settings.database_url)
+        Session = sessionmaker(bind=engine)
+        with Session() as session:
+            count = rebuild_faiss_from_db(session, settings)
+            logger.info("faiss_rebuild_complete workspaces=%d model=%s", count, settings.local_embedding_model)
+
+    background_tasks.add_task(_do_rebuild)
+    return {"status": "rebuilding", "model": settings.local_embedding_model}
