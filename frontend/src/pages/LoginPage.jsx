@@ -103,7 +103,7 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
       <ThreeBackground />
       <div className="auth-left-panel">
         <div className="auth-left-content">
-          <LexaraLogo height={40} />
+          <LexaraLogo height={40} textColor="rgba(255,255,255,0.9)" />
           <p className="auth-left-tagline">{t('login_left_tagline') || 'Query your documents with precision'}</p>
           <p className="auth-left-sub">{t('login_left_sub') || 'Upload PDFs, ask questions, get cited answers in seconds.'}</p>
           <div className="auth-left-chips">

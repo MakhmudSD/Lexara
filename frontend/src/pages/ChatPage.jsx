@@ -308,7 +308,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
 
   return (
     <div className="chat-page">
-      <ThreeBackground />
+      {isEmpty && <ThreeBackground opacity={0.15} />}
       <button className="sidebar-toggle" onClick={() => setSidebarOpen((value) => !value)}>
         {sidebarOpen ? '✕' : '☰'}
       </button>
