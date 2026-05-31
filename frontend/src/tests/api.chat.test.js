@@ -117,7 +117,7 @@ describe('streamChat — SSE parsing', () => {
   });
 
   it('attaches Authorization header when token in localStorage', async () => {
-    localStorage.setItem('authToken', 'stream-tok');
+    localStorage.setItem('access_token', 'stream-tok');
     global.fetch.mockResolvedValue({ ok: true, body: makeSSEStream([]) });
     await streamChat('ws-1', 'Q?', [], vi.fn(), vi.fn(), vi.fn(), vi.fn());
     const headers = global.fetch.mock.calls[0][1].headers;

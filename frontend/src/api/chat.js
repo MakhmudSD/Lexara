@@ -19,7 +19,14 @@ export const streamChat = async (
   onError,
 ) => {
   try {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('access_token');
+    let userId = null;
+    try {
+      const authUser = JSON.parse(localStorage.getItem('authUser') || '{}');
+      userId = authUser?.id || authUser?.user_id || null;
+    } catch {
+      // ignore
+    }
     const response = await fetch(`${API_BASE_URL}/chat/stream`, {
       method: 'POST',
       headers: {
@@ -31,6 +38,7 @@ export const streamChat = async (
         question,
         top_k: 5,
         history: history.slice(-12),
+        ...(userId ? { user_id: userId } : {}),
       }),
     });
 

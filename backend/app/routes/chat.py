@@ -209,11 +209,8 @@ async def chat_stream(
         try:
             yield _sse_payload("sources", serialized_sources)
 
-            if not runtime.settings.openai_api_key:
+            if not runtime.settings.openai_api_key or not sources:
                 duration_ms = round((time.perf_counter() - started_at) * 1000, 3)
-                # Conversation logging is opt-in by default. In production, add a
-                # user-consent flag and exclude PII per your privacy policy.
-                # Under GDPR/PDPA: users must consent before conversation content is stored.
                 runtime.observability.add_conversation(
                     ConversationEntry(
                         request_id=request_id,
