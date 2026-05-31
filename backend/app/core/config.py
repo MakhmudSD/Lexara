@@ -146,7 +146,7 @@ def get_settings() -> Settings:
         jwt_expire_hours=int(os.getenv("JWT_EXPIRE_HOURS", "24")),
         chat_temperature=float(os.getenv("CHAT_TEMPERATURE", "0.2")),
         chat_top_p=float(os.getenv("CHAT_TOP_P", "0.9")),
-        chat_max_tokens=int(os.getenv("CHAT_MAX_TOKENS", "600")),
+        chat_max_tokens=int(os.getenv("CHAT_MAX_TOKENS", "1500")),
         chat_frequency_penalty=float(os.getenv("CHAT_FREQUENCY_PENALTY", "0.1")),
         enable_reranking=os.getenv("ENABLE_RERANKING", "false").lower() == "true",
         resend_api_key=os.getenv("RESEND_API_KEY", ""),

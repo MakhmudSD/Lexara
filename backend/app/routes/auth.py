@@ -14,7 +14,7 @@ from app.services.email_service import send_password_reset_email
 from app.core.enums import UserRole, ReferralStatus
 from app.core.exceptions import AppError
 from app.core.runtime import AppRuntime
-from app.db.models import PasswordResetToken, Referral, TokenUsage, User, Workspace
+from app.db.models import PasswordResetToken, Referral, TokenUsage, User
 from app.schemas.auth import (
     AuthResponse,
     ForgotPasswordRequest,
@@ -130,11 +130,12 @@ def me(
     now = datetime.utcnow()
     month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     stats = db.query(
+        func.count(TokenUsage.id).label("total_queries"),
         func.coalesce(func.sum(TokenUsage.total_tokens), 0).label("total_tokens"),
         func.coalesce(func.sum(TokenUsage.estimated_cost_usd), 0.0).label("total_cost"),
     ).filter(
         TokenUsage.user_id == str(user.id),
-        TokenUsage.timestamp >= month_start
+        TokenUsage.timestamp >= month_start,
     ).first()
 
     referrals_count = db.query(Referral).filter(
@@ -149,7 +150,7 @@ def me(
         role=user.role,
         is_active=user.is_active,
         created_at=user.created_at.isoformat() if user.created_at else None,
-        total_queries=int(user.request_count or 0),
+        total_queries=int(stats.total_queries or 0),
         total_tokens=int(stats.total_tokens or 0),
         total_cost_usd=float(stats.total_cost or 0.0),
         plan=user.plan or "free",
