@@ -52,6 +52,7 @@ class User(Base):
     subscription_id = Column(String(100), nullable=True, index=True)
     referral_code = Column(String(20), nullable=True, unique=True, index=True)
     deleted_at = Column(DateTime, nullable=True)
+    request_count = Column(Integer, default=0, server_default='0', nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 

@@ -60,6 +60,18 @@ def _check_quota(db: Session, user_id: str | None) -> None:
         )
 
 
+def _increment_request_count(db: Session, user_id: str | None) -> None:
+    """Increment the user's monotonic request_count. Never decrements."""
+    if not user_id:
+        return
+    from app.db.models import User
+    db.query(User).filter(User.id == user_id).update(
+        {"request_count": User.request_count + 1},
+        synchronize_session=False,
+    )
+    db.commit()
+
+
 def _serialize_sources(sources: list) -> list[dict]:
     return [source.model_dump(mode="json") for source in sources]
 
@@ -162,6 +174,7 @@ async def chat_query(
             )
         )
 
+    _increment_request_count(db, str(payload.user_id) if payload.user_id else None)
     return ChatQueryResponse(
         answer=answer,
         sources=retrieved_chunks,
@@ -310,6 +323,7 @@ async def chat_stream(
                     latency_ms=duration_ms,
                 )
             )
+            _increment_request_count(db, str(payload.user_id) if payload.user_id else None)
             yield _sse_payload("done", {"mode": "rag", "latency_ms": duration_ms})
         except AppError as exc:
             yield _sse_payload("error", exc.message)

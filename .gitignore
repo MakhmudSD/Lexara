@@ -27,3 +27,8 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Environment configs - NEVER commit
+.env.production
+.env.development
+.env.*.local
