@@ -127,19 +127,15 @@ def me(
         user.plan = "free"
         db.commit()
 
-    user_workspace_ids = [
-        str(ws.id)
-        for ws in db.query(Workspace).filter(
-            Workspace.is_active.is_(True)
-        ).all()
-    ]
+    now = datetime.utcnow()
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     stats = db.query(
         func.count(TokenUsage.id).label("total_queries"),
         func.coalesce(func.sum(TokenUsage.total_tokens), 0).label("total_tokens"),
         func.coalesce(func.sum(TokenUsage.estimated_cost_usd), 0.0).label("total_cost"),
     ).filter(
-        TokenUsage.workspace_id.in_(user_workspace_ids)
-        if user_workspace_ids else False
+        TokenUsage.user_id == str(user.id),
+        TokenUsage.timestamp >= month_start
     ).first()
 
     referrals_count = db.query(Referral).filter(
