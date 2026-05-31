@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Lenis from '@studio-freight/lenis';
 import { LexaraLogo } from '../assets/LexaraLogo';
 import { useTranslation } from '../i18n/useTranslation';
+import ThreeBackground from '../components/ThreeBackground';
 import '../styles/LandingPage.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -286,6 +288,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
   const statsRef = useRef(null);
   const pricingRef = useRef(null);
   const faqRef = useRef(null);
+  const lenisRef = useRef(null);
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof localStorage !== 'undefined') {
       const stored = localStorage.getItem('theme');
@@ -313,6 +316,22 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
     };
+  }, []);
+
+  // Lenis smooth scroll — drives the intentional pacing throughout the page
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const lenis = new Lenis({ duration: 1.35, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+    lenisRef.current = lenis;
+    // Drive Lenis from GSAP ticker so ScrollTrigger stays in sync
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+    lenis.on('scroll', ScrollTrigger.update);
+    return () => {
+      lenis.destroy();
+      lenisRef.current = null;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -467,11 +486,20 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
 
   const scrollToSection = (event, id) => {
     event.preventDefault();
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(el);
+    } else {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
     <div className="landing">
+      {/* ── Three.js ambient paper layer (full-page, fixed, pointer-events: none) ── */}
+      <ThreeBackground />
+
       {/* ── Floating orbs ── */}
       <div className="landing-orbs" aria-hidden="true">
         <div className="landing-orb landing-orb--1" />
