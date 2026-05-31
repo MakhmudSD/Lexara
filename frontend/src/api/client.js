@@ -26,7 +26,7 @@ client.interceptors.response.use(
       err.message ||
       'Network error';
     if (import.meta.env.DEV) console.error(`[api] ${status ?? 'ERR'} — ${detail}`);
-    if (status === 401) {
+    if (status === 401 && !err.config?.url?.includes('/auth/login')) {
       localStorage.removeItem('access_token');
       localStorage.removeItem('authUser');
       window.dispatchEvent(new Event('auth:change'));

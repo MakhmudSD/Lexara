@@ -193,7 +193,7 @@ async def admin_users(
     db: Session = Depends(get_db),
     _claims: dict = Depends(_require_admin),
 ) -> list[UserAdminResponse]:
-    rows = db.query(User).order_by(User.created_at.desc()).all()
+    rows = db.query(User).filter(User.deleted_at.is_(None)).order_by(User.created_at.desc()).all()
     return [
         UserAdminResponse(
             user_id=str(row.id),

@@ -611,18 +611,51 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
           <h2 className="landing-section-title landing-section-title--light reveal">{t('landing_pricing_title') || 'Pricing'}</h2>
           <div className="landing-pricing-grid">
             {[
-              ['Free', '$0', ['100 queries/month', '1 workspace', '5 documents'], t('pricing_cta_free') || 'Try free', false],
-              ['Pro', '$19/mo', ['1,000 queries/month', '5 workspaces', 'Usage analytics'], t('pricing_cta_pro') || 'Choose Pro', true],
-              ['Business', '$49/mo', ['5,000 queries/month', 'Unlimited workspaces*', 'Priority support'], t('pricing_cta_business') || 'Choose Business', false],
-            ].map(([name, price, feats, cta, active]) => (
-              <div key={name} className={`landing-pricing-card ${active ? 'landing-pricing-card--pro' : ''}`}>
+              {
+                key: 'free',
+                name: t('pricing_plan_free') || 'Free',
+                price: '$0',
+                feats: [
+                  t('pricing_feat_free_1') || '100 queries/month',
+                  t('pricing_feat_free_2') || '1 workspace',
+                  t('pricing_feat_free_3') || '5 documents',
+                ],
+                cta: t('pricing_cta_free') || 'Try free',
+                active: false,
+              },
+              {
+                key: 'pro',
+                name: t('pricing_plan_pro') || 'Pro',
+                price: '$19/mo',
+                feats: [
+                  t('pricing_feat_pro_1') || '1,000 queries/month',
+                  t('pricing_feat_pro_2') || '5 workspaces',
+                  t('pricing_feat_pro_3') || 'Usage analytics',
+                ],
+                cta: t('pricing_cta_pro') || 'Choose Pro',
+                active: true,
+              },
+              {
+                key: 'business',
+                name: t('pricing_plan_business') || 'Business',
+                price: '$49/mo',
+                feats: [
+                  t('pricing_feat_biz_1') || '5,000 queries/month',
+                  t('pricing_feat_biz_2') || 'Unlimited workspaces*',
+                  t('pricing_feat_biz_3') || 'Priority support',
+                ],
+                cta: t('pricing_cta_business') || 'Choose Business',
+                active: false,
+              },
+            ].map(({ key, name, price, feats, cta, active }) => (
+              <div key={key} className={`landing-pricing-card ${active ? 'landing-pricing-card--pro' : ''}`}>
                 <div className="landing-pricing-card-header">
                   <h3 className="landing-pricing-plan-name">{name}</h3>
                   <div className="landing-pricing-price">{price}</div>
                 </div>
                 <ul className="landing-pricing-features">
-                  {feats.map((f) => (
-                    <li key={f} className="landing-pricing-feature">
+                  {feats.map((f, i) => (
+                    <li key={i} className="landing-pricing-feature">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                       {f}
                     </li>

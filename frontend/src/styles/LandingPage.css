@@ -1459,6 +1459,39 @@
   color: var(--color-text-primary);
 }
 
+/* ── Pricing card text — light mode overrides ── */
+[data-theme="light"] .landing-pricing-plan-name,
+:root:not([data-theme="dark"]) .landing-pricing-plan-name {
+  color: rgba(0, 0, 0, 0.70);
+}
+
+[data-theme="light"] .landing-pricing-price,
+:root:not([data-theme="dark"]) .landing-pricing-price {
+  color: #0f0f12;
+}
+
+[data-theme="light"] .landing-pricing-feature,
+:root:not([data-theme="dark"]) .landing-pricing-feature {
+  color: rgba(0, 0, 0, 0.65);
+}
+
+[data-theme="light"] .landing-pricing-btn,
+:root:not([data-theme="dark"]) .landing-pricing-btn {
+  border-color: rgba(0, 0, 0, 0.18);
+  color: rgba(0, 0, 0, 0.80);
+}
+
+[data-theme="light"] .landing-pricing-btn:hover,
+:root:not([data-theme="dark"]) .landing-pricing-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #0f0f12;
+}
+
+[data-theme="light"] .landing-pricing-note,
+:root:not([data-theme="dark"]) .landing-pricing-note {
+  color: rgba(0, 0, 0, 0.50);
+}
+
 /* ── FloatingDocs 3D component ── */
 .floating-docs-wrap {
   position: absolute;
