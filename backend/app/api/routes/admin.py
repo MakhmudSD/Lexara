@@ -271,3 +271,15 @@ async def admin_delete_user(
     user.deleted_at = datetime.utcnow()
     db.commit()
     return Response(status_code=204)
+
+
+@router.post("/faiss/rebuild")
+async def admin_faiss_rebuild(
+    db: Session = Depends(get_db),
+    runtime: AppRuntime = Depends(get_runtime),
+    _claims: dict = Depends(_require_admin),
+) -> dict:
+    """Re-embed all workspace chunks from PostgreSQL into FAISS using the current model."""
+    from app.services.faiss_rebuild import rebuild_faiss_from_db
+    rebuilt = rebuild_faiss_from_db(db, runtime.settings)
+    return {"rebuilt_workspaces": rebuilt, "model": runtime.settings.local_embedding_model}
