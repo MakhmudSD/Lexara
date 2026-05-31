@@ -320,8 +320,8 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
 
           <div className="mypage-stat-block">
             <div className="mypage-stat-row">
-              <span className="mypage-stat-label">{t('queries_remaining') || 'Remaining queries'}</span>
-              <span className="mypage-stat-value" style={{ color: getBarColor(queriesPct) }}>{queriesLeft}</span>
+              <span className="mypage-stat-label">{t('total_queries_label') || 'Total queries'}</span>
+              <span className="mypage-stat-value">{stats.total_queries}</span>
             </div>
             {stats.total_queries === 0 ? (
               <div className="mypage-stat-empty">
@@ -336,7 +336,7 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
                   />
                 </div>
                 <div className="mypage-stat-sub">
-                  {`${stats.total_queries} / ${planLimits.queries} ${t('per_month') || 'per month'}`}
+                  {`${queriesLeft} ${t('queries_remaining') || 'remaining'} / ${planLimits.queries} ${t('per_month') || 'per month'}`}
                 </div>
               </>
             )}

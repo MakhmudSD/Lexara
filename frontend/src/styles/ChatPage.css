@@ -266,7 +266,7 @@
 }
 
 .chat-input-wrapper:focus-within {
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08);
+  box-shadow: none;
 }
 
 .chat-input {
