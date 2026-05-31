@@ -91,7 +91,7 @@ async def chat_query(
     if retrieved_chunks:
         answer, usage = await generate_answer(
             payload.question,
-            [chunk.text for chunk in retrieved_chunks],
+            [f"[Excerpt {i+1}, section={chunk.chunk_index}]\n{chunk.text}" for i, chunk in enumerate(retrieved_chunks)],
             runtime.settings,
             history=payload.history,
             top_score=retrieved_chunks[0].score if retrieved_chunks else None,
@@ -236,7 +236,7 @@ async def chat_stream(
             mode = "rag"
             async for delta in generate_answer_stream(
                 payload.question,
-                [chunk.text for chunk in sources],
+                [f"[Excerpt {i+1}, section={chunk.chunk_index}]\n{chunk.text}" for i, chunk in enumerate(sources)],
                 runtime.settings,
                 history=payload.history,
                 top_score=sources[0].score if sources else None,
