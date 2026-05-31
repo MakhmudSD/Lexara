@@ -29,11 +29,15 @@ def rebuild_faiss_from_db(db: Session, settings: Settings) -> int:
         try:
             texts = [c.text for c in chunks]
             chunk_ids = [str(c.id) for c in chunks]
-            embeddings = embed_texts(texts, settings)
+            batch_size = 200
+            all_embeddings = []
+            for i in range(0, len(texts), batch_size):
+                batch = texts[i : i + batch_size]
+                all_embeddings.extend(embed_texts(batch, settings))
             store.add_embeddings(
                 workspace_id=str(ws.id),
                 chunk_ids=chunk_ids,
-                embeddings=embeddings,
+                embeddings=all_embeddings,
             )
             logger.info(f"Rebuilt FAISS for workspace {ws.id}: {len(chunks)} chunks")
             rebuilt += 1
