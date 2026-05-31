@@ -58,14 +58,15 @@ class FaissVectorStore:
         for index_path in self.base_dir.glob("*.index"):
             index = faiss.read_index(str(index_path))
             if index.d != self.dimension:
-                raise AppError(
-                    500,
-                    "faiss_dimension_mismatch",
-                    (
-                        f"FAISS index '{index_path.name}' has dimension {index.d}, "
-                        f"but Settings.embedding_dimension is {self.dimension}."
-                    ),
+                workspace_id = index_path.stem
+                logger.warning(
+                    "FAISS index '%s' has dimension %d but embedding_dimension is %d — "
+                    "purging stale index so workspace can be re-indexed.",
+                    index_path.name,
+                    index.d,
+                    self.dimension,
                 )
+                self._delete_persisted(workspace_id)
 
     def add_embeddings(
         self,
