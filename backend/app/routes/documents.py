@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, Query, UploadFile
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
@@ -35,6 +35,22 @@ ALLOWED_CONTENT_TYPES = {
         "application/octet-stream",
     },
 }
+
+
+@router.get("", response_model=list[DocumentUploadResponse])
+def list_documents(
+    workspace_id: UUID = Query(...),
+    limit: int = Query(50, ge=1, le=200),
+    db: Session = Depends(get_db),
+) -> list[DocumentUploadResponse]:
+    docs = (
+        db.query(Document)
+        .filter(Document.workspace_id == workspace_id, Document.is_active == True)  # noqa: E712
+        .order_by(Document.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+    return docs
 
 
 @router.post("/upload", response_model=DocumentUploadResponse, status_code=201)

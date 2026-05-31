@@ -21,8 +21,8 @@ class Settings(BaseSettings):
     chat_model: str = "gpt-4o-mini"
 
     # Local embeddings (sentence-transformers)
-    local_embedding_model: str = "intfloat/multilingual-e5-large"
-    embedding_dimension: int = 1024
+    local_embedding_model: str = "intfloat/multilingual-e5-small"
+    embedding_dimension: int = 384
     
     # Database (PostgreSQL)
     database_url: str = "postgresql://user:password@localhost:5432/rag_db"
@@ -127,8 +127,8 @@ def get_settings() -> Settings:
         openai_api_key=os.getenv("OPENAI_API_KEY"),
         database_url=db_url,
         sqlite_db_path=os.getenv("SQLITE_DB_PATH", DEFAULT_SQLITE_DB_PATH),
-        local_embedding_model=os.getenv("LOCAL_EMBEDDING_MODEL", "intfloat/multilingual-e5-large"),
-        embedding_dimension=int(os.getenv("EMBEDDING_DIMENSION", "1024")),
+        local_embedding_model=os.getenv("LOCAL_EMBEDDING_MODEL", "intfloat/multilingual-e5-small"),
+        embedding_dimension=int(os.getenv("EMBEDDING_DIMENSION", "384")),
         faiss_data_dir=os.getenv("FAISS_DATA_DIR", str(data_root / "faiss")),
         uploads_data_dir=os.getenv("UPLOADS_DATA_DIR", str(data_root / "uploads")),
         debug=os.getenv("DEBUG", "false").lower() == "true",

@@ -14,7 +14,7 @@ try:
 except ImportError:  # pragma: no cover
     SentenceTransformer = None  # type: ignore[misc, assignment]
 
-MODEL_NAME = "intfloat/multilingual-e5-large"
+MODEL_NAME = "intfloat/multilingual-e5-small"
 _model: SentenceTransformer | None = None
 _model_name: str | None = None
 
