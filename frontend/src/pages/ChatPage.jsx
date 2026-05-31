@@ -387,7 +387,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
               </button>
             </div>
           )}
-          {!hasWorkspaceName && (
+          {!hasWorkspaceName && isEmpty && !isLoading && (
             <div className="workspace-name-overlay">
               <div className="workspace-name-overlay-arrow">↖</div>
               <div className="workspace-name-overlay-text">{t('no_workspace_overlay')}</div>
