@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { forgotPassword, login, resetPassword } from '../api/auth';
 import { useTranslation } from '../i18n/useTranslation';
 import { LexaraLogo } from '../assets/LexaraLogo';
+import ThreeBackground from '../components/ThreeBackground';
 import '../styles/AuthPages.css';
 
 export default function LoginPage({ onLogin, onRegister, onHome }) {
@@ -99,6 +100,7 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
 
   return (
     <div className="auth-root">
+      <ThreeBackground />
       <div className="auth-left-panel">
         <div className="auth-left-content">
           <LexaraLogo height={40} />

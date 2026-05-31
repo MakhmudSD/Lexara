@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import client from '../api/client';
 import { createCheckout, redeemPromo } from '../api/billing';
 import { useTranslation } from '../i18n/useTranslation';
+import ThreeBackground from '../components/ThreeBackground';
 import '../styles/MyPage.css';
 
 function initials(name = '') {
@@ -286,6 +287,7 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
 
   return (
     <div className="mypage-wrap">
+      <ThreeBackground />
       {/* Header */}
       <div className="mypage-header-card">
         <div className="mypage-avatar-row">

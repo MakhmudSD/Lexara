@@ -5,6 +5,7 @@ import { LexaraIcon } from '../assets/LexaraLogo';
 import { useTranslation } from '../i18n/useTranslation';
 import { streamChat } from '../api/chat';
 import { uploadDocument } from '../api/upload';
+import ThreeBackground from '../components/ThreeBackground';
 import '../styles/ChatPage.css';
 
 const HISTORY_LIMIT = 12;
@@ -307,6 +308,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
 
   return (
     <div className="chat-page">
+      <ThreeBackground />
       <button className="sidebar-toggle" onClick={() => setSidebarOpen((value) => !value)}>
         {sidebarOpen ? '✕' : '☰'}
       </button>

@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
-const PAPER_COUNT = 14;
-const DUST_COUNT = 200;
+const PAPER_COUNT = 8;
+const DUST_COUNT = 140;
 
 function seeded(seed) {
   let s = seed;
@@ -108,8 +108,8 @@ export default function ThreeBackground() {
       // Dark mode: warm cream (barely visible against dark backgrounds)
       // Light mode: medium warm grey — clearly visible against light sections
       const opacity = isDark
-        ? (0.06 + rng() * 0.08)   // 0.06–0.14
-        : (0.20 + rng() * 0.18);  // 0.20–0.38 — must punch through white
+        ? (0.04 + rng() * 0.04)   // 0.04–0.08 — barely-there on dark
+        : (0.08 + rng() * 0.08);  // 0.08–0.16 — visible on white without dominating
 
       const mat = new THREE.MeshBasicMaterial({
         map: paperTex,
