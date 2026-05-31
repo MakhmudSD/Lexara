@@ -1314,43 +1314,23 @@
 .landing-orb--1 {
   width: 480px;
   height: 480px;
-  background: radial-gradient(circle, rgba(74,122,255,0.6) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(74,122,255,0.45) 0%, transparent 70%);
   top: -120px;
   left: -100px;
-  animation: orbDrift1 40s ease-in-out infinite;
 }
 .landing-orb--2 {
   width: 360px;
   height: 360px;
-  background: radial-gradient(circle, rgba(139,92,246,0.5) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(139,92,246,0.35) 0%, transparent 70%);
   top: 40%;
   right: -80px;
-  animation: orbDrift2 60s ease-in-out infinite;
 }
 .landing-orb--3 {
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(16,185,129,0.4) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(16,185,129,0.28) 0%, transparent 70%);
   bottom: 10%;
   left: 30%;
-  animation: orbDrift3 80s ease-in-out infinite;
-}
-@keyframes orbDrift1 {
-  0%, 100% { transform: translate(0, 0); }
-  33% { transform: translate(60px, 80px); }
-  66% { transform: translate(-40px, 40px); }
-}
-@keyframes orbDrift2 {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(-80px, -60px); }
-}
-@keyframes orbDrift3 {
-  0%, 100% { transform: translate(0, 0); }
-  25% { transform: translate(50px, -40px); }
-  75% { transform: translate(-30px, 60px); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .landing-orb { animation: none; }
 }
 
 /* Ensure landing content sits above orbs */
@@ -1387,16 +1367,13 @@
   letter-spacing: 0.06em;
 }
 
-/* ── CTA glow pulse ── */
+/* ── CTA glow — hover-only, no infinite animation ── */
 .landing-btn-cta-glow {
-  animation: ctaGlowPulse 2s ease-in-out infinite;
+  box-shadow: 0 0 0 0 transparent;
+  transition: box-shadow 300ms ease-out;
 }
-@keyframes ctaGlowPulse {
-  0%, 100% { box-shadow: 0 0 0 0 transparent; }
-  50% { box-shadow: var(--shadow-glow, 0 0 32px rgba(74,122,255,0.4)); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .landing-btn-cta-glow { animation: none; }
+.landing-btn-cta-glow:hover {
+  box-shadow: var(--shadow-glow, 0 0 32px rgba(74,122,255,0.4));
 }
 
 /* ── Hero section orbs ── */
@@ -1410,38 +1387,18 @@
 }
 .hero-orb-1 {
   width: 400px; height: 400px;
-  background: radial-gradient(circle, rgba(74,122,255,0.4), transparent);
+  background: radial-gradient(circle, rgba(74,122,255,0.32), transparent);
   top: -100px; left: -100px;
-  animation: orbFloat1 40s ease-in-out infinite;
 }
 .hero-orb-2 {
   width: 300px; height: 300px;
-  background: radial-gradient(circle, rgba(124,58,237,0.3), transparent);
+  background: radial-gradient(circle, rgba(124,58,237,0.24), transparent);
   top: 50%; right: -80px;
-  animation: orbFloat2 60s ease-in-out infinite;
 }
 .hero-orb-3 {
   width: 250px; height: 250px;
-  background: radial-gradient(circle, rgba(74,122,255,0.2), transparent);
+  background: radial-gradient(circle, rgba(74,122,255,0.16), transparent);
   bottom: -50px; left: 40%;
-  animation: orbFloat3 80s ease-in-out infinite;
-}
-@keyframes orbFloat1 {
-  0%,100% { transform: translate(0,0); }
-  33% { transform: translate(60px, 40px); }
-  66% { transform: translate(-30px, 80px); }
-}
-@keyframes orbFloat2 {
-  0%,100% { transform: translate(0,0); }
-  50% { transform: translate(-80px, -60px); }
-}
-@keyframes orbFloat3 {
-  0%,100% { transform: translate(0,0); }
-  40% { transform: translate(50px, -40px); }
-  80% { transform: translate(-40px, 30px); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-orb { animation: none; }
 }
 
 /* ── Tilt card base (no extra styles needed — handled inline) ── */

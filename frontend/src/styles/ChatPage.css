@@ -247,7 +247,6 @@
 .chat-input-area {
   flex-shrink: 0;
   padding: 10px 16px 14px;
-  border-top: 1px solid var(--color-border);
   background: var(--color-surface);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -652,6 +651,40 @@
   font-size: 11px;
   color: var(--color-text-secondary);
   margin-top: 1px;
+}
+
+/* ── Paper @keyframes ─────────────────────────────────────────────────────── */
+
+@keyframes paper-fan {
+  from { opacity: 0; transform: translateY(18px) rotate(0.6deg); }
+  to   { opacity: 1; transform: translateY(0)    rotate(0deg); }
+}
+
+@keyframes paper-float {
+  0%, 100% { transform: translateY(0)   rotate(0deg);    }
+  30%      { transform: translateY(-6px) rotate(0.4deg);  }
+  70%      { transform: translateY(-3px) rotate(-0.3deg); }
+}
+
+@keyframes paper-slide {
+  from { opacity: 0; transform: translateX(-18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes paper-flip {
+  0%   { opacity: 0; transform: perspective(600px) rotateX(-90deg) translateY(12px); }
+  60%  { opacity: 1; transform: perspective(600px) rotateX(8deg)   translateY(-2px); }
+  100% { opacity: 1; transform: perspective(600px) rotateX(0deg)   translateY(0); }
+}
+
+/* ── Page entrance ─────────────────────────────────────────────────────────── */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.chat-page {
+  animation: page-enter 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* ── Paper animations ─────────────────────────────────────────────────────── */

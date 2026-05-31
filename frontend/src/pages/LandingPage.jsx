@@ -283,6 +283,9 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
   const headlineRef = useRef(null);
   const featuresRef = useRef(null);
   const heroSectionRef = useRef(null);
+  const statsRef = useRef(null);
+  const pricingRef = useRef(null);
+  const faqRef = useRef(null);
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof localStorage !== 'undefined') {
       const stored = localStorage.getItem('theme');
@@ -383,6 +386,77 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
         scrollTrigger: {
           trigger: container,
           start: 'top 78%',
+          toggleActions: 'play none none none',
+        },
+      });
+    });
+    return () => ctx.revert();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── GSAP: stats strip count-up stagger ────────────────────────────────────
+  useEffect(() => {
+    const container = statsRef.current;
+    if (!container || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const items = container.querySelectorAll('.landing-stat');
+    const ctx = gsap.context(() => {
+      gsap.from(items, {
+        y: 32,
+        opacity: 0,
+        duration: 0.55,
+        ease: 'power3.out',
+        stagger: 0.1,
+        scrollTrigger: {
+          trigger: container,
+          start: 'top 82%',
+          toggleActions: 'play none none none',
+        },
+      });
+    });
+    return () => ctx.revert();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── GSAP: pricing cards fan-in with 3D depth ──────────────────────────────
+  useEffect(() => {
+    const container = pricingRef.current;
+    if (!container || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cards = container.querySelectorAll('.landing-pricing-card');
+    const ctx = gsap.context(() => {
+      gsap.from(cards, {
+        y: 48,
+        opacity: 0,
+        rotateX: 8,
+        transformPerspective: 800,
+        duration: 0.65,
+        ease: 'power3.out',
+        stagger: 0.12,
+        scrollTrigger: {
+          trigger: container,
+          start: 'top 80%',
+          toggleActions: 'play none none none',
+        },
+      });
+    });
+    return () => ctx.revert();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── GSAP: FAQ items cascade in ────────────────────────────────────────────
+  useEffect(() => {
+    const container = faqRef.current;
+    if (!container || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const items = container.querySelectorAll('.faq-item');
+    const ctx = gsap.context(() => {
+      gsap.from(items, {
+        x: -24,
+        opacity: 0,
+        duration: 0.5,
+        ease: 'power2.out',
+        stagger: 0.08,
+        scrollTrigger: {
+          trigger: container,
+          start: 'top 82%',
           toggleActions: 'play none none none',
         },
       });
@@ -521,7 +595,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
             <span key={chip} className="landing-trust-pill">{chip}</span>
           ))}
         </div>
-        <div className="landing-stats-row">
+        <div className="landing-stats-row" ref={statsRef}>
           <div className="landing-stat">
             <span className="landing-stat-number"><CountUp target={1200} />+</span>
             <span className="landing-stat-label">{t('stat_docs_label') || 'documents indexed'}</span>
@@ -606,7 +680,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
       </section>
 
       {/* ── Pricing ── */}
-      <section id="pricing" className="landing-pricing-section">
+      <section id="pricing" className="landing-pricing-section" ref={pricingRef}>
         <div className="landing-pricing-inner">
           <h2 className="landing-section-title landing-section-title--light reveal">{t('landing_pricing_title') || 'Pricing'}</h2>
           <div className="landing-pricing-grid">
@@ -682,7 +756,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
           <h2 className="landing-section-title">
             {t('faq_title') || 'Frequently Asked Questions'}
           </h2>
-          <div className="landing-faq-grid">
+          <div className="landing-faq-grid" ref={faqRef}>
             {[
               { q: t('faq_q1') || 'How fast is document indexing?', a: t('faq_a1') || 'Most PDFs and DOCX files are searchable within seconds of upload. Larger documents (50MB+) may take up to 30 seconds.' },
               { q: t('faq_q2') || 'Can I use Lexara without a credit card?', a: t('faq_a2') || 'Yes. The Free plan requires no payment. Upload up to 5 documents and send 100 queries per month completely free.' },

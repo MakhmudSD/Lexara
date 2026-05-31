@@ -80,6 +80,11 @@ def create_app() -> FastAPI:
             logger.info("Running database migrations...")
             run_migrations()
             runtime.vector_store.base_dir.mkdir(parents=True, exist_ok=True)
+            logger.info(
+                "OpenAI key: %s | chat model: %s",
+                "SET" if settings.openai_api_key else "NOT SET",
+                settings.chat_model,
+            )
             logger.info("Backend initialized successfully")
         except Exception as exc:
             logger.error("Startup failed: %s", exc)

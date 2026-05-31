@@ -209,6 +209,12 @@ async def chat_stream(
         try:
             yield _sse_payload("sources", serialized_sources)
 
+            logger.info(
+                "stream_check openai_key=%s sources=%d workspace=%s",
+                "set" if runtime.settings.openai_api_key else "MISSING",
+                len(sources),
+                payload.workspace_id,
+            )
             if not runtime.settings.openai_api_key or not sources:
                 duration_ms = round((time.perf_counter() - started_at) * 1000, 3)
                 runtime.observability.add_conversation(
