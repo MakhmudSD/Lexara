@@ -320,8 +320,8 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
 
           <div className="mypage-stat-block">
             <div className="mypage-stat-row">
-              <span className="mypage-stat-label">{t('total_queries_label') || 'Total queries'}</span>
-              <span className="mypage-stat-value">{stats.total_queries}</span>
+              <span className="mypage-stat-label">{t('queries_remaining') || 'Remaining queries'}</span>
+              <span className="mypage-stat-value" style={{ color: getBarColor(queriesPct) }}>{queriesLeft}</span>
             </div>
             {stats.total_queries === 0 ? (
               <div className="mypage-stat-empty">
@@ -336,17 +336,10 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
                   />
                 </div>
                 <div className="mypage-stat-sub">
-                  {`${queriesLeft} ${t('queries_remaining') || 'remaining'} / ${planLimits.queries} ${t('per_month') || 'per month'}`}
+                  {`${stats.total_queries} ${t('of') || 'of'} ${planLimits.queries} ${t('used_this_month') || 'used this month'}`}
                 </div>
               </>
             )}
-          </div>
-
-          <div className="mypage-stat-block" style={{ marginTop: 12 }}>
-            <div className="mypage-stat-row">
-              <span className="mypage-stat-label">{t('tokens_label') || 'Tokenlar'}</span>
-              <span className="mypage-stat-value">{stats.total_tokens.toLocaleString()}</span>
-            </div>
           </div>
 
           <div className="mypage-divider" />

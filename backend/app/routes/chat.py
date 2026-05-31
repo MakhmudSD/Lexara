@@ -12,7 +12,7 @@ from app.core.dependencies import get_db, get_request_id, get_runtime
 from app.core.exceptions import AppError
 from app.observability.models import ConversationEntry, TokenUsageEntry
 from app.core.runtime import AppRuntime
-from app.db.models import TokenUsage
+from app.db.models import TokenUsage, User
 from app.schemas.chat import ChatQueryRequest, ChatQueryResponse
 from app.services.llm_service import (
     build_token_usage_data,
@@ -25,14 +25,13 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 logger = logging.getLogger(__name__)
 
 
-def _check_quota(db: Session, user_id: str | None) -> None:
-    """Raise 429 if user has exceeded their monthly query limit."""
+def _check_quota(db: Session, user_id: str | None) -> "User | None":
+    """Raise 429 if user has exceeded their monthly query limit. Returns the loaded user."""
     if not user_id:
-        return
-    from app.db.models import User
+        return None
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
-        return
+        return None
 
     plan = user.plan or "free"
     if user.plan_expires_at and user.plan_expires_at < datetime.utcnow():
@@ -58,18 +57,7 @@ def _check_quota(db: Session, user_id: str | None) -> None:
             f"Oylik so'rovlar limiti ({monthly_limit}) tugadi. "
             "Ko'proq so'rov uchun rejangizni yangilang.",
         )
-
-
-def _increment_request_count(db: Session, user_id: str | None) -> None:
-    """Increment the user's monotonic request_count. Never decrements."""
-    if not user_id:
-        return
-    from app.db.models import User
-    db.query(User).filter(User.id == user_id).update(
-        {"request_count": User.request_count + 1},
-        synchronize_session=False,
-    )
-    db.commit()
+    return user
 
 
 def _serialize_sources(sources: list) -> list[dict]:
@@ -87,7 +75,8 @@ async def chat_query(
     runtime: AppRuntime = Depends(get_runtime),
     request_id: str = Depends(get_request_id),
 ) -> ChatQueryResponse:
-    _check_quota(db, str(payload.user_id) if payload.user_id else None)
+    uid = str(payload.user_id) if payload.user_id else None
+    quota_user = _check_quota(db, uid)
     started_at = time.perf_counter()
     retrieved_chunks = query_workspace(
         db,
@@ -127,7 +116,7 @@ async def chat_query(
                 TokenUsage(
                     request_id=request_id,
                     workspace_id=str(payload.workspace_id),
-                    user_id=str(payload.user_id) if payload.user_id else None,
+                    user_id=uid,
                     model=usage.model,
                     prompt_tokens=usage.prompt_tokens,
                     completion_tokens=usage.completion_tokens,
@@ -138,6 +127,8 @@ async def chat_query(
                     context_chunks_used=usage.context_chunks_used,
                 )
             )
+            if quota_user:
+                quota_user.request_count = (quota_user.request_count or 0) + 1
             db.commit()
         except Exception:
             db.rollback()
@@ -157,9 +148,12 @@ async def chat_query(
         )
     else:
         duration_ms = round((time.perf_counter() - started_at) * 1000, 3)
-        # Conversation logging is opt-in by default. In production, add a
-        # user-consent flag and exclude PII per your privacy policy.
-        # Under GDPR/PDPA: users must consent before conversation content is stored.
+        if quota_user:
+            try:
+                quota_user.request_count = (quota_user.request_count or 0) + 1
+                db.commit()
+            except Exception:
+                db.rollback()
         runtime.observability.add_conversation(
             ConversationEntry(
                 request_id=request_id,
@@ -174,7 +168,6 @@ async def chat_query(
             )
         )
 
-    _increment_request_count(db, str(payload.user_id) if payload.user_id else None)
     return ChatQueryResponse(
         answer=answer,
         sources=retrieved_chunks,
@@ -204,7 +197,8 @@ async def chat_stream(
     runtime: AppRuntime = Depends(get_runtime),
     request_id: str = Depends(get_request_id),
 ) -> StreamingResponse:
-    _check_quota(db, str(payload.user_id) if payload.user_id else None)
+    uid = str(payload.user_id) if payload.user_id else None
+    quota_user = _check_quota(db, uid)
     sources = query_workspace(
         db,
         runtime.vector_store,
@@ -292,7 +286,7 @@ async def chat_stream(
                     TokenUsage(
                         request_id=request_id,
                         workspace_id=str(payload.workspace_id),
-                        user_id=str(payload.user_id) if payload.user_id else None,
+                        user_id=uid,
                         model=usage.model,
                         prompt_tokens=usage.prompt_tokens,
                         completion_tokens=usage.completion_tokens,
@@ -303,13 +297,12 @@ async def chat_stream(
                         context_chunks_used=usage.context_chunks_used,
                     )
                 )
+                if quota_user:
+                    quota_user.request_count = (quota_user.request_count or 0) + 1
                 db.commit()
             except Exception:
                 db.rollback()
                 logger.exception("failed_to_persist_stream_token_usage")
-            # Conversation logging is opt-in by default. In production, add a
-            # user-consent flag and exclude PII per your privacy policy.
-            # Under GDPR/PDPA: users must consent before conversation content is stored.
             runtime.observability.add_conversation(
                 ConversationEntry(
                     request_id=request_id,
@@ -323,7 +316,6 @@ async def chat_stream(
                     latency_ms=duration_ms,
                 )
             )
-            _increment_request_count(db, str(payload.user_id) if payload.user_id else None)
             yield _sse_payload("done", {"mode": "rag", "latency_ms": duration_ms})
         except AppError as exc:
             yield _sse_payload("error", exc.message)
