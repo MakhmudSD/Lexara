@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Lenis from '@studio-freight/lenis';
 import { LexaraLogo } from '../assets/LexaraLogo';
 import { useTranslation } from '../i18n/useTranslation';
 import ThreeBackground from '../components/ThreeBackground';
@@ -288,7 +287,6 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
   const statsRef = useRef(null);
   const pricingRef = useRef(null);
   const faqRef = useRef(null);
-  const lenisRef = useRef(null);
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof localStorage !== 'undefined') {
       const stored = localStorage.getItem('theme');
@@ -318,20 +316,11 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
     };
   }, []);
 
-  // Lenis smooth scroll — drives the intentional pacing throughout the page
+  // Smooth scroll pacing via CSS — Lenis transforms <html> which breaks
+  // position:fixed children (ThreeBackground scrolls off-screen with the page)
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const lenis = new Lenis({ duration: 1.35, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
-    lenisRef.current = lenis;
-    // Drive Lenis from GSAP ticker so ScrollTrigger stays in sync
-    gsap.ticker.add((time) => lenis.raf(time * 1000));
-    gsap.ticker.lagSmoothing(0);
-    lenis.on('scroll', ScrollTrigger.update);
-    return () => {
-      lenis.destroy();
-      lenisRef.current = null;
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    document.documentElement.style.scrollBehavior = 'smooth';
+    return () => { document.documentElement.style.scrollBehavior = ''; };
   }, []);
 
   // Reading-progress bar: grows right-edge line as user scrolls
@@ -500,13 +489,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
 
   const scrollToSection = (event, id) => {
     event.preventDefault();
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (lenisRef.current) {
-      lenisRef.current.scrollTo(el);
-    } else {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (

@@ -72,7 +72,13 @@ export default function ThreeBackground() {
     if (typeof window === 'undefined') return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    // Read theme from localStorage (same source as LandingPage useState).
+    // data-theme attribute is set by a parent useEffect that runs AFTER this
+    // child effect, so reading the attribute here always returns null (= isDark=true).
+    const isDark = (() => {
+      try { const s = localStorage.getItem('theme'); if (s) return s === 'dark'; } catch { /* no-op */ }
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    })();
 
     const renderer = new THREE.WebGLRenderer({
       antialias: false,
