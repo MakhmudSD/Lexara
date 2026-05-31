@@ -1545,30 +1545,8 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────
-   AMBIENT POLISH: paper grain, reading progress, headline cursor
+   AMBIENT POLISH: reading progress, headline cursor
    ───────────────────────────────────────────────────────────────────── */
-
-/* Paper grain — very subtle organic texture over the entire page.
-   Uses an SVG fractal-noise filter rendered as a repeating background.
-   Keeps the page from feeling sterile / purely digital.              */
-.landing::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  /* SVG turbulence noise — seeded for consistent grain */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
-  background-size: 256px 256px;
-  opacity: 0.028;
-  mix-blend-mode: overlay;
-}
-
-[data-theme="light"] .landing::before,
-:root:not([data-theme="dark"]) .landing::before {
-  opacity: 0.04;
-  mix-blend-mode: multiply;
-}
 
 /* Reading-progress bookmark — a thin accent line on the right edge
    that grows from top to bottom as the user reads down the page.

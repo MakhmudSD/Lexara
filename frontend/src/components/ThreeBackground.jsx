@@ -2,16 +2,14 @@ import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
 const PAPER_COUNT = 14;
-const DUST_COUNT = 220;
+const DUST_COUNT = 200;
 
-// Seeded pseudo-random so texture is deterministic each mount
 function seeded(seed) {
   let s = seed;
   return () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 4294967296; };
 }
 
-// Build a canvas-texture that looks like a ruled document page
-function makePaperTexture() {
+function makePaperTexture(isDark) {
   const w = 210, h = 280;
   const canvas = document.createElement('canvas');
   canvas.width = w;
@@ -19,18 +17,18 @@ function makePaperTexture() {
   const ctx = canvas.getContext('2d');
   const rng = seeded(7);
 
-  // Page body — warm off-white parchment
-  ctx.fillStyle = '#ede8de';
+  // Page body
+  ctx.fillStyle = isDark ? '#e8e0d0' : '#c8bfb0';
   ctx.fillRect(0, 0, w, h);
 
-  // Header block (title + subtitle)
-  ctx.fillStyle = 'rgba(0,0,0,0.08)';
+  // Header block
+  ctx.fillStyle = isDark ? 'rgba(0,0,0,0.08)' : 'rgba(0,0,0,0.15)';
   ctx.fillRect(18, 14, w * 0.52, 9);
-  ctx.fillStyle = 'rgba(0,0,0,0.05)';
+  ctx.fillStyle = isDark ? 'rgba(0,0,0,0.05)' : 'rgba(0,0,0,0.10)';
   ctx.fillRect(18, 28, w * 0.32, 6);
 
   // Ruled lines
-  ctx.strokeStyle = 'rgba(0,0,0,0.10)';
+  ctx.strokeStyle = isDark ? 'rgba(0,0,0,0.10)' : 'rgba(0,0,0,0.18)';
   ctx.lineWidth = 0.8;
   for (let y = 50; y < h - 16; y += 19) {
     ctx.beginPath();
@@ -39,26 +37,26 @@ function makePaperTexture() {
     ctx.stroke();
   }
 
-  // Red margin line
-  ctx.strokeStyle = 'rgba(170,55,55,0.16)';
+  // Margin line
+  ctx.strokeStyle = isDark ? 'rgba(170,55,55,0.16)' : 'rgba(140,40,40,0.22)';
   ctx.lineWidth = 1.2;
   ctx.beginPath();
   ctx.moveTo(42, 10);
   ctx.lineTo(42, h - 10);
   ctx.stroke();
 
-  // Simulated text blocks on each line
-  ctx.fillStyle = 'rgba(0,0,0,0.11)';
+  // Simulated text
+  ctx.fillStyle = isDark ? 'rgba(0,0,0,0.11)' : 'rgba(0,0,0,0.20)';
   for (let y = 50; y < h - 22; y += 19) {
     const len = 60 + rng() * 108;
     ctx.fillRect(48, y - 6, len, 6);
     if (rng() > 0.45) ctx.fillRect(48 + 10 + rng() * 20, y - 6, 15 + rng() * 30, 6);
   }
 
-  // Subtle right-edge page shadow
+  // Right edge shadow
   const grad = ctx.createLinearGradient(w - 14, 0, w, 0);
   grad.addColorStop(0, 'rgba(0,0,0,0)');
-  grad.addColorStop(1, 'rgba(0,0,0,0.07)');
+  grad.addColorStop(1, isDark ? 'rgba(0,0,0,0.07)' : 'rgba(0,0,0,0.12)');
   ctx.fillStyle = grad;
   ctx.fillRect(w - 14, 0, 14, h);
 
@@ -76,29 +74,22 @@ export default function ThreeBackground() {
 
     const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
 
-    // Renderer — low power, alpha canvas
     const renderer = new THREE.WebGLRenderer({
       antialias: false,
       alpha: true,
-      premultipliedAlpha: false,   // prevents dark fringe on transparent alpha
       powerPreference: 'low-power',
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(0x000000, 0);
-
-    // Blend mode:
-    //   Dark mode  → screen  : cream papers glow softly on dark backgrounds
-    //   Light mode → multiply: dark-tinted papers darken light backgrounds gently
-    renderer.domElement.style.mixBlendMode = isDark ? 'screen' : 'multiply';
-
+    // No mix-blend-mode — straight alpha compositing keeps the page visible in all modes
     mount.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(52, window.innerWidth / window.innerHeight, 0.1, 200);
     camera.position.set(0, 0, 30);
 
-    const paperTex = makePaperTexture();
+    const paperTex = makePaperTexture(isDark);
     const WORLD_DEPTH = 90;
     const papers = [];
     const rng = seeded(42);
@@ -108,16 +99,14 @@ export default function ThreeBackground() {
       const ph = pw * (280 / 210);
       const geo = new THREE.PlaneGeometry(pw, ph);
 
-      // Dark mode: warm cream at very low opacity so text stays readable
-      // Light mode: mid-gray-brown via multiply so papers darken the light bg subtly
-      const col = isDark ? 0xe8dfd0 : 0x7a6a58;
+      // Dark mode: warm cream (barely visible against dark backgrounds)
+      // Light mode: medium warm grey — clearly visible against light sections
       const opacity = isDark
-        ? (0.08 + rng() * 0.10)   // 0.08–0.18 — atmospheric, not dominating
-        : (0.18 + rng() * 0.18);  // 0.18–0.36 — multiply mode needs more signal
+        ? (0.06 + rng() * 0.08)   // 0.06–0.14
+        : (0.20 + rng() * 0.18);  // 0.20–0.38 — must punch through white
 
       const mat = new THREE.MeshBasicMaterial({
         map: paperTex,
-        color: new THREE.Color(col),
         transparent: true,
         opacity,
         side: THREE.DoubleSide,
@@ -150,7 +139,7 @@ export default function ThreeBackground() {
       papers.push(mesh);
     }
 
-    // Warm dust motes
+    // Dust motes
     const dustPos = new Float32Array(DUST_COUNT * 3);
     for (let i = 0; i < DUST_COUNT; i++) {
       dustPos[i * 3 + 0] = (Math.random() - 0.5) * 50;
@@ -160,15 +149,14 @@ export default function ThreeBackground() {
     const dustGeo = new THREE.BufferGeometry();
     dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
     const dustMat = new THREE.PointsMaterial({
-      size: isDark ? 0.07 : 0.05,
+      size: 0.07,
       color: isDark ? 0xd4c4a8 : 0x8a7060,
       transparent: true,
-      opacity: isDark ? 0.38 : 0.20,
+      opacity: isDark ? 0.35 : 0.30,
       depthWrite: false,
     });
     scene.add(new THREE.Points(dustGeo, dustMat));
 
-    // Mouse parallax (smooth lerp)
     const mouse = { tx: 0, ty: 0, x: 0, y: 0 };
     const onMouse = (e) => {
       mouse.tx = (e.clientX / window.innerWidth - 0.5);
@@ -191,13 +179,11 @@ export default function ThreeBackground() {
       rafId = requestAnimationFrame(tick);
       t += 0.016;
 
-      // Camera follows scroll — world-space descent through the paper field
       const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
       const scrollRatio = window.scrollY / maxScroll;
       const targetCamY = scrollRatio * -WORLD_DEPTH * 0.88;
       camera.position.y += (targetCamY - camera.position.y) * 0.04;
 
-      // Mouse X parallax
       mouse.x += (mouse.tx - mouse.x) * 0.06;
       camera.position.x += (mouse.x * 2.5 - camera.position.x) * 0.03;
 
