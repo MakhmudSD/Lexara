@@ -140,10 +140,8 @@ async def redeem_promo(
         raise AppError(400, "invalid_promo_code", "This promo code is invalid or has expired.")
 
     if user.plan == "pro" and user.plan_expires_at and user.plan_expires_at > datetime.utcnow():
-        from datetime import timedelta
         user.plan_expires_at = user.plan_expires_at + timedelta(days=30)
     else:
-        from datetime import timedelta
         user.plan = "pro"
         user.plan_expires_at = datetime.utcnow() + timedelta(days=30)
 
