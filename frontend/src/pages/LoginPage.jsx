@@ -1,11 +1,21 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { forgotPassword, login, resetPassword } from '../api/auth';
 import { useTranslation } from '../i18n/useTranslation';
 import { LexaraLogo } from '../assets/LexaraLogo';
 import '../styles/AuthPages.css';
 
 export default function LoginPage({ onLogin, onRegister, onHome }) {
-  const { t } = useTranslation();
+  const { t, lang, setLang, languageOptions } = useTranslation();
+  const [darkMode, setDarkMode] = useState(() => {
+    const stored = localStorage.getItem('theme');
+    if (stored) return stored === 'dark';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+  }, [darkMode]);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -39,7 +49,7 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
         created_at: data.created_at,
       });
     } catch (err) {
-      setLoginError('Invalid email or password. Please try again.');
+      setLoginError(t('login_error_credentials') || 'Invalid email or password. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -54,9 +64,9 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
       if (response?.token) {
         setResetToken(response.token);
         setShowReset(true);
-        setForgotStatus('In production, this would be emailed to you.');
+        setForgotStatus(t('forgot_dev_note') || 'In development, this would be emailed to you.');
       } else {
-        setForgotStatus(response?.message || 'If that email exists, a reset link was sent.');
+        setForgotStatus(response?.message || t('forgot_sent_ok') || 'If that email exists, a reset link was sent.');
       }
     } catch (err) {
       setForgotStatus(err.response?.data?.error?.message || 'Unable to request password reset.');
@@ -71,7 +81,7 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
     setForgotStatus('');
     try {
       await resetPassword(resetToken.trim(), newPassword);
-      setForgotStatus('Password reset! You can now sign in.');
+      setForgotStatus(t('reset_success') || 'Password reset! You can now sign in.');
       window.setTimeout(() => {
         setForgotModal(false);
         setShowReset(false);
@@ -81,7 +91,7 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
         setForgotStatus('');
       }, 1000);
     } catch (err) {
-      setForgotStatus(err.response?.data?.error?.message || 'Reset failed.');
+      setForgotStatus(err.response?.data?.error?.message || t('reset_failed') || 'Reset failed.');
     } finally {
       setForgotLoading(false);
     }
@@ -118,6 +128,30 @@ export default function LoginPage({ onLogin, onRegister, onHome }) {
       </div>
 
       <div className="auth-right-panel">
+      <div className="auth-top-controls">
+        <select
+          value={lang}
+          onChange={(e) => setLang(e.target.value)}
+          className="auth-lang-select"
+          aria-label="Language"
+        >
+          {languageOptions.map((opt) => (
+            <option key={opt.code} value={opt.code}>{opt.label}</option>
+          ))}
+        </select>
+        <button
+          type="button"
+          className="auth-theme-toggle"
+          onClick={() => setDarkMode(!darkMode)}
+          aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {darkMode ? (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          )}
+        </button>
+      </div>
       <div className="auth-container">
         <div className="auth-logo-row">
           <LexaraLogo height={36} onClick={onHome} style={{ cursor: 'pointer' }} />

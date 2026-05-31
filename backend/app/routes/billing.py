@@ -41,6 +41,10 @@ class CheckoutRequest(BaseModel):
     plan: str  # "pro" or "business"
 
 
+class PromoRequest(BaseModel):
+    code: str
+
+
 def _get_current_user(
     authorization: str | None,
     db: Session,
@@ -109,6 +113,47 @@ async def create_checkout(
     return {
         "checkout_url": checkout_url,
         "transaction_id": transaction_id,
+    }
+
+
+@router.post("/promo")
+async def redeem_promo(
+    payload: PromoRequest,
+    authorization: str | None = Header(default=None),
+    db: Session = Depends(get_db),
+    runtime: AppRuntime = Depends(get_runtime),
+) -> dict:
+    """Validate and redeem a promotional code. Grants 1 month of Pro plan."""
+    user = _get_current_user(authorization, db, runtime)
+
+    code = payload.code.strip().upper()
+    if not code:
+        raise AppError(400, "invalid_promo_code", "Promo code cannot be empty.")
+
+    valid_codes: set[str] = set(
+        c.strip().upper()
+        for c in os.getenv("PROMO_CODES", "").split(",")
+        if c.strip()
+    )
+
+    if not valid_codes or code not in valid_codes:
+        raise AppError(400, "invalid_promo_code", "This promo code is invalid or has expired.")
+
+    if user.plan == "pro" and user.plan_expires_at and user.plan_expires_at > datetime.utcnow():
+        from datetime import timedelta
+        user.plan_expires_at = user.plan_expires_at + timedelta(days=30)
+    else:
+        from datetime import timedelta
+        user.plan = "pro"
+        user.plan_expires_at = datetime.utcnow() + timedelta(days=30)
+
+    db.commit()
+    logger.info("Promo code %s redeemed by user %s", code, user.id)
+
+    return {
+        "message": "Promo code applied! You have 1 month of Pro.",
+        "plan": user.plan,
+        "plan_expires_at": user.plan_expires_at.isoformat() if user.plan_expires_at else None,
     }
 
 

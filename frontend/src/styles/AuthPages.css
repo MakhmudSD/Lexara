@@ -93,10 +93,55 @@
   flex: 1;
   background: var(--color-surface);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 48px 40px;
   overflow-y: auto;
+  position: relative;
+}
+
+/* ── Theme + language controls (top-right of auth panel) ── */
+.auth-top-controls {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+}
+
+.auth-lang-select {
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-elevated);
+  color: var(--color-text-primary);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+}
+
+.auth-theme-toggle {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-elevated);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 150ms, color 150ms;
+}
+
+.auth-theme-toggle:hover {
+  background: var(--color-surface-hover, var(--color-border));
+  color: var(--color-text-primary);
 }
 
 .auth-container {

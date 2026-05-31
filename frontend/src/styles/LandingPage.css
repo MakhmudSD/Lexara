@@ -777,8 +777,8 @@
 .landing-pricing-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 24px;
+  margin-bottom: 24px;
   align-items: stretch;
 }
 
@@ -788,7 +788,7 @@
   -webkit-backdrop-filter: blur(12px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: var(--radius-lg);
-  padding: 24px;
+  padding: 32px 28px;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -824,7 +824,8 @@
 .landing-pricing-card-header {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  margin-bottom: 20px;
 }
 
 .landing-pricing-plan-name {
@@ -847,18 +848,18 @@
 .landing-pricing-features {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 0 0 24px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   flex: 1;
 }
 
 .landing-pricing-feature {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
+  gap: 10px;
+  font-size: 14px;
   color: rgba(255, 255, 255, 0.75);
 }
 
