@@ -14,7 +14,7 @@ try:
 except ImportError:  # pragma: no cover
     SentenceTransformer = None  # type: ignore[misc, assignment]
 
-MODEL_NAME = "all-MiniLM-L6-v2"
+MODEL_NAME = "intfloat/multilingual-e5-large"
 _model: SentenceTransformer | None = None
 _model_name: str | None = None
 
@@ -36,14 +36,23 @@ def _get_model(model_name: str = MODEL_NAME) -> "SentenceTransformer":
     return _model
 
 
+def _apply_e5_prefix(texts: list[str], prefix: str, model_name: str) -> list[str]:
+    """Add query:/passage: prefix required by E5 model family."""
+    if "e5" in model_name.lower():
+        return [f"{prefix}{t}" for t in texts]
+    return texts
+
+
 def embed_texts(texts: list[str], settings: Settings) -> list[list[float]]:
-    """Generate embeddings for a batch of text chunks."""
+    """Generate embeddings for a batch of text chunks (document-side)."""
     if not texts:
         return []
 
-    model = _get_model(settings.local_embedding_model or MODEL_NAME)
+    model_name = settings.local_embedding_model or MODEL_NAME
+    model = _get_model(model_name)
+    prefixed = _apply_e5_prefix(texts, "passage: ", model_name)
     vectors = model.encode(
-        texts,
+        prefixed,
         convert_to_numpy=True,
         show_progress_bar=False,
         normalize_embeddings=True,
@@ -53,12 +62,22 @@ def embed_texts(texts: list[str], settings: Settings) -> list[list[float]]:
 
 
 def embed_query(question: str, settings: Settings) -> list[float]:
-    """Generate a single normalized embedding for a user question."""
+    """Generate a single normalized embedding for a user question (query-side)."""
     cache = get_embedding_cache()
-    key = f"emb:{settings.local_embedding_model}:{hashlib.sha256(question.encode('utf-8')).hexdigest()}"
+    model_name = settings.local_embedding_model or MODEL_NAME
+    key = f"emb:{model_name}:{hashlib.sha256(question.encode('utf-8')).hexdigest()}"
     cached = cache.get(key)
     if cached is not None:
         return cached
-    result = embed_texts([question], settings)[0]
+
+    model = _get_model(model_name)
+    prefixed = _apply_e5_prefix([question], "query: ", model_name)[0]
+    vectors = model.encode(
+        [prefixed],
+        convert_to_numpy=True,
+        show_progress_bar=False,
+        normalize_embeddings=True,
+    )
+    result = np.asarray(vectors, dtype="float32")[0].tolist()
     cache.set(key, result)
     return result
