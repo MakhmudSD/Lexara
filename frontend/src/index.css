@@ -312,3 +312,13 @@ button:active:not(:disabled),
   .ui-page-enter { animation: none; }
   button:active:not(:disabled) { transform: none; }
 }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px #4ade80; }
+  50% { opacity: 0.5; box-shadow: 0 0 4px #4ade80; }
+}
+
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(10px); opacity: 0.3; }
+}
