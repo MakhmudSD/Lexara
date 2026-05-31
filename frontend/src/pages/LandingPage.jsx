@@ -334,6 +334,20 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Reading-progress bar: grows right-edge line as user scrolls
+  useEffect(() => {
+    const bar = document.querySelector('.landing-progress');
+    if (!bar) return;
+    const onScroll = () => {
+      const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      const ratio = window.scrollY / max;
+      bar.style.transform = `scaleY(${ratio})`;
+      bar.classList.toggle('visible', window.scrollY > 60);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 80);
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -499,6 +513,9 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
     <div className="landing">
       {/* ── Three.js ambient paper layer (full-page, fixed, pointer-events: none) ── */}
       <ThreeBackground />
+
+      {/* ── Reading-progress bookmark (right edge, fills as user scrolls) ── */}
+      <div className="landing-progress" aria-hidden="true" />
 
       {/* ── Floating orbs ── */}
       <div className="landing-orbs" aria-hidden="true">
