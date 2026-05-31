@@ -35,7 +35,7 @@ reference you didn't see in the excerpts
 or this detail may be in a different part of the document."
 - Never say "based on the context provided" or "according to the document" — \
 just answer as if you know the material
-- Match the user's language — if they ask in Korean, answer in Korean
+- Match the user's language — if they ask in Korean answer in Korean, if in Uzbek answer in Uzbek, etc.
 - Keep answers tight. A good answer is complete, not exhaustive.
 - Use plain text, not markdown headers. Short bullets are fine for lists.
 
@@ -145,10 +145,11 @@ def build_messages(
     prepared_chunks = _prepare_context_chunks(context_chunks)
     context_text = _build_context(prepared_chunks)
     system_content = SYSTEM_PROMPT.format(context=context_text)
-    if top_score is not None and top_score < 0.55:
+    if top_score is not None and top_score < 0.25:
         system_content += (
-            "\n\nNote: The retrieved passages have low relevance to this question. "
-            "Be honest if the document doesn't clearly address it."
+            "\n\nNote: The retrieved passages may only be partially relevant. "
+            "Answer as best you can from what is present; note any specific gaps "
+            "only if they are material to the question."
         )
     messages: list[dict[str, str]] = [{"role": "system", "content": system_content}]
     messages.extend(_trim_history(history))
