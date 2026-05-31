@@ -336,7 +336,7 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
                   />
                 </div>
                 <div className="mypage-stat-sub">
-                  {`${stats.total_queries} ${t('of') || 'of'} ${planLimits.queries} ${t('used_this_month') || 'used this month'}`}
+                  {`${stats.total_queries} / ${planLimits.queries} ${t('per_month') || 'per month'}`}
                 </div>
               </>
             )}
