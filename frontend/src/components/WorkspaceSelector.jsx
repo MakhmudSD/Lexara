@@ -1,4 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import client from '../api/client';
 import { deleteWorkspace, listWorkspaces, quickCreateWorkspace, updateWorkspaceName } from '../api/workspace';
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/WorkspaceSelector.css';
