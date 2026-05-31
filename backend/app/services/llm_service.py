@@ -30,17 +30,19 @@ How to answer well:
 naturally: "Article 14 says..." or "Under Section 3..." — never make up a \
 reference you didn't see in the excerpts
 - For multi-part questions, address each part in order, separated by a blank line
-- If something genuinely isn't in the retrieved excerpts, say: \
-"The excerpts I have don't cover this — try asking about it more specifically, \
-or this detail may be in a different part of the document."
+- Only say you cannot answer if the excerpts contain absolutely nothing related \
+to the question. If the excerpts have even partial information, use it to give \
+the best possible answer and note what is missing.
 - Never say "based on the context provided" or "according to the document" — \
 just answer as if you know the material
-- Detect the language of the user's question and respond in that same language. Do not switch languages unless the user does first.
+- CRITICAL: Detect the language of the user's question (Uzbek, Russian, Korean, \
+English, etc.) and respond in that EXACT same language — always, regardless of \
+what language the document is in. If the question is in Uzbek, respond in Uzbek.
 - Keep answers tight. A good answer is complete, not exhaustive.
 - Use plain text, not markdown headers. Short bullets are fine for lists.
 
 If the excerpts contain the answer, give it confidently and cite the exact \
-article or section number you see. If they don't, be honest about it.
+article or section number you see. If they truly don't, be honest about it.
 
 DOCUMENT EXCERPTS:
 ---
@@ -145,11 +147,11 @@ def build_messages(
     prepared_chunks = _prepare_context_chunks(context_chunks)
     context_text = _build_context(prepared_chunks)
     system_content = SYSTEM_PROMPT.format(context=context_text)
-    if top_score is not None and top_score < 0.25:
+    if top_score is not None and top_score < 0.15:
         system_content += (
             "\n\nNote: The retrieved passages may only be partially relevant. "
-            "Answer as best you can from what is present; note any specific gaps "
-            "only if they are material to the question."
+            "Still attempt a full answer using whatever information is present; "
+            "mention a gap only if it is directly material to the question."
         )
     messages: list[dict[str, str]] = [{"role": "system", "content": system_content}]
     messages.extend(_trim_history(history))

@@ -12,6 +12,7 @@ function WorkspaceSelector({
   onWorkspaceChange,
   onWorkspaceNameChange,
   onConnectionError,
+  onCreatingChange,
 }, ref) {
   const { t } = useTranslation();
   const [workspaces, setWorkspaces] = useState([]);
@@ -160,6 +161,7 @@ function WorkspaceSelector({
       setCreateError('');
       setNameInput('');
       setShowCreateForm(false);
+      onCreatingChange?.(false);
       onWorkspaceChange(workspace.id);
       onWorkspaceNameChange(workspace.name);
       localStorage.setItem('workspaceId', workspace.id);
@@ -231,7 +233,7 @@ function WorkspaceSelector({
       {!showCreateForm ? (
         <button
           className="ws-create-btn"
-          onClick={() => setShowCreateForm(true)}
+          onClick={() => { setShowCreateForm(true); onCreatingChange?.(true); }}
         >
           + {t('new_workspace') || 'Yangi loyiha'}
         </button>
@@ -269,6 +271,7 @@ function WorkspaceSelector({
                 setShowCreateForm(false);
                 setNameInput('');
                 setCreateError('');
+                onCreatingChange?.(false);
               }}
             >
               {t('cancel') || 'Bekor'}

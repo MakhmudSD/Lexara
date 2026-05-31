@@ -26,6 +26,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
   const workspaceSelectorRef = useRef(null);
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadStatus, setUploadStatus] = useState('');
 
@@ -326,6 +327,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
             }}
             onWorkspaceNameChange={onWorkspaceNameChange}
             onConnectionError={() => setConnectionError(true)}
+            onCreatingChange={setIsCreatingWorkspace}
           />
         </div>
 
@@ -387,7 +389,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
               </button>
             </div>
           )}
-          {!hasWorkspaceName && isEmpty && !isLoading && (
+          {!hasWorkspaceName && isEmpty && !isLoading && !isCreatingWorkspace && (
             <div className="workspace-name-overlay">
               <div className="workspace-name-overlay-arrow">↖</div>
               <div className="workspace-name-overlay-text">{t('no_workspace_overlay')}</div>
