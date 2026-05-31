@@ -51,6 +51,8 @@ def query_workspace(
         chunk = chunk_lookup.get(UUID(hit.chunk_id))
         if chunk is None:
             continue
+        if getattr(chunk, "document", None) is None or chunk.document.workspace_id != workspace_id:
+            continue
         retrieved.append(
             RetrievedChunk(
                 chunk_id=chunk.id,

@@ -34,7 +34,7 @@ def rebuild_faiss_from_db(db: Session, settings: Settings) -> int:
             for i in range(0, len(texts), batch_size):
                 batch = texts[i : i + batch_size]
                 all_embeddings.extend(embed_texts(batch, settings))
-            store.add_embeddings(
+            store.rebuild_workspace_index(
                 workspace_id=str(ws.id),
                 chunk_ids=chunk_ids,
                 embeddings=all_embeddings,
