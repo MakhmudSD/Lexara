@@ -68,7 +68,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
     };
     const updated = [newSession, ...sessions];
     setSessions(updated);
-    localStorage.setItem(`lexara_sessions_${authUser?.id}_${workspaceId}`, JSON.stringify(updated));
+    localStorage.setItem(`lexara_sessions_${localStorage.getItem('access_token')?.slice(-8)}_${workspaceId}`, JSON.stringify(updated));
     setActiveSessionId(newSession.id);
     setMessages([]);
     setSidebarOpen(false);
@@ -78,7 +78,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
   const deleteSession = useCallback((sessionId) => {
     const updated = sessions.filter((s) => s.id !== sessionId);
     setSessions(updated);
-    localStorage.setItem(`lexara_sessions_${authUser?.id}_${workspaceId}`, JSON.stringify(updated));
+    localStorage.setItem(`lexara_sessions_${localStorage.getItem('access_token')?.slice(-8)}_${workspaceId}`, JSON.stringify(updated));
     if (activeSessionId === sessionId) {
       if (updated.length > 0) {
         loadSession(updated[0].id);
@@ -102,7 +102,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
             }
           : s
       ));
-      localStorage.setItem(`lexara_sessions_${authUser?.id}_${workspaceId}`, JSON.stringify(updated));
+      localStorage.setItem(`lexara_sessions_${localStorage.getItem('access_token')?.slice(-8)}_${workspaceId}`, JSON.stringify(updated));
       return updated;
     });
   }, [workspaceId]);
@@ -113,7 +113,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
 
   useEffect(() => {
     if (!workspaceId) return;
-    const raw = localStorage.getItem(`lexara_sessions_${authUser?.id}_${workspaceId}`);
+    const raw = localStorage.getItem(`lexara_sessions_${localStorage.getItem('access_token')?.slice(-8)}_${workspaceId}`);
     if (raw) {
       try {
         const parsed = JSON.parse(raw);
@@ -177,7 +177,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
       };
       const updated = [newSession, ...sessions];
       setSessions(updated);
-      localStorage.setItem(`lexara_sessions_${authUser?.id}_${workspaceId}`, JSON.stringify(updated));
+      localStorage.setItem(`lexara_sessions_${localStorage.getItem('access_token')?.slice(-8)}_${workspaceId}`, JSON.stringify(updated));
       setActiveSessionId(newSession.id);
       sessionId = newSession.id;
     }
