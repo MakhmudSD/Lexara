@@ -7,12 +7,13 @@ from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, Query, Uplo
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
+from app.core.auth import get_current_user
 from app.core.cache import get_retrieval_cache
 from app.core.config import Settings
 from app.core.dependencies import get_db, get_runtime
 from app.core.exceptions import AppError
 from app.db import SessionLocal
-from app.db.models import Document
+from app.db.models import Document, OrganizationMember, User, Workspace
 from app.core.runtime import AppRuntime
 from app.crud import document as document_crud
 from app.schemas.document import DocumentUploadResponse
@@ -37,12 +38,30 @@ ALLOWED_CONTENT_TYPES = {
 }
 
 
+def _assert_workspace_access(workspace_id, user, db: Session) -> None:
+    """Raise 403/404 if caller cannot access this workspace."""
+    from uuid import UUID
+    ws_id = workspace_id if isinstance(workspace_id, UUID) else UUID(str(workspace_id))
+    ws = db.query(Workspace).filter(Workspace.id == ws_id).first()
+    if ws is None:
+        raise AppError(404, "workspace_not_found", "Workspace not found.")
+    if ws.organization_id is not None:
+        member = db.query(OrganizationMember).filter(
+            OrganizationMember.organization_id == ws.organization_id,
+            OrganizationMember.user_id == user.id,
+        ).first()
+        if member is None:
+            raise AppError(403, "forbidden", "You do not have access to this workspace.")
+
+
 @router.get("", response_model=list[DocumentUploadResponse])
 def list_documents(
     workspace_id: UUID = Query(...),
     limit: int = Query(50, ge=1, le=200),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> list[DocumentUploadResponse]:
+    _assert_workspace_access(workspace_id, current_user, db)
     docs = (
         db.query(Document)
         .filter(Document.workspace_id == workspace_id, Document.is_active == True)  # noqa: E712
@@ -60,7 +79,9 @@ def upload_document(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
+    current_user: User = Depends(get_current_user),
 ) -> DocumentUploadResponse:
+    _assert_workspace_access(workspace_id, current_user, db)
     raw_name = Path(file.filename or "").name
     if not raw_name or raw_name.startswith("."):
         raise AppError(400, "invalid_filename", "Invalid filename.")
@@ -149,11 +170,13 @@ def download_document(
     document_id: UUID,
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
+    current_user: User = Depends(get_current_user),
 ):
     from app.crud.document import get_document_or_404
     from app.services import r2_storage
 
     doc = get_document_or_404(db, document_id)
+    _assert_workspace_access(doc.workspace_id, current_user, db)
     storage_path = doc.storage_path or ""
 
     # --- R2 path: storage_path starts with "r2://" ---

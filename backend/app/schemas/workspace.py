@@ -20,6 +20,7 @@ class WorkspaceRename(BaseModel):
 
 class WorkspaceResponse(BaseModel):
     id: UUID
+    organization_id: UUID | None = None
     name: str
     is_active: bool
     created_at: datetime

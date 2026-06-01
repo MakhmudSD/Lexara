@@ -36,14 +36,16 @@ _pg.UUID = _GUID
 
 import pytest
 from unittest.mock import MagicMock
+from uuid import uuid4
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 
-from app.db.models import Base
+from app.db.models import Base, User, Organization, OrganizationMember
 from app.core.config import get_settings
 from app.core.dependencies import get_db, get_runtime
 from app.core.runtime import AppRuntime
+from app.core.auth import get_current_user
 
 TEST_DB_URL = "sqlite:///./test_rag.db"
 
@@ -88,16 +90,72 @@ def mock_runtime():
 
 
 @pytest.fixture()
-def client(db, mock_runtime):
-    """FastAPI test client with DB and runtime overrides."""
+def mock_user(db):
+    """Create a test user with an organization membership."""
+    from app.services.auth_service import hash_password
+    # Create user first so owner_id FK can be satisfied
+    user = User(
+        id=uuid4(),
+        email=f"test-{uuid4().hex[:8]}@example.com",
+        hashed_password=hash_password("password123"),
+        full_name="Test User",
+        is_active=True,
+    )
+    db.add(user)
+    db.flush()
+    org = Organization(
+        id=uuid4(),
+        name="Test Org",
+        slug=f"test-org-{uuid4().hex[:8]}",
+        owner_id=user.id,
+        is_active=True,
+    )
+    db.add(org)
+    db.flush()
+    member = OrganizationMember(
+        id=uuid4(),
+        organization_id=org.id,
+        user_id=user.id,
+        role="member",
+    )
+    db.add(member)
+    db.flush()
+    user._test_org_id = org.id
+    return user
+
+
+@pytest.fixture()
+def client(db, mock_runtime, mock_user):
+    """FastAPI test client with DB, runtime, and auth overrides."""
     from unittest.mock import patch
     from app.main import create_app
 
     app = create_app()
     app.dependency_overrides[get_db] = lambda: db
     app.dependency_overrides[get_runtime] = lambda: mock_runtime
+    app.dependency_overrides[get_current_user] = lambda: mock_user
     # Tables already exist; patch the local reference inside main.py so the
     # startup event does not try to re-run Alembic migrations.
+    with patch("app.main.run_migrations", return_value=None):
+        with TestClient(app, raise_server_exceptions=False) as c:
+            yield c
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+def auth_client(db, mock_runtime):
+    """FastAPI test client with DB and runtime overrides but WITHOUT auth override.
+
+    Use this fixture for tests that exercise the real JWT authentication flow
+    (e.g. /auth/me, token-based tests).
+    """
+    from unittest.mock import patch
+    from app.main import create_app
+
+    app = create_app()
+    app.dependency_overrides[get_db] = lambda: db
+    app.dependency_overrides[get_runtime] = lambda: mock_runtime
+    # get_current_user is intentionally NOT overridden here
     with patch("app.main.run_migrations", return_value=None):
         with TestClient(app, raise_server_exceptions=False) as c:
             yield c

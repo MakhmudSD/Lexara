@@ -4,10 +4,11 @@ from datetime import datetime, timedelta
 from uuid import uuid4
 import secrets
 
-from fastapi import APIRouter, Depends, Header, Request
+from fastapi import APIRouter, Depends
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from app.core.auth import get_current_user
 from app.core.dependencies import get_db, get_runtime
 from app.core.limiter import limiter
 from app.services.email_service import send_password_reset_email
@@ -25,7 +26,6 @@ from app.schemas.auth import (
 )
 from app.services.auth_service import (
     create_access_token,
-    decode_access_token,
     hash_password,
     verify_password,
 )
@@ -109,18 +109,11 @@ def login(
 
 @router.get("/me", response_model=UserResponse)
 def me(
-    authorization: str | None = Header(default=None),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
 ) -> UserResponse:
-    if not authorization or not authorization.startswith("Bearer "):
-        raise AppError(401, "missing_token", "Authorization token is required.")
-
-    token = authorization.split(" ", 1)[1].strip()
-    claims = decode_access_token(token, runtime.settings)
-    user = db.query(User).filter(User.id == claims.get("sub")).first()
-    if user is None:
-        raise AppError(401, "invalid_token", "Invalid or expired token.")
+    user = current_user
 
     # Enforce subscription expiry: downgrade to free if plan_expires_at has passed
     if user.plan != "free" and user.plan_expires_at and user.plan_expires_at <= datetime.utcnow():

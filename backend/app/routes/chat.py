@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
+from app.core.auth import get_current_user
 from app.core.config import PLAN_LIMITS
 from app.core.dependencies import get_db, get_request_id, get_runtime
 from app.core.exceptions import AppError
@@ -74,8 +75,9 @@ async def chat_query(
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
     request_id: str = Depends(get_request_id),
+    current_user: User = Depends(get_current_user),
 ) -> ChatQueryResponse:
-    uid = str(payload.user_id) if payload.user_id else None
+    uid = str(current_user.id)
     quota_user = _check_quota(db, uid)
     started_at = time.perf_counter()
     retrieved_chunks = query_workspace(
@@ -181,12 +183,14 @@ async def chat_root(
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
     request_id: str = Depends(get_request_id),
+    current_user: User = Depends(get_current_user),
 ) -> ChatQueryResponse:
     return await chat_query(
         payload=payload,
         db=db,
         runtime=runtime,
         request_id=request_id,
+        current_user=current_user,
     )
 
 
@@ -196,8 +200,9 @@ async def chat_stream(
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
     request_id: str = Depends(get_request_id),
+    current_user: User = Depends(get_current_user),
 ) -> StreamingResponse:
-    uid = str(payload.user_id) if payload.user_id else None
+    uid = str(current_user.id)
     quota_user = _check_quota(db, uid)
     sources = query_workspace(
         db,

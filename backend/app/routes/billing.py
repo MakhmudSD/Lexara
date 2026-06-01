@@ -9,16 +9,16 @@ import os
 from datetime import datetime, timedelta
 
 import httpx
-from fastapi import APIRouter, Depends, Header, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+from app.core.auth import get_current_user
 from app.core.dependencies import get_db, get_runtime
 from app.core.exceptions import AppError
 from app.core.runtime import AppRuntime
 from app.db.models import User
-from app.services.auth_service import decode_access_token
 
 logger = logging.getLogger(__name__)
 
@@ -45,30 +45,15 @@ class PromoRequest(BaseModel):
     code: str
 
 
-def _get_current_user(
-    authorization: str | None,
-    db: Session,
-    runtime: AppRuntime,
-) -> User:
-    if not authorization or not authorization.startswith("Bearer "):
-        raise AppError(401, "missing_token", "Authorization token is required.")
-    token = authorization.split(" ", 1)[1].strip()
-    claims = decode_access_token(token, runtime.settings)
-    user = db.query(User).filter(User.id == claims.get("sub")).first()
-    if not user:
-        raise AppError(401, "invalid_token", "Invalid or expired token.")
-    return user
-
-
 @router.post("/checkout")
 async def create_checkout(
     payload: CheckoutRequest,
-    authorization: str | None = Header(default=None),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
 ) -> dict:
     """Create a Paddle checkout transaction and return the checkout URL."""
-    user = _get_current_user(authorization, db, runtime)
+    user = current_user
 
     plan = payload.plan.lower()
     price_id = PLAN_PRICES.get(plan)
@@ -119,12 +104,12 @@ async def create_checkout(
 @router.post("/promo")
 async def redeem_promo(
     payload: PromoRequest,
-    authorization: str | None = Header(default=None),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
 ) -> dict:
     """Validate and redeem a promotional code. Grants 1 month of Pro plan."""
-    user = _get_current_user(authorization, db, runtime)
+    user = current_user
 
     code = payload.code.strip().upper()
     if not code:

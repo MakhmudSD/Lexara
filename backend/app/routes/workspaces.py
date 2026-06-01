@@ -5,10 +5,12 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from app.core.auth import get_current_user
 from app.core.dependencies import get_db
 from app.core.exceptions import AppError
 from app.crud import workspace as workspace_crud
 from app.crud.organization import get_org_by_slug
+from app.db.models import OrganizationMember, User, Workspace
 from app.schemas.workspace import (
     WorkspaceCreate,
     WorkspaceListResponse,
@@ -49,10 +51,35 @@ def _resolve_org(org_slug: str, db: Session) -> UUID:
     return org.id
 
 
+def _assert_org_membership(organization_id, user: User, db: Session) -> None:
+    """Raise 403 if user is not a member of the given organization."""
+    if organization_id is None:
+        return
+    from uuid import UUID
+    org_id = organization_id if isinstance(organization_id, UUID) else UUID(str(organization_id))
+    member = db.query(OrganizationMember).filter(
+        OrganizationMember.organization_id == org_id,
+        OrganizationMember.user_id == user.id,
+    ).first()
+    if member is None:
+        raise AppError(403, "forbidden", "You are not a member of this organization.")
+
+
+def _assert_workspace_access(workspace_id, user: User, db: Session) -> None:
+    """Raise 403/404 if user cannot access the given workspace."""
+    from uuid import UUID
+    ws_id = workspace_id if isinstance(workspace_id, UUID) else UUID(str(workspace_id))
+    ws = db.query(Workspace).filter(Workspace.id == ws_id).first()
+    if ws is None:
+        raise AppError(404, "workspace_not_found", "Workspace not found.")
+    _assert_org_membership(ws.organization_id, user, db)
+
+
 @router.post("/quick", response_model=WorkspaceResponse, status_code=201)
 def quick_create_workspace(
     payload: WorkspaceQuickCreate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> WorkspaceResponse:
     """
     Create a workspace without needing an organization_id.
@@ -73,10 +100,12 @@ def quick_create_workspace(
 
 @router.patch("/{workspace_id}/name", response_model=WorkspaceResponse)
 def rename_workspace(
-    workspace_id: UUID,
-    payload: WorkspaceRename,
+    workspace_id: UUID = Path(...),
+    payload: WorkspaceRename = ...,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> WorkspaceResponse:
+    _assert_workspace_access(workspace_id, current_user, db)
     workspace = workspace_crud.get_workspace_or_404(db, workspace_id)
     workspace.name = _validate_workspace_name(payload.name)
     db.commit()
@@ -86,14 +115,16 @@ def rename_workspace(
 
 @router.delete("/{workspace_id}", status_code=204)
 def delete_workspace(
-    workspace_id: UUID,
+    workspace_id: UUID = Path(...),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> None:
     """
     Soft-delete a workspace (sets is_active = False).
     Returns 204 No Content on success.
     The workspace no longer appears in list_workspaces or accepts queries.
     """
+    _assert_workspace_access(workspace_id, current_user, db)
     workspace_crud.deactivate_workspace(db, workspace_id)
 
 
@@ -101,7 +132,9 @@ def delete_workspace(
 def create_workspace(
     payload: WorkspaceCreate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> WorkspaceResponse:
+    _assert_org_membership(payload.organization_id, current_user, db)
     workspace = workspace_crud.create_workspace(
         db,
         organization_id=payload.organization_id,
@@ -116,7 +149,10 @@ def list_workspaces(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=200),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> WorkspaceListResponse:
+    if organization_id is not None:
+        _assert_org_membership(organization_id, current_user, db)
     workspaces = workspace_crud.list_workspaces(
         db,
         organization_id=organization_id,
@@ -133,8 +169,10 @@ def list_workspaces(
 def list_org_workspaces(
     org_slug: str = Path(...),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> WorkspaceListResponse:
     org_id = _resolve_org(org_slug, db)
+    _assert_org_membership(org_id, current_user, db)
     workspaces = workspace_crud.list_workspaces(db, organization_id=org_id)
     return WorkspaceListResponse(
         workspaces=[WorkspaceResponse.model_validate(workspace) for workspace in workspaces],
@@ -147,8 +185,10 @@ def create_org_workspace(
     body: WorkspaceNamePayload,
     org_slug: str = Path(...),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> WorkspaceResponse:
     org_id = _resolve_org(org_slug, db)
+    _assert_org_membership(org_id, current_user, db)
     workspace = workspace_crud.create_workspace(
         db,
         organization_id=org_id,

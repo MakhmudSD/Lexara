@@ -37,25 +37,25 @@ class TestRegister:
         r = client.post(REGISTER_URL, json={"email": "not-an-email", "password": "password123", "full_name": "X"})
         assert r.status_code == 422
 
-    def test_referral_code_generated(self, client):
-        r = _register(client)
+    def test_referral_code_generated(self, auth_client):
+        r = _register(auth_client)
         assert r.status_code == 201
         # Referral code is stored on the user — verify via /me
         token = r.json()["access_token"]
-        me = client.get(ME_URL, headers={"Authorization": f"Bearer {token}"})
+        me = auth_client.get(ME_URL, headers={"Authorization": f"Bearer {token}"})
         assert me.status_code == 200
         assert me.json()["referral_code"] is not None
         assert me.json()["referral_code"].startswith("LEX-")
 
-    def test_register_with_referral_creates_referral_record(self, client, db):
+    def test_register_with_referral_creates_referral_record(self, auth_client, db):
         # Register referrer first
-        r1 = _register(client, email="referrer@example.com")
+        r1 = _register(auth_client, email="referrer@example.com")
         token = r1.json()["access_token"]
-        me = client.get(ME_URL, headers={"Authorization": f"Bearer {token}"})
+        me = auth_client.get(ME_URL, headers={"Authorization": f"Bearer {token}"})
         ref_code = me.json()["referral_code"]
 
         # Register referred user using that code
-        r2 = client.post(
+        r2 = auth_client.post(
             REGISTER_URL + f"?ref={ref_code}",
             json={"email": "referred@example.com", "password": "password123", "full_name": "Referred"},
         )
@@ -95,10 +95,10 @@ class TestLogin:
 
 
 class TestMe:
-    def test_returns_user_profile(self, client):
-        r = _register(client)
+    def test_returns_user_profile(self, auth_client):
+        r = _register(auth_client)
         token = r.json()["access_token"]
-        me = client.get(ME_URL, headers={"Authorization": f"Bearer {token}"})
+        me = auth_client.get(ME_URL, headers={"Authorization": f"Bearer {token}"})
         assert me.status_code == 200
         data = me.json()
         assert data["email"] == "user@example.com"
@@ -106,16 +106,16 @@ class TestMe:
         assert data["is_active"] is True
         assert data["total_queries"] == 0
 
-    def test_missing_token_returns_401(self, client):
-        r = client.get(ME_URL)
+    def test_missing_token_returns_401(self, auth_client):
+        r = auth_client.get(ME_URL)
         assert r.status_code == 401
 
-    def test_invalid_token_returns_401(self, client):
-        r = client.get(ME_URL, headers={"Authorization": "Bearer invalid.token.here"})
+    def test_invalid_token_returns_401(self, auth_client):
+        r = auth_client.get(ME_URL, headers={"Authorization": "Bearer invalid.token.here"})
         assert r.status_code == 401
 
-    def test_malformed_header_returns_401(self, client):
-        r = client.get(ME_URL, headers={"Authorization": "NotBearer abc"})
+    def test_malformed_header_returns_401(self, auth_client):
+        r = auth_client.get(ME_URL, headers={"Authorization": "NotBearer abc"})
         assert r.status_code == 401
 
 

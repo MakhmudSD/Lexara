@@ -3,51 +3,17 @@ from __future__ import annotations
 from datetime import datetime
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, Header
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from app.core.dependencies import get_db, get_runtime
+from app.core.auth import get_current_user, require_admin
+from app.core.dependencies import get_db
 from app.core.exceptions import AppError
-from app.core.runtime import AppRuntime
 from app.db.models import SupportTicket, User
-from app.services.auth_service import decode_access_token
 
 router = APIRouter(prefix="/support", tags=["support"])
 admin_router = APIRouter(prefix="/admin/support", tags=["support"])
-
-
-def _get_current_user(
-    authorization: str | None = Header(default=None),
-    db: Session = Depends(get_db),
-    runtime: AppRuntime = Depends(get_runtime),
-) -> User:
-    if not authorization or not authorization.startswith("Bearer "):
-        raise AppError(401, "missing_token", "Authorization token is required.")
-    token = authorization.split(" ", 1)[1].strip()
-    claims = decode_access_token(token, runtime.settings)
-    user = db.query(User).filter(User.id == claims.get("sub")).first()
-    if user is None:
-        raise AppError(401, "invalid_token", "Invalid or expired token.")
-    return user
-
-
-def _require_admin(
-    authorization: str | None = Header(default=None),
-    db: Session = Depends(get_db),
-    runtime: AppRuntime = Depends(get_runtime),
-) -> User:
-    user = _get_current_user.__wrapped__(authorization, db, runtime) if hasattr(_get_current_user, '__wrapped__') else None
-    if not authorization or not authorization.startswith("Bearer "):
-        raise AppError(401, "missing_token", "Authorization token is required.")
-    token = authorization.split(" ", 1)[1].strip()
-    claims = decode_access_token(token, runtime.settings)
-    if claims.get("role") != "admin":
-        raise AppError(403, "forbidden", "Admin access required.")
-    user = db.query(User).filter(User.id == claims.get("sub")).first()
-    if user is None:
-        raise AppError(401, "invalid_token", "Invalid or expired token.")
-    return user
 
 
 class SubmitTicketRequest(BaseModel):
@@ -89,7 +55,7 @@ def _ticket_to_response(ticket: SupportTicket, include_email: bool = False) -> T
 def submit_ticket(
     payload: SubmitTicketRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(_get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> TicketResponse:
     ticket = SupportTicket(
         id=uuid4(),
@@ -105,7 +71,7 @@ def submit_ticket(
 @router.get("/tickets", response_model=list[TicketResponse])
 def get_my_tickets(
     db: Session = Depends(get_db),
-    current_user: User = Depends(_get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> list[TicketResponse]:
     tickets = (
         db.query(SupportTicket)
@@ -119,7 +85,7 @@ def get_my_tickets(
 @router.get("/faq", response_model=list[TicketResponse])
 def get_faq(
     db: Session = Depends(get_db),
-    current_user: User = Depends(_get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> list[TicketResponse]:
     tickets = (
         db.query(SupportTicket)
@@ -134,7 +100,7 @@ def get_faq(
 @admin_router.get("/tickets", response_model=list[TicketResponse])
 def admin_get_tickets(
     db: Session = Depends(get_db),
-    current_admin: User = Depends(_require_admin),
+    current_admin: User = Depends(require_admin),
 ) -> list[TicketResponse]:
     tickets = (
         db.query(SupportTicket)
@@ -149,7 +115,7 @@ def admin_answer_ticket(
     ticket_id: str,
     payload: AnswerTicketRequest,
     db: Session = Depends(get_db),
-    current_admin: User = Depends(_require_admin),
+    current_admin: User = Depends(require_admin),
 ) -> TicketResponse:
     ticket = db.query(SupportTicket).filter(SupportTicket.id == ticket_id).first()
     if ticket is None:
@@ -167,7 +133,7 @@ def admin_answer_ticket(
 def admin_toggle_publish(
     ticket_id: str,
     db: Session = Depends(get_db),
-    current_admin: User = Depends(_require_admin),
+    current_admin: User = Depends(require_admin),
 ) -> TicketResponse:
     ticket = db.query(SupportTicket).filter(SupportTicket.id == ticket_id).first()
     if ticket is None:
