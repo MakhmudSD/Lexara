@@ -197,6 +197,8 @@ function App() {
         onLogin={(user) => {
           const plan = sessionStorage.getItem('intended_plan');
           sessionStorage.removeItem('intended_plan');
+          setWorkspaceId(localStorage.getItem('workspaceId') || '');
+          setWorkspaceName(localStorage.getItem('workspaceName') || '');
           setAuthUser(user);
           if (plan && plan !== 'free') {
             setIntendedPlan(plan);
@@ -361,6 +363,7 @@ function App() {
         )}
         {page === 'app' && currentPage === 'chat' && lazySuspense(
           <ChatPage
+            key={authUser?.id || 'anon'}
             workspaceId={workspaceId}
             workspaceName={workspaceName}
             onChangeWorkspace={setWorkspaceId}
@@ -373,6 +376,8 @@ function App() {
               localStorage.removeItem('workspaceId');
               localStorage.removeItem('workspaceName');
               localStorage.removeItem('authUser');
+              setWorkspaceId('');
+              setWorkspaceName('');
               setAuthUser(null);
               navigate('landing');
             }} intendedPlan={intendedPlan} onIntendedPlanConsumed={() => setIntendedPlan(null)} />)}

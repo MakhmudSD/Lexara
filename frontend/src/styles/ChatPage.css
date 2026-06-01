@@ -748,6 +748,9 @@
   .upload-status.ok {
     animation: none !important;
   }
+  .chat-upload-cta {
+    transition: none !important;
+  }
 }
 
 .chat-greeting {
@@ -763,6 +766,43 @@
 .chat-empty-no-workspace {
   max-width: 340px;
   text-align: center;
+}
+
+.chat-upload-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 11px 20px;
+  background: var(--lexara-blue);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 150ms, transform 150ms, box-shadow 150ms;
+  box-shadow: 0 2px 8px rgba(35, 86, 216, 0.28);
+}
+
+.chat-upload-cta:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(35, 86, 216, 0.38);
+}
+
+.chat-upload-cta:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.chat-upload-cta:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chat-upload-cta:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .chat-empty-no-workspace-text {

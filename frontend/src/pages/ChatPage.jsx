@@ -460,19 +460,18 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
                     </div>
                   </div>
 
-                  {/* Suggestion chips */}
-                  <div className="chat-empty-chips">
-                    {[t('suggested_q1'), t('suggested_q2'), t('suggested_q3')].map((q) => (
-                      <button
-                        key={q}
-                        type="button"
-                        className="chat-empty-chip"
-                        onClick={() => setInput(q)}
-                      >
-                        {q}
-                      </button>
-                    ))}
-                  </div>
+                  {/* Upload CTA — replaces suggestion chips until user uploads a document */}
+                  <button
+                    type="button"
+                    className="chat-upload-cta"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                      <path d="M13.5 8.5l-5 5a3.5 3.5 0 01-4.95-4.95l6-6a2 2 0 012.83 2.83L6.5 11.24a.5.5 0 01-.71-.71L11.5 4.83" />
+                    </svg>
+                    {t('step_upload_doc') || 'Upload a document'}
+                  </button>
                 </>
               )}
             </div>
