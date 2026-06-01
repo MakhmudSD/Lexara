@@ -54,6 +54,8 @@ export function useAuth() {
   const logout = useCallback(() => {
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem('workspaceId');
+    localStorage.removeItem('workspaceName');
     delete client.defaults.headers.common['Authorization'];
     setAuth(null);
     window.dispatchEvent(new Event('auth:change'));

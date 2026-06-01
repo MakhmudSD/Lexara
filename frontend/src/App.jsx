@@ -63,9 +63,15 @@ function App() {
       try {
         const stored = JSON.parse(localStorage.getItem('authUser'));
         setAuthUser(stored);
-        if (!stored) setPage('landing');
+        if (!stored) {
+          setWorkspaceId('');
+          setWorkspaceName('');
+          setPage('landing');
+        }
       } catch {
         setAuthUser(null);
+        setWorkspaceId('');
+        setWorkspaceName('');
         setPage('landing');
       }
     };
