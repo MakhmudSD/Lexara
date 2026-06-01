@@ -92,8 +92,9 @@ def quick_create_workspace(
 
     workspace = workspace_crud.create_workspace(
         db,
-        organization_id=None,
         name=workspace_name,
+        user_id=current_user.id,
+        organization_id=None,
     )
     return WorkspaceResponse.model_validate(workspace)
 
@@ -137,8 +138,9 @@ def create_workspace(
     _assert_org_membership(payload.organization_id, current_user, db)
     workspace = workspace_crud.create_workspace(
         db,
-        organization_id=payload.organization_id,
         name=payload.name,
+        user_id=current_user.id,
+        organization_id=payload.organization_id,
     )
     return WorkspaceResponse.model_validate(workspace)
 
@@ -155,6 +157,7 @@ def list_workspaces(
         _assert_org_membership(organization_id, current_user, db)
     workspaces = workspace_crud.list_workspaces(
         db,
+        user_id=current_user.id,
         organization_id=organization_id,
         skip=skip,
         limit=limit,
@@ -173,7 +176,7 @@ def list_org_workspaces(
 ) -> WorkspaceListResponse:
     org_id = _resolve_org(org_slug, db)
     _assert_org_membership(org_id, current_user, db)
-    workspaces = workspace_crud.list_workspaces(db, organization_id=org_id)
+    workspaces = workspace_crud.list_workspaces(db, user_id=current_user.id, organization_id=org_id)
     return WorkspaceListResponse(
         workspaces=[WorkspaceResponse.model_validate(workspace) for workspace in workspaces],
         total=len(workspaces),
@@ -191,7 +194,8 @@ def create_org_workspace(
     _assert_org_membership(org_id, current_user, db)
     workspace = workspace_crud.create_workspace(
         db,
-        organization_id=org_id,
         name=body.name,
+        user_id=current_user.id,
+        organization_id=org_id,
     )
     return WorkspaceResponse.model_validate(workspace)

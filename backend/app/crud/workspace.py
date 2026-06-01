@@ -1,7 +1,7 @@
 from uuid import UUID
 from sqlalchemy.orm import Session
 from app.core.exceptions import AppError
-from app.db.models import Organization, Workspace
+from app.db.models import UserWorkspace, Workspace
 
 
 def get_workspace(db: Session, workspace_id: UUID) -> Workspace | None:
@@ -21,11 +21,19 @@ def get_workspace_or_404(db: Session, workspace_id: UUID) -> Workspace:
 
 def list_workspaces(
     db: Session,
+    user_id: UUID,
     organization_id: UUID | None = None,
     skip: int = 0,
     limit: int = 100,
 ) -> list[Workspace]:
-    query = db.query(Workspace).filter(Workspace.is_active.is_(True))
+    query = (
+        db.query(Workspace)
+        .join(UserWorkspace, UserWorkspace.workspace_id == Workspace.id)
+        .filter(
+            Workspace.is_active.is_(True),
+            UserWorkspace.user_id == user_id,
+        )
+    )
     if organization_id is not None:
         query = query.filter(Workspace.organization_id == organization_id)
     return query.order_by(Workspace.created_at.desc()).offset(skip).limit(limit).all()
@@ -40,14 +48,20 @@ def deactivate_workspace(db: Session, workspace_id: UUID) -> Workspace:
     return workspace
 
 
-def create_workspace(db: Session, name: str, organization_id: UUID | None = None) -> Workspace:
+def create_workspace(
+    db: Session,
+    name: str,
+    user_id: UUID,
+    organization_id: UUID | None = None,
+) -> Workspace:
     normalized_name = name.strip()
-    
-    # Check for existing workspace with same name in this org
+
+    # Check for an existing active workspace with the same name owned by this user
     existing = (
         db.query(Workspace)
+        .join(UserWorkspace, UserWorkspace.workspace_id == Workspace.id)
         .filter(
-            Workspace.organization_id == organization_id,
+            UserWorkspace.user_id == user_id,
             Workspace.name == normalized_name,
             Workspace.is_active.is_(True),
         )
@@ -66,6 +80,10 @@ def create_workspace(db: Session, name: str, organization_id: UUID | None = None
         is_active=True,
     )
     db.add(workspace)
+    db.flush()  # get workspace.id before commit
+
+    membership = UserWorkspace(user_id=user_id, workspace_id=workspace.id, role="owner")
+    db.add(membership)
     db.commit()
     db.refresh(workspace)
     return workspace
