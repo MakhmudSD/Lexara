@@ -46,6 +46,7 @@
 }
 
 .chat-sidebar {
+  padding-top: 1rem;
   width: 220px;
   min-width: 220px;
   height: 100%;
@@ -89,6 +90,7 @@
 }
 
 .chat-header {
+  padding-top: 1.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;

@@ -22,6 +22,13 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [connectionError, setConnectionError] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('access_token')?.slice(-8) || '';
+    Object.keys(localStorage)
+      .filter(k => k.startsWith('lexara_sessions_') && !k.startsWith(`lexara_sessions_${token}`))
+      .forEach(k => localStorage.removeItem(k));
+  }, []);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const workspaceSelectorRef = useRef(null);

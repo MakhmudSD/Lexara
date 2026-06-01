@@ -182,7 +182,7 @@ function WorkspaceSelector({
       <div className="workspace-list">
         {loadingWorkspaces && <div className="ws-loading">Yuklanmoqda…</div>}
         {!loadingWorkspaces && workspaces.length === 0 && (
-          <div className="ws-empty">Hech qanday loyiha yo'q</div>
+          <div className="ws-empty">{t('no_workspaces') || 'No projects yet'}</div>
         )}
         {workspaces.map((ws) => (
           <div
