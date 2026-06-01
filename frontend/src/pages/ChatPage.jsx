@@ -23,12 +23,11 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
   const [error, setError] = useState('');
   const [connectionError, setConnectionError] = useState(false);
 
-  useEffect(() => {
-    const token = localStorage.getItem('access_token')?.slice(-8) || '';
-    Object.keys(localStorage)
-      .filter(k => k.startsWith('lexara_sessions_') && !k.startsWith(`lexara_sessions_${token}`))
-      .forEach(k => localStorage.removeItem(k));
-  }, []);
+  // Purge stale sessions from other users synchronously before any render
+  const _currentToken = localStorage.getItem('access_token')?.slice(-8) || '';
+  Object.keys(localStorage)
+    .filter(k => k.startsWith('lexara_sessions_') && !k.startsWith(`lexara_sessions_${_currentToken}_`))
+    .forEach(k => localStorage.removeItem(k));
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const workspaceSelectorRef = useRef(null);
@@ -406,12 +405,23 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
           )}
           {!connectionError && isEmpty && (
             <div className="chat-empty-state">
+              <div className="chat-greeting">
+                {(() => {
+                  try {
+                    const u = JSON.parse(localStorage.getItem('authUser') || '{}');
+                    const name = u.full_name?.split(' ')[0] || u.email?.split('@')[0] || '';
+                    const hour = new Date().getHours();
+                    const tod = hour < 12 ? (t('good_morning') || 'Good morning') : hour < 18 ? (t('good_afternoon') || 'Good afternoon') : (t('good_evening') || 'Good evening');
+                    return name ? `${tod}, ${name} 👋` : `${tod} 👋`;
+                  } catch { return '👋'; }
+                })()}
+              </div>
               <div className="chat-empty-copy">
-                <h2 className="chat-empty-headline">
+                {/* <h2 className="chat-empty-headline">
                   {hasWorkspaceName
                     ? `${t('ask_about')} ${workspaceName}`
                     : t('name_project_prompt')}
-                </h2>
+                </h2> */}
               </div>
 
               {hasWorkspaceName && (
@@ -425,7 +435,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
                         </svg>
                       </div>
                       <div>
-                        <div className="onboarding-step-title">{t('step_project_created') || 'Loyiha yaratildi'}</div>
+                        <div className="onboarding-step-title">{t('step_project_created') || 'Project created'}</div>
                         <div className="onboarding-step-sub">{workspaceName}</div>
                       </div>
                     </div>
@@ -433,16 +443,16 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
                     <div className="onboarding-step current">
                       <div className="onboarding-step-icon current">2</div>
                       <div>
-                        <div className="onboarding-step-title">{t('step_upload_doc') || 'Hujjat yuklang'}</div>
-                        <div className="onboarding-step-sub">{t('step_upload_sub') || 'PDF, DOCX, TXT · 50 MB gacha'}</div>
+                        <div className="onboarding-step-title">{t('step_upload_doc') || 'Upload a document'}</div>
+                        <div className="onboarding-step-sub">{t('step_upload_sub') || 'PDF, DOCX, TXT · up to 50 MB'}</div>
                       </div>
                     </div>
 
                     <div className="onboarding-step pending">
                       <div className="onboarding-step-icon pending">3</div>
                       <div>
-                        <div className="onboarding-step-title">{t('step_ask') || 'Savol bering'}</div>
-                        <div className="onboarding-step-sub">{t('step_ask_sub') || 'Hujjat haqida istalgan savolni yozing'}</div>
+                        <div className="onboarding-step-title">{t('step_ask') || 'Ask a question'}</div>
+                        <div className="onboarding-step-sub">{t('step_ask_sub') || 'Ask anything about your document'}</div>
                       </div>
                     </div>
                   </div>
