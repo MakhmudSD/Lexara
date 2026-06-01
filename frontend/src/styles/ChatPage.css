@@ -751,9 +751,28 @@
 }
 
 .chat-greeting {
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
   text-align: center;
+  padding: 0 16px;
+  line-height: 1.3;
+}
+
+.chat-empty-no-workspace {
+  max-width: 340px;
+  text-align: center;
+}
+
+.chat-empty-no-workspace-text {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  line-height: 1.65;
+  margin: 0;
+  padding: 14px 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm);
 }

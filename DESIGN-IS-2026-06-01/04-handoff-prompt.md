@@ -1,74 +1,51 @@
-# Handoff Prompt
+# 04 — Handoff Prompt
 
-````
-/make-plan Redesign the Lexara MyPage "My info" tab. Current design failed audit at 15/30 with critical gaps in principles #3 (aesthetic), #4 (understandable), #8 (thorough).
+```
+/make-plan Redesign the Lexara chat page empty/welcome state. Current design scored 17/30 in a Dieter Rams audit with critical gaps in principles #3 (aesthetic), #8 (thorough), and #10 (as little design as possible).
 
-Verdict paragraph:
-> MyPage "My info" tab scores 15/30 and requires a redesign — a raw i18n key renders in production (aesthetic failure), a misleading label ships to every user (honesty gap), and 4+ interaction states are missing including the highest-stakes one (quota-full with no upgrade path).
+Verdict (from 03-verdict.md):
+> REDESIGN the chat empty state: total score is 17/30 (below the 20-point REFINE threshold), with three principles scoring 1 (#3 aesthetic, #8 thorough, #10 as little design as possible) — the surface has accumulated structural contradictions (two simultaneous no-workspace signals, an animated empty div, missing focus rings, suggestion chips that precede uploadable content) that cannot be patched individually without addressing the underlying layout logic.
 
-Why redesign and not refine: Total 15/30 is below the 20-point refine threshold; #3 aesthetic scored 1 due to a production defect in the primary metric, and #8 thorough scored 1 due to 4+ missing states on a page where quota status is the primary user concern.
+Why redesign and not refine: Three principles scored 1 and the total is 17/30; the no-workspace path has two simultaneously-firing UI elements (overlay + inline card) that share the same purpose but cannot be deduplicated with a single CSS change — the JSX logic must be restructured.
 
 Preserve from current design:
-- Avatar + initials + email + role badge layout (MyPage.jsx:293–300) — visually clean, no changes needed
-- Tab navigation pattern (MyPage.jsx:305–313) — timeless; keep tab structure, fix tab focus rings only
-- Loading skeleton (MyPage.jsx:278–286) — already correct
-- Empty-state for 0 queries (MyPage.jsx:327–329) — works correctly
+- CSS custom property color system (--color-*, --lexara-*, referenced in ChatPage.css) — do NOT introduce new tokens
+- Personalized time-of-day greeting with first name (ChatPage.jsx:412–419) — this scored well and is a differentiator
+- The 3-step onboarding sequence (step labels + states: done/current/pending) at ChatPage.jsx:434–460 — the content is correct, only the surrounding layout is broken
+- `prefers-reduced-motion` gating already in ChatPage.css:742–751 — must be preserved
+- Paper-fan staggered entrance animation on chips (ChatPage.css:707–713) — tasteful; keep if motion is on
 
-Discard:
-- `t('of')` + `t('used_this_month')` i18n pattern (MyPage.jsx:339) — keys don't exist in translations, fallback never fires due to truthy key-string return. Caused failure on #3 aesthetic.
-- "Email us to change plan" button (MyPage.jsx:465) — opens mailto, label implies form. Caused failure on #4 understandable and #6 honest.
-- Dead `referralCode`/`referralLink` in main component (MyPage.jsx:176–179) — never rendered there, all referral in PromoTab. Caused #10 failure.
-- Unused `useRef` import (MyPage.jsx:1). Caused #10 failure.
-- Dual `upgradeError` rendering in two branches (lines ~394, ~457) — same banner, same purpose, duplicated. Caused #10 failure.
+Discard (structural patterns causing failures):
+- `.workspace-name-overlay` (ChatPage.jsx:402–407 + ChatPage.css:160–188): fires simultaneously with the inline no-workspace card; caused failure on #10 (as little design as possible) and #4 (understandable). Remove entirely.
+- `paper-float 4.5s ease-in-out infinite` on `.chat-empty-copy` (ChatPage.css:702–704): animates an empty div with no visible children; caused failure on #9 and #10. Remove or repurpose.
+- Suggestion chips gated on `hasWorkspaceName` alone (ChatPage.jsx:462–474): chips appear before any document is uploaded, causing false affordances; caused failure on #6 (honest) and #2 (useful). Restructure gate to require `documentCount > 0`.
 
-Top 5 moves (implement in this order):
+Top 5 moves (verbatim from audit):
+1. #10 / #4 — Eliminate double no-workspace signal: remove `.workspace-name-overlay` entirely; the `.chat-empty-no-workspace` inline card (ChatPage.jsx:422–427) is the single source of truth for the no-workspace state.
+2. #8 — Add `focus-visible` ring to `.chat-empty-chip` (currently absent from ChatPage.css); add a loading skeleton for the empty state (when workspace list is loading); add an error card for when workspace load fails.
+3. #3 — Adopt 4px base unit: collapse 8 spacing values (32, 24, 22, 16, 14, 10, 8, 6 px) to a 4-step scale (8, 16, 24, 32); reduce font-size count from 5 to 3 (1.5rem heading, 14px body, 11px caption).
+4. #6 / #2 — Gate suggestion chips on `documentCount > 0`, not `hasWorkspaceName`. When 0 docs: show a single prominent upload button below the onboarding steps instead of chips. ChatPage.jsx:462–474.
+5. #9 — Delete `.chat-empty-copy` div and its `paper-float` animation (ChatPage.jsx:421–427 + ChatPage.css:702–704) — it contains only a commented-out h2 and serves no visible purpose.
 
-1. #3 Aesthetic + #4 Understandable — Fix production i18n breakage.
-   Replace `${t('of') || 'of'} ${planLimits.queries} ${t('used_this_month') || 'used this month'}` (MyPage.jsx:339) with `/ ${planLimits.queries} ${t('per_month') || 'per month'}`. Key `per_month` exists in all 5 language files.
-   Verification: grep -n "used_this_month\|t('of')" frontend/src/pages/MyPage.jsx returns 0 results.
-
-2. #2 Useful + #8 Thorough — Add quota-full state with upgrade CTA.
-   In the USAGE section, when `queriesPct >= 100`, render a distinct `.mypage-quota-full-banner` above the bar with text like "You've used all {planLimits.queries} queries this month" and an "Upgrade plan" button that switches to the Subscription tab (`setActiveTab('subscription')`). File: MyPage.jsx in the usage block after line 336.
-   Verification: Set `stats.total_queries = planLimits.queries` in dev tools, confirm banner + CTA appear.
-
-3. #4 Understandable + #6 Honest — Fix "Email us to change plan".
-   Replace the `<a href="mailto:...">Email us to change plan</a>` button (MyPage.jsx:465) with a button that calls `setActiveTab('support')` and label it "Contact support to change plan". No new network request needed.
-   Verification: Click the button, confirm the Support tab activates.
-
-4. #8 Thorough — Add focus rings and disabled states.
-   In MyPage.css, add `:focus-visible` rules for `.mypage-tab-btn`, `.mypage-signout-btn`, and `.mypage-upgrade-btn`:
-   ```css
-   .mypage-tab-btn:focus-visible,
-   .mypage-signout-btn:focus-visible,
-   .mypage-upgrade-btn:focus-visible {
-     outline: 2px solid var(--color-accent);
-     outline-offset: 2px;
-   }
-   .mypage-upgrade-btn:disabled {
-     opacity: 0.55;
-     cursor: not-allowed;
-   }
-   ```
-   Also add `.mypage-btn-primary` definition (or rename SupportTab submit button to an existing class).
-   Verification: Tab through the page with keyboard, confirm all controls show visible focus indicators.
-
-5. #10 As little as possible — Remove dead code.
-   Delete `referralCode` and `referralLink` declarations from main MyPage component (lines 176–179). Remove `useRef` from imports (line 1). Consolidate `upgradeError` banner into a single render (extract to a variable before the return, render once).
-   Verification: npm run build passes, grep -n "useRef\|referralCode\|referralLink" frontend/src/pages/MyPage.jsx returns 0 lines outside PromoTab.
-
-Out of scope for this redesign pass:
-- The Subscription, Promo, FAQ tabs (separate audit needed)
-- The overall page layout / card structure
-- Adding new features (usage history, per-workspace breakdown)
-- i18n audit of all hardcoded strings in PromoTab/SupportTab (large scope; file a separate issue)
+Redesign principles in priority order:
+1. #10 As little design as possible — every element must earn its place; one signal per intent
+2. #8 Thorough — all interactive states (focus, loading, error) explicitly designed
+3. #3 Aesthetic — single spacing scale, 3 font-size levels, greeting visually connected to next action
+4. #2 Useful — user reaches first successful query in fewest steps (no false affordances)
+5. #4 Understandable — one clear instruction per state; no parallel competing guides
 
 Deliverables for the plan:
-- Per-fix: target file + exact line range + change + verification step (see moves 1–5 above)
-- CSS additions consolidated in one MyPage.css diff
-- Regression checklist: loading skeleton still shows, empty state still shows, tab switching works, quota bar still color-codes
+- New JSX structure for the empty state (single conditional tree, no layered absolute overlays)
+- Updated ChatPage.css with 4px-base spacing consolidation for empty-state rules only
+- `.chat-empty-chip:focus-visible` rule
+- Loading skeleton component for empty-state (when `loadingWorkspaces` is true)
+- Error card component for workspace load failure
+- `documentCount` prop or derived state to gate chip visibility
+- Migration: the old `.workspace-name-overlay` CSS block can stay in the file but should be marked `/* REMOVED — see redesign 2026-06-01 */` until confirmed safe to delete
 
 Anti-patterns to guard against:
-- Porting old structure under new styling (the Preserve list above must be kept intact)
-- Adding new features in this pass (quota-full banner CTA points to existing Subscription tab, not new UI)
-- Letting the fix for one principle break another (focus ring CSS must not override other `:focus` rules)
-````
+- Porting the old overlay logic under a new class name
+- Adding a third UI element to resolve the two-element conflict (add one, remove two)
+- Animating new elements without checking the prefers-reduced-motion block at ChatPage.css:742–751
+- Introducing new CSS tokens not already in the design system
+```

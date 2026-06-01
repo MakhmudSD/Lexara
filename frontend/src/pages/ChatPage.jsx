@@ -24,10 +24,12 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
   const [connectionError, setConnectionError] = useState(false);
 
   // Purge stale sessions from other users synchronously before any render
-  const _currentToken = localStorage.getItem('access_token')?.slice(-8) || '';
-  Object.keys(localStorage)
-    .filter(k => k.startsWith('lexara_sessions_') && !k.startsWith(`lexara_sessions_${_currentToken}_`))
-    .forEach(k => localStorage.removeItem(k));
+  const _userId = (() => { try { return JSON.parse(localStorage.getItem('authUser') || '{}').id || ''; } catch { return ''; } })();
+  if (_userId) {
+    Object.keys(localStorage)
+      .filter(k => k.startsWith('lexara_sessions_') && !k.startsWith(`lexara_sessions_${_userId}_`))
+      .forEach(k => localStorage.removeItem(k));
+  }
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const workspaceSelectorRef = useRef(null);
@@ -74,7 +76,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
     };
     const updated = [newSession, ...sessions];
     setSessions(updated);
-    localStorage.setItem(`lexara_sessions_${localStorage.getItem('access_token')?.slice(-8)}_${workspaceId}`, JSON.stringify(updated));
+    localStorage.setItem(`lexara_sessions_${_userId}_${workspaceId}`, JSON.stringify(updated));
     setActiveSessionId(newSession.id);
     setMessages([]);
     setSidebarOpen(false);
@@ -84,7 +86,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
   const deleteSession = useCallback((sessionId) => {
     const updated = sessions.filter((s) => s.id !== sessionId);
     setSessions(updated);
-    localStorage.setItem(`lexara_sessions_${localStorage.getItem('access_token')?.slice(-8)}_${workspaceId}`, JSON.stringify(updated));
+    localStorage.setItem(`lexara_sessions_${_userId}_${workspaceId}`, JSON.stringify(updated));
     if (activeSessionId === sessionId) {
       if (updated.length > 0) {
         loadSession(updated[0].id);
@@ -108,7 +110,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
             }
           : s
       ));
-      localStorage.setItem(`lexara_sessions_${localStorage.getItem('access_token')?.slice(-8)}_${workspaceId}`, JSON.stringify(updated));
+      localStorage.setItem(`lexara_sessions_${_userId}_${workspaceId}`, JSON.stringify(updated));
       return updated;
     });
   }, [workspaceId]);
@@ -119,7 +121,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
 
   useEffect(() => {
     if (!workspaceId) return;
-    const raw = localStorage.getItem(`lexara_sessions_${localStorage.getItem('access_token')?.slice(-8)}_${workspaceId}`);
+    const raw = localStorage.getItem(`lexara_sessions_${_userId}_${workspaceId}`);
     if (raw) {
       try {
         const parsed = JSON.parse(raw);
@@ -183,7 +185,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
       };
       const updated = [newSession, ...sessions];
       setSessions(updated);
-      localStorage.setItem(`lexara_sessions_${localStorage.getItem('access_token')?.slice(-8)}_${workspaceId}`, JSON.stringify(updated));
+      localStorage.setItem(`lexara_sessions_${_userId}_${workspaceId}`, JSON.stringify(updated));
       setActiveSessionId(newSession.id);
       sessionId = newSession.id;
     }
@@ -416,13 +418,14 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
                   } catch { return '👋'; }
                 })()}
               </div>
-              <div className="chat-empty-copy">
-                {/* <h2 className="chat-empty-headline">
-                  {hasWorkspaceName
-                    ? `${t('ask_about')} ${workspaceName}`
-                    : t('name_project_prompt')}
-                </h2> */}
-              </div>
+
+              {!hasWorkspaceName && !isCreatingWorkspace && (
+                <div className="chat-empty-no-workspace">
+                  <p className="chat-empty-no-workspace-text">
+                    {t('create_project_prompt') || 'Create a project on the left, upload your document, and ask anything.'}
+                  </p>
+                </div>
+              )}
 
               {hasWorkspaceName && (
                 <>

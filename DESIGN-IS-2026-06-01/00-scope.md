@@ -1,19 +1,12 @@
-# Scope — Lexara MyPage "My info" tab
+# 00 — Scope (Chat Empty State Audit 2026-06-01)
 
-**Audited surface:** MyPage profile page, "My info" tab  
-**Live URL at audit time:** lexara-top.vercel.app (screenshot: 2026-06-01 02:45)  
+**Surface audited:** Lexara chat interface — empty/welcome state only
 **Component paths:**
-- `frontend/src/pages/MyPage.jsx`
-- `frontend/src/styles/MyPage.css`
+- `frontend/src/pages/ChatPage.jsx` lines 395–490
+- `frontend/src/styles/ChatPage.css` — .chat-empty-state, .chat-greeting, .chat-empty-no-workspace, .onboarding-steps, .chat-empty-chip, .workspace-name-overlay
 
-**Primary user:** Authenticated Lexara user (any plan)  
-**Primary task:** Check remaining query quota for the month; manage account language preference
+**Primary user:** Non-technical professional logging in for the first time (or with an empty workspace)
+**Primary task:** Understand what to do next — create a project, upload a document, ask a question
 
-**Constraints:**
-- Stack: React + Vite frontend, FastAPI backend
-- Brand: Lexara tokens (CSS custom properties in global stylesheet)
-- Must support 5 languages (English, Uzbek, Korean, Russian, Japanese)
-- Production app — changes must not break existing flows
-
-**Reference:** screenshot `~/Desktop/Screenshot 2026-06-01 at 02.45.09.png`  
-**Input material reviewed:** full MyPage.jsx, full MyPage.css, translations.js (grepped)
+**Constraints:** React/JSX + CSS custom properties, 5 languages (en, ko, ru, uz, ja), dark mode via CSS vars, prefers-reduced-motion respected
+**Out of scope:** Message thread, sidebar, input area, header, auth pages

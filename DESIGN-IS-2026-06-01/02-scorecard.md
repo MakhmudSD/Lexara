@@ -1,45 +1,45 @@
-# Scorecard — MyPage "My info" tab
+# 02 — Scorecard (Chat Empty State)
 
-**Total: 15 / 30**
+Total: **17 / 30** — REDESIGN threshold triggered (< 20)
 
 ---
 
-1. **Good design is innovative — Score: 1/3**
-   Evidence: Standard SaaS profile tab pattern (tabs, usage bar, account rows). "Remaining queries" as hero number with color coding is a minor refinement over "used N of N" patterns.
-   Justification: Refreshes the pattern with color-coded remaining count, but nothing not seen in 5+ peer SaaS products.
+1. Good design is innovative — **Score: 2/3**
+   Evidence: Personalized time-of-day greeting with first name (ChatPage.jsx:412–419); sequential 3-step onboarding pattern (ChatPage.jsx:434–460).
+   Justification: Refreshes the empty-state pattern with a conversational greeting — a clear improvement over static "get started" screens — but not a novel pattern across the industry.
 
-2. **Good design makes a product useful — Score: 2/3**
-   Evidence: "79" in large green is immediately prominent on page load; bar + sub-label provide context. Primary task (check quota) completes in one view. No upgrade CTA appears when quota hits 100%.
-   Justification: Primary task completes but adjacent surface (no upgrade path at quota-full) adds steps for the most critical next action.
+2. Good design is useful — **Score: 2/3**
+   Evidence: Primary task (create → upload → ask) is front-and-center when workspace exists; suggestion chips are immediate shortcuts. BUT chips appear before any document is uploaded (ChatPage.jsx:462–474), making them false affordances that lead to error responses.
+   Justification: Primary task completes but adjacent surface adds a misleading step when clicked pre-upload.
 
-3. **Good design is aesthetic — Score: 1/3**
-   Evidence: 10 distinct font sizes (10–36px); ~20 literal color values outside CSS variable system; "used_this_month" raw key visible in production screenshot (line 339, confirmed in screenshot).
-   Justification: Jarring violation (raw i18n key in primary metric) plus 3–5 inconsistencies (type scale, color count) puts this at 1, not 2.
+3. Good design is aesthetic — **Score: 1/3**
+   Evidence: 8 distinct spacing values with no base unit (32, 24, 22, 16, 14, 10, 8, 6 px); 5 font sizes across a 3-level hierarchy; greeting visually disconnected from onboarding steps (no linking element).
+   Justification: 3–5 spacing inconsistencies and an orphaned greeting block — the surface lacks a single visible design system.
 
-4. **Good design makes a product understandable — Score: 1/3**
-   Evidence: "remaining" label (line 323) has no unit — "79 remaining" is ambiguous without sub-label; "Email us to change plan" (line 465) implies form, delivers mailto; `/oy` Uzbek suffix in English pricing.
-   Justification: 2–3 controls unclear (unit-less stat, misleading email label, untranslated pricing suffix) — scores 1 not 2.
+4. Good design is understandable — **Score: 2/3**
+   Evidence: 3-step labels are clear and sequential. BUT no-workspace state shows overlay arrow (ChatPage.jsx:402–407) AND inline card (ChatPage.jsx:422–427) simultaneously — two competing instructions for the same action.
+   Justification: One control (the create-project instruction) is unclear due to duplication; everything else reads cleanly.
 
-5. **Good design is unobtrusive — Score: 2/3**
-   Evidence: No background decoration, no sidebar chrome, no idle animations on the info tab. Avatar + tab underline are present but recede.
-   Justification: Chrome is visible (avatar gradient, plan card gradient border) but quiet — content dominates.
+5. Good design is unobtrusive — **Score: 2/3**
+   Evidence: ThreeBackground at opacity 0.15 (ChatPage.jsx:317); staggered animations quiet; workspace-name-overlay uses inset:0 pointer-events:none so does not block interaction but does visually dominate (ChatPage.css:160–188).
+   Justification: Chrome is visible but largely quiet; overlay fills the screen but is non-interactive.
 
-6. **Good design is honest — Score: 2/3**
-   Evidence: "Email us to change plan" (line 465) opens `mailto:` — label implies form action. `/oy` in English pricing (lines 414, 432) is a language mismatch, not a false claim. No dark patterns or fake scarcity.
-   Justification: 1 label→behavior mismatch (email) and 1 language error, but no deceptive flows — scores 2 not 1.
+6. Good design is honest — **Score: 2/3**
+   Evidence: No dark patterns or inflation detected. Minor: suggestion chips promise queries before document upload is possible (ChatPage.jsx:462–474).
+   Justification: One minor false affordance — chips imply answerability when no docs exist.
 
-7. **Good design is long-lasting — Score: 2/3**
-   Evidence: Tab navigation, usage bars, account-row pattern — all timeless. One dated marker: `#7c3aed` purple gradient on Pro plan card (PLAN_GRADIENTS, MyPage.jsx:27–30) is characteristic of 2023–24 SaaS purple trend.
-   Justification: One dated trend marker with otherwise timeless visual language.
+7. Good design is long-lasting — **Score: 2/3**
+   Evidence: CSS custom properties throughout; no skeuomorphic residue. Emoji 👋 (ChatPage.jsx:417) and paper-physics animation theme are 2023–2024 markers.
+   Justification: One/two dated trend markers; overall language will age acceptably.
 
-8. **Good design is thorough — Score: 1/3**
-   Evidence: Error state in usage silently ignored (catch → `{}`, line 188); quota-full has no dedicated UI; focus rings absent on tabs, sign-out, upgrade buttons; `mypage-btn-primary` CSS class undefined; "Copy" has no confirmation state.
-   Justification: 4+ details missing or rough — scores 1 at best.
+8. Good design is thorough — **Score: 1/3**
+   Evidence: Focus rings missing on chip buttons (ChatPage.css has no .chat-empty-chip:focus-visible rule); loading and error states absent from empty-state surface; `paper-float` fires on `.chat-empty-copy` which has no visible children (ChatPage.css:702–704).
+   Justification: 3 missing states (loading, error, focus) and one broken animation on empty content.
 
-9. **Good design is environmentally friendly — Score: 2/3**
-   Evidence: Bundle 950KB / 281KB gzip (whole app); no idle animations on MyPage; dark mode tokens in system; loading skeleton is CSS-only.
-   Justification: Bundle exceeds 500KB for whole app but MyPage itself adds no idle animation or motion — scores 2.
+9. Good design is environmentally friendly — **Score: 2/3**
+   Evidence: prefers-reduced-motion gated (ChatPage.css:742–751); ThreeBackground conditionally rendered. `paper-float 4.5s infinite` runs on an empty div consuming GPU cycles unnecessarily (ChatPage.css:702–704).
+   Justification: Motion generally gated but one idle infinite animation on invisible content wastes resources.
 
-10. **Good design is as little design as possible — Score: 1/3**
-    Evidence: Dead `referralCode`/`referralLink` in main component (lines 176–179); unused `useRef` import; `upgradeError` rendered in two identical branches; 4 UI elements all communicating the same quota fact (number, label, bar, sub-label).
-    Justification: 3–5 removable elements and duplicate patterns — scores 1.
+10. Good design is as little design as possible — **Score: 1/3**
+    Evidence: Two simultaneous no-workspace signals: overlay (ChatPage.jsx:402–407) + inline card (ChatPage.jsx:422–427). `.chat-empty-copy` div animates with paper-float but contains zero visible content (ChatPage.jsx:421–427). Animated empty div is pure overhead.
+    Justification: 3–5 removable elements: overlay can be removed in favour of the inline card; empty animated div can be removed; one of the two no-workspace guides is redundant.

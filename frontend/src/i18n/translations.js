@@ -384,6 +384,9 @@ export const translations = {
     register_password_short: 'Password must be at least 8 characters',
     register_passwords_mismatch: 'Passwords must match',
     register_failed: 'Registration failed',
+    good_morning: 'Good morning',
+    good_afternoon: 'Good afternoon',
+    good_evening: 'Good evening',
   },
   ko: {
     app_name: 'Lexara',
@@ -770,6 +773,9 @@ export const translations = {
     register_password_short: '비밀번호는 8자 이상이어야 합니다',
     register_passwords_mismatch: '비밀번호가 일치하지 않습니다',
     register_failed: '회원가입에 실패했습니다',
+    good_morning: '좋은 아침이에요',
+    good_afternoon: '좋은 오후예요',
+    good_evening: '좋은 저녁이에요',
   },
   ru: {
     app_name: 'Lexara',
@@ -1156,6 +1162,9 @@ export const translations = {
     register_password_short: 'Пароль должен содержать не менее 8 символов',
     register_passwords_mismatch: 'Пароли не совпадают',
     register_failed: 'Ошибка регистрации',
+    good_morning: 'Доброе утро',
+    good_afternoon: 'Добрый день',
+    good_evening: 'Добрый вечер',
   },
   uz: {
     app_name: 'Lexara',
@@ -1542,6 +1551,9 @@ export const translations = {
     register_password_short: "Parol kamida 8 belgidan iborat bo'lishi kerak",
     register_passwords_mismatch: 'Parollar mos kelmadi',
     register_failed: "Ro'yxatdan o'tish amalga oshmadi",
+    good_morning: 'Xayrli tong',
+    good_afternoon: 'Xayrli kun',
+    good_evening: 'Xayrli kech',
   },
   ja: {
     app_name: 'Lexara',
@@ -1888,6 +1900,9 @@ export const translations = {
     register_password_short: 'パスワードは8文字以上でなければなりません',
     register_passwords_mismatch: 'パスワードが一致しません',
     register_failed: '登録に失敗しました',
+    good_morning: 'おはようございます',
+    good_afternoon: 'こんにちは',
+    good_evening: 'こんばんは',
   },
 };
 

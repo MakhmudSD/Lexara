@@ -265,7 +265,7 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
   };
 
   const memberSince = user.created_at
-    ? new Date(user.created_at).toLocaleDateString(lang === 'uz' ? 'uz-UZ' : lang, { year: 'numeric', month: 'long' })
+    ? new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
     : '—';
 
   const tabs = [

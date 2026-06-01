@@ -180,9 +180,9 @@ function WorkspaceSelector({
     <div className="workspace-selector">
       <div className="sidebar-section-label">{t('workspace') || 'Loyiha'}</div>
       <div className="workspace-list">
-        {loadingWorkspaces && <div className="ws-loading">Yuklanmoqda…</div>}
+        {loadingWorkspaces && <div className="ws-loading">{t('loading') || '…'}</div>}
         {!loadingWorkspaces && workspaces.length === 0 && (
-          <div className="ws-empty">{t('no_workspaces') || 'No projects yet'}</div>
+          <div className="ws-empty">{t('no_workspace') || 'No projects yet'}</div>
         )}
         {workspaces.map((ws) => (
           <div
