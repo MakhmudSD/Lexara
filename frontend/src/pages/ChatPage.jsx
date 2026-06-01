@@ -23,13 +23,20 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
   const [error, setError] = useState('');
   const [connectionError, setConnectionError] = useState(false);
 
-  // Purge stale sessions from other users synchronously before any render
+  // Derive userId once at mount — component is re-keyed on user change so this is always fresh
   const _userId = (() => { try { return JSON.parse(localStorage.getItem('authUser') || '{}').id || ''; } catch { return ''; } })();
-  if (_userId) {
+  const userIdRef = useRef(_userId);
+
+  // Purge sessions belonging to other users — runs once on mount (safe side-effect location)
+  useEffect(() => {
+    const uid = userIdRef.current;
+    if (!uid) return;
     Object.keys(localStorage)
-      .filter(k => k.startsWith('lexara_sessions_') && !k.startsWith(`lexara_sessions_${_userId}_`))
+      .filter(k => k.startsWith('lexara_sessions_') && !k.startsWith(`lexara_sessions_${uid}_`))
       .forEach(k => localStorage.removeItem(k));
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const workspaceSelectorRef = useRef(null);
@@ -407,6 +414,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
           )}
           {!connectionError && isEmpty && (
             <div className="chat-empty-state">
+              {/* Human greeting */}
               <div className="chat-greeting">
                 {(() => {
                   try {
@@ -419,6 +427,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
                 })()}
               </div>
 
+              {/* No workspace: direct pointer to sidebar */}
               {!hasWorkspaceName && !isCreatingWorkspace && (
                 <div className="chat-empty-no-workspace">
                   <p className="chat-empty-no-workspace-text">
@@ -427,52 +436,36 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
                 </div>
               )}
 
+              {/* Workspace ready: AI greets back + upload CTA */}
               {hasWorkspaceName && (
-                <>
-                  {/* 3-step onboarding */}
-                  <div className="onboarding-steps">
-                    <div className="onboarding-step done">
-                      <div className="onboarding-step-icon done">
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                          <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </div>
-                      <div>
-                        <div className="onboarding-step-title">{t('step_project_created') || 'Project created'}</div>
-                        <div className="onboarding-step-sub">{workspaceName}</div>
-                      </div>
-                    </div>
-
-                    <div className="onboarding-step current">
-                      <div className="onboarding-step-icon current">2</div>
-                      <div>
-                        <div className="onboarding-step-title">{t('step_upload_doc') || 'Upload a document'}</div>
-                        <div className="onboarding-step-sub">{t('step_upload_sub') || 'PDF, DOCX, TXT · up to 50 MB'}</div>
-                      </div>
-                    </div>
-
-                    <div className="onboarding-step pending">
-                      <div className="onboarding-step-icon pending">3</div>
-                      <div>
-                        <div className="onboarding-step-title">{t('step_ask') || 'Ask a question'}</div>
-                        <div className="onboarding-step-sub">{t('step_ask_sub') || 'Ask anything about your document'}</div>
-                      </div>
-                    </div>
+                <div className="ai-welcome-bubble">
+                  <div className="ai-welcome-avatar">
+                    <LexaraIcon size={18} />
                   </div>
-
-                  {/* Upload CTA — replaces suggestion chips until user uploads a document */}
-                  <button
-                    type="button"
-                    className="chat-upload-cta"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                      <path d="M13.5 8.5l-5 5a3.5 3.5 0 01-4.95-4.95l6-6a2 2 0 012.83 2.83L6.5 11.24a.5.5 0 01-.71-.71L11.5 4.83" />
-                    </svg>
-                    {t('step_upload_doc') || 'Upload a document'}
-                  </button>
-                </>
+                  <div className="ai-welcome-body">
+                    <p className="ai-welcome-text">
+                      {(() => {
+                        try {
+                          const u = JSON.parse(localStorage.getItem('authUser') || '{}');
+                          const name = u.full_name?.split(' ')[0] || u.email?.split('@')[0] || '';
+                          const base = t('ai_welcome_msg') || 'Hi{name}! Upload a document using the button below, then ask me anything about it.';
+                          return base.replace('{name}', name ? ` ${name}` : '');
+                        } catch { return t('ai_welcome_msg') || 'Upload a document, then ask me anything about it.'; }
+                      })()}
+                    </p>
+                    <button
+                      type="button"
+                      className="chat-upload-cta"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                        <path d="M13.5 8.5l-5 5a3.5 3.5 0 01-4.95-4.95l6-6a2 2 0 012.83 2.83L6.5 11.24a.5.5 0 01-.71-.71L11.5 4.83" />
+                      </svg>
+                      {t('step_upload_doc') || 'Upload a document'}
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
           )}

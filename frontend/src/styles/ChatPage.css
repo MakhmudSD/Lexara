@@ -768,6 +768,43 @@
   text-align: center;
 }
 
+.ai-welcome-bubble {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 380px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.ai-welcome-avatar {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--lexara-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.ai-welcome-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ai-welcome-text {
+  font-size: 14px;
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  margin: 0;
+}
+
 .chat-upload-cta {
   display: inline-flex;
   align-items: center;

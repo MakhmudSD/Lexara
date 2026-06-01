@@ -387,6 +387,7 @@ export const translations = {
     good_morning: 'Good morning',
     good_afternoon: 'Good afternoon',
     good_evening: 'Good evening',
+    ai_welcome_msg: 'Hi{name}! Upload a document using the button below, then ask me anything about it — I\'ll find exact answers with sources.',
   },
   ko: {
     app_name: 'Lexara',
@@ -776,6 +777,7 @@ export const translations = {
     good_morning: '좋은 아침이에요',
     good_afternoon: '좋은 오후예요',
     good_evening: '좋은 저녁이에요',
+    ai_welcome_msg: '안녕하세요{name}! 아래 버튼으로 문서를 업로드하면 내용에 대해 무엇이든 질문하실 수 있어요.',
   },
   ru: {
     app_name: 'Lexara',
@@ -1165,6 +1167,7 @@ export const translations = {
     good_morning: 'Доброе утро',
     good_afternoon: 'Добрый день',
     good_evening: 'Добрый вечер',
+    ai_welcome_msg: 'Привет{name}! Загрузите документ с помощью кнопки ниже, и я отвечу на любые вопросы по его содержанию — с точными источниками.',
   },
   uz: {
     app_name: 'Lexara',
@@ -1554,6 +1557,7 @@ export const translations = {
     good_morning: 'Xayrli tong',
     good_afternoon: 'Xayrli kun',
     good_evening: 'Xayrli kech',
+    ai_welcome_msg: 'Salom{name}! Quyidagi tugma orqali hujjat yuklang, so\'ngra u haqida istalgan savolingizni bering — aniq manbalar bilan javob beraman.',
   },
   ja: {
     app_name: 'Lexara',
@@ -1903,6 +1907,7 @@ export const translations = {
     good_morning: 'おはようございます',
     good_afternoon: 'こんにちは',
     good_evening: 'こんばんは',
+    ai_welcome_msg: 'こんにちは{name}！下のボタンからドキュメントをアップロードして、内容について何でも質問してください。',
   },
 };
 
