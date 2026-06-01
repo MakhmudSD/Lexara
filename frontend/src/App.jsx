@@ -64,12 +64,16 @@ function App() {
         const stored = JSON.parse(localStorage.getItem('authUser'));
         setAuthUser(stored);
         if (!stored) {
+          localStorage.removeItem('workspaceId');
+          localStorage.removeItem('workspaceName');
           setWorkspaceId('');
           setWorkspaceName('');
           setPage('landing');
         }
       } catch {
         setAuthUser(null);
+        localStorage.removeItem('workspaceId');
+        localStorage.removeItem('workspaceName');
         setWorkspaceId('');
         setWorkspaceName('');
         setPage('landing');

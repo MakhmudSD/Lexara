@@ -29,6 +29,8 @@ client.interceptors.response.use(
     if (status === 401 && !err.config?.url?.includes('/auth/login')) {
       localStorage.removeItem('access_token');
       localStorage.removeItem('authUser');
+      localStorage.removeItem('workspaceId');
+      localStorage.removeItem('workspaceName');
       window.dispatchEvent(new Event('auth:change'));
     }
     return Promise.reject({ status, message: detail, raw: err, response: err.response });
