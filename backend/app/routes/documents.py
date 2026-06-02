@@ -1,10 +1,11 @@
 import logging
 import os
+import tempfile
 from pathlib import Path
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, Query, UploadFile
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Query, UploadFile
+from fastapi.responses import FileResponse, JSONResponse
 from sqlalchemy.orm import Session
 
 from app.core.auth import get_current_user
@@ -13,11 +14,10 @@ from app.core.config import Settings
 from app.core.dependencies import get_db, get_runtime
 from app.core.exceptions import AppError
 from app.db import SessionLocal
-from app.db.models import Document, OrganizationMember, User, Workspace
+from app.db.models import Document, DocumentStatus, OrganizationMember, User, Workspace
 from app.core.runtime import AppRuntime
 from app.crud import document as document_crud
 from app.schemas.document import DocumentUploadResponse
-from app.services.document_processing import process_text_document
 from app.services.file_parsers.docx_parser import parse_docx_bytes
 from app.services.file_parsers.pdf_parser import parse_pdf_bytes
 from app.services.file_parsers.txt_parser import parse_txt_bytes
@@ -72,7 +72,7 @@ def list_documents(
     return docs
 
 
-@router.post("/upload", response_model=DocumentUploadResponse, status_code=201)
+@router.post("/upload", response_model=DocumentUploadResponse, status_code=202)
 def upload_document(
     background_tasks: BackgroundTasks,
     workspace_id: UUID = Form(...),
@@ -80,7 +80,7 @@ def upload_document(
     db: Session = Depends(get_db),
     runtime: AppRuntime = Depends(get_runtime),
     current_user: User = Depends(get_current_user),
-) -> DocumentUploadResponse:
+) -> JSONResponse:
     _assert_workspace_access(workspace_id, current_user, db)
     raw_name = Path(file.filename or "").name
     if not raw_name or raw_name.startswith("."):
@@ -115,8 +115,13 @@ def upload_document(
     if len(file_bytes) > runtime.settings.max_upload_size_bytes:
         raise AppError(400, "file_too_large", "Uploaded file exceeds the maximum allowed size.")
 
-    # Upload to R2 *before* text extraction so the original binary is persisted
-    # even if the parsing step fails.  Key: {workspace_id}/{document_id}/{filename}
+    # Quick parse to verify the file has extractable text before accepting
+    raw_text = _parse_uploaded_file(extension, file_bytes)
+    if not raw_text.strip():
+        raise AppError(400, "empty_document", "The uploaded document did not contain extractable text.")
+
+    # Upload to R2 so the original binary is persisted.
+    # Key: {workspace_id}/{document_id}/{filename}
     document_id = uuid4()
     r2_path: str | None = None
     if r2_service.is_configured():
@@ -127,31 +132,44 @@ def upload_document(
             logger.error("R2 upload failed for key %s: %s", key, exc)
             raise AppError(500, "storage_error", "File could not be saved to cloud storage. Please try again.") from exc
 
-    raw_text = _parse_uploaded_file(extension, file_bytes)
-    if not raw_text.strip():
-        raise AppError(400, "empty_document", "The uploaded document did not contain extractable text.")
+    # Resolve organization_id for this workspace
+    from app.crud.workspace import get_workspace_or_404
+    workspace = get_workspace_or_404(db, workspace_id)
 
-    document, chunks = process_text_document(
+    # Create the Document row immediately with PROCESSING status
+    document = document_crud.create_document(
         db,
-        runtime.settings,
-        workspace_id=workspace_id,
+        organization_id=workspace.organization_id,
+        workspace_id=workspace.id,
         filename=filename,
         content_type=content_type,
-        file_bytes=file_bytes,
+        file_size_bytes=len(file_bytes),
+        storage_path=r2_path or "pending",
         raw_text=raw_text,
         document_id=document_id,
-        storage_path=r2_path,
+        status=DocumentStatus.PROCESSING,
     )
-    get_retrieval_cache().clear()
+    db.commit()
+    db.refresh(document)
+
+    # Persist file bytes to a temp file for the background task to consume
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=extension)
+    tmp.write(file_bytes)
+    tmp.flush()
+    tmp.close()
+    temp_path = tmp.name
+
     background_tasks.add_task(
-        _process_embeddings_background,
+        _ingest_document_background,
         document_id=document.id,
-        chunks=chunks,
+        temp_path=temp_path,
+        workspace_id=workspace_id,
+        raw_text=raw_text,
         settings=runtime.settings,
         vector_store=runtime.vector_store,
     )
 
-    return DocumentUploadResponse(
+    response_data = DocumentUploadResponse(
         id=document.id,
         workspace_id=document.workspace_id,
         organization_id=document.organization_id,
@@ -163,6 +181,7 @@ def upload_document(
         status="processing",
         created_at=document.created_at,
     )
+    return JSONResponse(status_code=202, content=response_data.model_dump(mode="json"))
 
 
 @router.get("/{document_id}/download")
@@ -227,6 +246,26 @@ def download_document(
     )
 
 
+@router.get("/{document_id}/status")
+def get_document_status(
+    document_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Poll the processing status of a document."""
+    doc = db.query(Document).filter(Document.id == document_id, Document.is_active == True).first()  # noqa: E712
+    if doc is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+    _assert_workspace_access(doc.workspace_id, current_user, db)
+    return {
+        "id": str(doc.id),
+        "filename": doc.filename,
+        "status": doc.status.value if doc.status else "processing",
+        "chunk_count": doc.chunk_count,
+        "error_message": doc.error_message,
+    }
+
+
 def _file_extension(filename: str) -> str:
     dot_index = filename.rfind(".")
     if dot_index == -1:
@@ -246,27 +285,39 @@ def _parse_uploaded_file(extension: str, file_bytes: bytes) -> str:
     return parser(file_bytes)
 
 
-def _process_embeddings_background(
+def _ingest_document_background(
     *,
     document_id: UUID,
-    chunks: list[str],
+    temp_path: str,
+    workspace_id: UUID,
+    raw_text: str,
     settings: Settings,
     vector_store,
     _attempt: int = 1,
 ) -> None:
-    """Run embedding + vector store indexing for a document.
+    """Chunk, embed, and index a document. Runs after the 202 response is returned.
 
-    Retries up to 3 times on transient failures. Railway restarts kill
-    in-flight background tasks, so keep processing idempotent — chunks
-    and embeddings are upserted, not duplicated.
+    Uses its own DB session (cannot share the request session). Retries up to 3
+    times on transient failures. On permanent failure the document status is set
+    to FAILED and the error message is persisted.
     """
+    from app.services.chunking import chunk_text
+
     max_attempts = 3
     db = SessionLocal()
     try:
         document = db.query(Document).filter(Document.id == document_id).first()
         if document is None:
-            logger.error("Background embedding skipped: document %s not found", document_id)
+            logger.error("Background ingestion skipped: document %s not found", document_id)
             return
+
+        chunks = chunk_text(
+            raw_text,
+            chunk_size=settings.default_chunk_size,
+            overlap=settings.default_chunk_overlap,
+        )
+        if not chunks:
+            raise ValueError("No chunks were generated from the document text.")
 
         embeddings = embed_texts(chunks, settings)
         chunk_records = document_crud.create_chunks(
@@ -284,28 +335,45 @@ def _process_embeddings_background(
         document_crud.mark_document_processed(db, document_id, len(chunk_records))
         db.commit()
         get_retrieval_cache().clear()
-        logger.info("Background embedding done: doc=%s chunks=%d", document_id, len(chunk_records))
-    except Exception as exc:  # pragma: no cover - background logging
+        logger.info("Background ingestion done: doc=%s chunks=%d", document_id, len(chunk_records))
+    except Exception as exc:
         db.rollback()
         if _attempt < max_attempts:
             import time
             wait = 2 ** _attempt  # 2s, 4s back-off
             logger.warning(
-                "Background embedding attempt %d/%d failed for doc %s, retrying in %ds: %s",
+                "Background ingestion attempt %d/%d failed for doc %s, retrying in %ds: %s",
                 _attempt, max_attempts, document_id, wait, exc,
             )
             time.sleep(wait)
-            _process_embeddings_background(
+            _ingest_document_background(
                 document_id=document_id,
-                chunks=chunks,
+                temp_path=temp_path,
+                workspace_id=workspace_id,
+                raw_text=raw_text,
                 settings=settings,
                 vector_store=vector_store,
                 _attempt=_attempt + 1,
             )
         else:
             logger.exception(
-                "Background embedding permanently failed after %d attempts for doc %s",
-                max_attempts, document_id,
+                "Background ingestion permanently failed after %d attempts for doc %s: %s",
+                max_attempts, document_id, exc,
             )
+            # Persist failure status so callers can poll the status endpoint
+            try:
+                fail_db = SessionLocal()
+                document_crud.mark_document_failed(fail_db, document_id, str(exc))
+                fail_db.commit()
+                fail_db.close()
+            except Exception:
+                logger.exception("Failed to persist FAILED status for doc %s", document_id)
     finally:
         db.close()
+        # Clean up the temp file
+        try:
+            import os as _os
+            if _os.path.exists(temp_path):
+                _os.unlink(temp_path)
+        except Exception:
+            pass

@@ -3,7 +3,7 @@
 import enum as _enum
 from datetime import datetime
 from uuid import uuid4
-from sqlalchemy import Column, String, DateTime, ForeignKey, Integer, Text, Boolean, Float, Index, UniqueConstraint
+from sqlalchemy import Column, Enum, String, DateTime, ForeignKey, Integer, Text, Boolean, Float, Index, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID, JSON
 from sqlalchemy.orm import relationship
 from app.db import Base
@@ -189,6 +189,10 @@ class Document(Base):
     chunk_count = Column(Integer, default=0)
 
     is_processed = Column(Boolean, default=False, index=True)
+
+    status = Column(Enum(DocumentStatus, name="documentstatus", values_callable=lambda x: [e.value for e in x]), nullable=False, default=DocumentStatus.PROCESSING)
+
+    error_message = Column(Text, nullable=True)
 
     is_active = Column(Boolean, default=True, index=True)
 

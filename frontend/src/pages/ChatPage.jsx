@@ -4,7 +4,7 @@ import WorkspaceSelector from '../components/WorkspaceSelector';
 import { LexaraIcon } from '../assets/LexaraLogo';
 import { useTranslation } from '../i18n/useTranslation';
 import { streamChat } from '../api/chat';
-import { uploadDocument } from '../api/upload';
+import { uploadDocument, getDocumentStatus } from '../api/upload';
 import ThreeBackground from '../components/ThreeBackground';
 import '../styles/ChatPage.css';
 
@@ -41,6 +41,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
   const textareaRef = useRef(null);
   const workspaceSelectorRef = useRef(null);
   const fileInputRef = useRef(null);
+  const pollTimeoutRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -168,6 +169,13 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
     textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
   }, [input]);
 
+  // Clear any in-flight polling timeout when the component unmounts
+  useEffect(() => {
+    return () => {
+      if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current);
+    };
+  }, []);
+
   const appendHistory = useCallback((userContent, assistantContent) => {
     setHistory((prev) => (
       [
@@ -286,11 +294,33 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
   // handleFileUpload is declared after hasWorkspaceName so the dep is in scope
   const handleFileUpload = useCallback(async (file) => {
     if (!file || !workspaceId || !hasWorkspaceName) return;
+
+    // Clear any previous poll that may still be running
+    if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current);
+
     setIsUploading(true);
     setUploadStatus((t('uploading_file') || 'Uploading {name}...').replace('{name}', file.name));
     setUploadProgress(0);
+
+    let documentId = null;
+
     try {
-      await uploadDocument(file, workspaceId, null, (pct) => setUploadProgress(pct));
+      const result = await uploadDocument(file, workspaceId, null, (pct) => setUploadProgress(pct));
+      documentId = result?.id;
+    } catch (err) {
+      setUploadStatus(`✗ ${err.response?.data?.error?.message || t('upload_failed')}`);
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    // Upload request accepted (202). Begin polling for processing status.
+    const processingLabel = t('processing_document') || 'Processing document...';
+    setUploadStatus(processingLabel);
+    setUploadProgress(100);
+
+    if (!documentId) {
+      // Backend did not return an id — treat as immediate success (legacy behaviour)
       setMessages((prev) => [
         ...prev,
         {
@@ -301,14 +331,70 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
         },
       ]);
       setUploadStatus('');
-      setUploadProgress(100);
       setTimeout(() => setUploadProgress(0), 2000);
-    } catch (err) {
-      setUploadStatus(`✗ ${err.response?.data?.error?.message || t('upload_failed')}`);
-    } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
     }
+
+    const POLL_INTERVAL_MS = 2000;
+    const POLL_TIMEOUT_MS = 120000;
+    const startTime = Date.now();
+
+    const poll = async () => {
+      // Safety: stop if component unmounted the ref was cleared
+      if (!pollTimeoutRef.current && Date.now() - startTime > 0) {
+        // ref is cleared on unmount — bail silently
+        return;
+      }
+
+      if (Date.now() - startTime >= POLL_TIMEOUT_MS) {
+        setUploadStatus(`✗ ${t('upload_timeout') || 'Processing timed out. Please try again.'}`);
+        setIsUploading(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+
+      try {
+        const status = await getDocumentStatus(documentId);
+
+        if (status.status === 'ready') {
+          const chunkInfo = status.chunk_count != null ? ` (${status.chunk_count} chunks)` : '';
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: Date.now(),
+              role: 'system',
+              content: (t('upload_success') || '{name} uploaded and indexed. Ask your first question!')
+                .replace('{name}', file.name) + chunkInfo,
+              timestamp: new Date().toISOString(),
+            },
+          ]);
+          setUploadStatus('');
+          setTimeout(() => setUploadProgress(0), 2000);
+          setIsUploading(false);
+          if (fileInputRef.current) fileInputRef.current.value = '';
+          return;
+        }
+
+        if (status.status === 'failed') {
+          const reason = status.error_message || t('upload_failed') || 'Processing failed.';
+          setUploadStatus(`✗ ${reason}`);
+          setIsUploading(false);
+          if (fileInputRef.current) fileInputRef.current.value = '';
+          return;
+        }
+
+        // Still processing — schedule the next poll
+        pollTimeoutRef.current = setTimeout(poll, POLL_INTERVAL_MS);
+      } catch (err) {
+        // Network/auth error during polling — keep trying until timeout
+        pollTimeoutRef.current = setTimeout(poll, POLL_INTERVAL_MS);
+      }
+    };
+
+    // Kick off the first poll
+    pollTimeoutRef.current = setTimeout(poll, POLL_INTERVAL_MS);
   }, [workspaceId, hasWorkspaceName, t]);
 
   const canSend = input.trim() && !isLoading && !!workspaceId && hasWorkspaceName;
@@ -539,6 +625,9 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
             <div className="upload-progress-wrap">
               <div className="upload-progress-bar" style={{ width: `${uploadProgress}%` }} />
             </div>
+          )}
+          {isUploading && uploadStatus && (
+            <div className="upload-status ok">{uploadStatus}</div>
           )}
           {uploadStatus && !isUploading && (
             <div className={`upload-status ${uploadStatus.startsWith('✗') ? 'err' : 'ok'}`}>{uploadStatus}</div>

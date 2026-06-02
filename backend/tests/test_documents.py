@@ -17,7 +17,7 @@ def test_upload_valid_txt(client, mock_user):
         data={"workspace_id": ws_id},
         files={"file": ("test.txt", b"Hello world. " * 20, "text/plain")},
     )
-    assert r.status_code == 201, r.text
+    assert r.status_code == 202, r.text
     assert r.json().get("chunk_count", 0) >= 0  # chunk_count may be 0 if processing is async
 
 
