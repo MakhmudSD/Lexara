@@ -13,7 +13,7 @@ class DocumentUploadResponse(BaseModel):
     file_size_bytes: int
     chunk_count: int
     is_processed: bool
-    status: str = "indexed"
+    status: str = "processing"
     created_at: datetime
 
     model_config = {"from_attributes": True}
