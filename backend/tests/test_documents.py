@@ -60,3 +60,30 @@ def test_upload_empty_file(client, mock_user):
         files={"file": ("empty.txt", b"", "text/plain")},
     )
     assert r.status_code in (400, 422), r.text
+
+
+def test_delete_document(client, mock_user):
+    ws_id = _make_workspace(client, str(mock_user._test_org_id))
+    # Upload first
+    r = client.post(
+        "/documents/upload",
+        data={"workspace_id": ws_id},
+        files={"file": ("del_test.txt", b"Some content to delete. " * 10, "text/plain")},
+    )
+    assert r.status_code == 202, r.text
+    doc_id = r.json()["id"]
+
+    # Delete
+    r = client.delete(f"/documents/{doc_id}")
+    assert r.status_code == 204, r.text
+
+    # Confirm gone from list
+    r = client.get(f"/documents?workspace_id={ws_id}")
+    assert r.status_code == 200
+    ids = [d["id"] for d in r.json()]
+    assert doc_id not in ids
+
+
+def test_delete_nonexistent_document_returns_404(client, mock_user):
+    r = client.delete("/documents/00000000-0000-0000-0000-000000000001")
+    assert r.status_code == 404, r.text

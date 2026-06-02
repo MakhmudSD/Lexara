@@ -42,6 +42,15 @@ export const uploadDocument = async (
 };
 
 /**
+ * Delete a document and its chunks from a workspace.
+ * @param {string} documentId - UUID of the document to delete.
+ * @returns {Promise<void>}
+ */
+export async function deleteDocument(documentId) {
+  await client.delete(`/documents/${documentId}`);
+}
+
+/**
  * Fetch the processing status of a document.
  * @param {string} documentId - UUID of the document returned by uploadDocument.
  * @returns {Promise<{id: string, filename: string, status: string, chunk_count: number|null, error_message: string|null}>}

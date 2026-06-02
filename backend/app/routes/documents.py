@@ -184,6 +184,23 @@ def upload_document(
     return JSONResponse(status_code=202, content=response_data.model_dump(mode="json"))
 
 
+@router.delete("/{document_id}", status_code=204)
+def delete_document(
+    document_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> None:
+    from app.crud.document import get_document_or_404
+    from app.db.models import DocumentChunk
+
+    doc = get_document_or_404(db, document_id)
+    _assert_workspace_access(doc.workspace_id, current_user, db)
+
+    db.query(DocumentChunk).filter(DocumentChunk.document_id == document_id).delete()
+    db.delete(doc)
+    db.commit()
+
+
 @router.get("/{document_id}/download")
 def download_document(
     document_id: UUID,
