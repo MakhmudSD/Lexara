@@ -4,7 +4,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import AppError
-from app.db.models import Document, DocumentChunk
+from app.db.models import Document, DocumentChunk, DocumentStatus
 
 
 def create_document(
@@ -16,8 +16,9 @@ def create_document(
     content_type: str,
     file_size_bytes: int,
     storage_path: str,
-    raw_text: str,
+    raw_text: str = "",
     document_id: Optional[UUID] = None,
+    status: DocumentStatus = DocumentStatus.PROCESSING,
 ) -> Document:
     document = Document(
         id=document_id or uuid4(),
@@ -30,6 +31,7 @@ def create_document(
         chunk_count=0,
         is_processed=False,
         is_active=True,
+        status=status,
         document_metadata={"raw_text": raw_text},
     )
     db.add(document)
@@ -65,6 +67,17 @@ def mark_document_processed(db: Session, document_id: UUID, chunk_count: int) ->
         return None
     document.chunk_count = chunk_count
     document.is_processed = True
+    document.status = DocumentStatus.READY
+    db.flush()
+    return document
+
+
+def mark_document_failed(db: Session, document_id: UUID, error_message: str) -> Document | None:
+    document = db.query(Document).filter(Document.id == document_id).first()
+    if document is None:
+        return None
+    document.status = DocumentStatus.FAILED
+    document.error_message = error_message
     db.flush()
     return document
 

@@ -40,3 +40,16 @@ export const uploadDocument = async (
   const response = await client.post('/documents/upload', formData, config);
   return response.data;
 };
+
+/**
+ * Fetch the processing status of a document.
+ * @param {string} documentId - UUID of the document returned by uploadDocument.
+ * @returns {Promise<{id: string, filename: string, status: string, chunk_count: number|null, error_message: string|null}>}
+ */
+export async function getDocumentStatus(documentId) {
+  const token = localStorage.getItem('lexara_token');
+  const response = await client.get(`/documents/${documentId}/status`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+}
