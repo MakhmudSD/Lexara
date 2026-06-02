@@ -215,6 +215,22 @@ function WorkspaceSelector({
               {menuOpenId === ws.id && (
                 <div className="ws-dropdown">
                   <button
+                    className="ws-dropdown-item"
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      try {
+                        const res = await import('../api/workspace.js').then(m => m.createWorkspaceInvite(ws.id));
+                        await navigator.clipboard.writeText(res.invite_url);
+                        setMenuOpenId(null);
+                        alert('Invite link copied to clipboard!');
+                      } catch {
+                        alert('Failed to generate invite link.');
+                      }
+                    }}
+                  >
+                    🔗 Invite teammates
+                  </button>
+                  <button
                     className="ws-dropdown-item ws-dropdown-item--danger"
                     onClick={(e) => {
                       e.stopPropagation();

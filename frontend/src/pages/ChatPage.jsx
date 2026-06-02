@@ -415,7 +415,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
       await deleteDocument(docId);
       setUploadedDocs((prev) => prev.filter((d) => d.id !== docId));
       if (doc) {
-        setMessages((prev) => prev.filter((m) => !m.content?.includes(doc.filename)));
+        setMessages((prev) => prev.filter((m) => !m.content?.includes(doc.filename) && !m.content?.includes(doc.filename?.replace('.pdf', ''))));
       }
     } catch {
       // silently ignore — document may already be gone
