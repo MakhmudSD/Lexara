@@ -411,8 +411,12 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
 
   const handleDeleteDocument = useCallback(async (docId) => {
     try {
+      const doc = uploadedDocs.find((d) => d.id === docId);
       await deleteDocument(docId);
       setUploadedDocs((prev) => prev.filter((d) => d.id !== docId));
+      if (doc) {
+        setMessages((prev) => prev.filter((m) => !m.content?.includes(doc.filename)));
+      }
     } catch {
       // silently ignore — document may already be gone
     } finally {
