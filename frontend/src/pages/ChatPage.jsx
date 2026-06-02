@@ -4,7 +4,7 @@ import WorkspaceSelector from '../components/WorkspaceSelector';
 import { LexaraIcon } from '../assets/LexaraLogo';
 import { useTranslation } from '../i18n/useTranslation';
 import { streamChat } from '../api/chat';
-import { uploadDocument, getDocumentStatus } from '../api/upload';
+import { uploadDocument, getDocumentStatus, deleteDocument } from '../api/upload';
 import ThreeBackground from '../components/ThreeBackground';
 import '../styles/ChatPage.css';
 
@@ -46,6 +46,8 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
   const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadStatus, setUploadStatus] = useState('');
+  const [uploadedDocs, setUploadedDocs] = useState([]);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   const normalizeMessages = useCallback((entries, fallbackTimestamp) => (
     (entries || []).map((entry, index) => ({
@@ -303,10 +305,11 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
     setUploadProgress(0);
 
     let documentId = null;
+    let uploadResult = null;
 
     try {
-      const result = await uploadDocument(file, workspaceId, null, (pct) => setUploadProgress(pct));
-      documentId = result?.id;
+      uploadResult = await uploadDocument(file, workspaceId, null, (pct) => setUploadProgress(pct));
+      documentId = uploadResult?.id;
     } catch (err) {
       setUploadStatus(`✗ ${err.response?.data?.error?.message || t('upload_failed')}`);
       setIsUploading(false);
@@ -370,6 +373,15 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
               timestamp: new Date().toISOString(),
             },
           ]);
+          setUploadedDocs((prev) => [
+            ...prev,
+            {
+              id: documentId,
+              filename: status.filename || file.name,
+              chunk_count: status.chunk_count ?? 0,
+              file_size_bytes: uploadResult?.file_size_bytes ?? file.size ?? 0,
+            },
+          ]);
           setUploadStatus('');
           setTimeout(() => setUploadProgress(0), 2000);
           setIsUploading(false);
@@ -395,7 +407,22 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
 
     // Kick off the first poll
     pollTimeoutRef.current = setTimeout(poll, POLL_INTERVAL_MS);
-  }, [workspaceId, hasWorkspaceName, t]);
+  }, [workspaceId, hasWorkspaceName, t, setUploadedDocs]);
+
+  const handleDeleteDocument = useCallback(async (docId) => {
+    try {
+      const doc = uploadedDocs.find((d) => d.id === docId);
+      await deleteDocument(docId);
+      setUploadedDocs((prev) => prev.filter((d) => d.id !== docId));
+      if (doc) {
+        setMessages((prev) => prev.filter((m) => !m.content?.includes(doc.filename)));
+      }
+    } catch {
+      // silently ignore — document may already be gone
+    } finally {
+      setConfirmDeleteId(null);
+    }
+  }, []);
 
   const canSend = input.trim() && !isLoading && !!workspaceId && hasWorkspaceName;
   const isEmpty = messages.length === 0 && !isLoading;
@@ -631,6 +658,29 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
           )}
           {uploadStatus && !isUploading && (
             <div className={`upload-status ${uploadStatus.startsWith('✗') ? 'err' : 'ok'}`}>{uploadStatus}</div>
+          )}
+          {uploadedDocs.length > 0 && (
+            <div className="doc-card-list">
+              {uploadedDocs.map((doc) => (
+                <div key={doc.id} className="doc-card">
+                  <span className="doc-card-name" title={doc.filename}>{doc.filename}</span>
+                  <span className="doc-card-meta">
+                    {doc.chunk_count} chunks · {doc.file_size_bytes >= 1024 * 1024
+                      ? `${(doc.file_size_bytes / (1024 * 1024)).toFixed(1)} MB`
+                      : `${Math.round(doc.file_size_bytes / 1024)} KB`}
+                  </span>
+                  {confirmDeleteId === doc.id ? (
+                    <span className="doc-card-confirm">
+                      Delete?&nbsp;
+                      <button className="doc-card-confirm-yes" onClick={() => handleDeleteDocument(doc.id)}>Yes</button>
+                      <button className="doc-card-confirm-no" onClick={() => setConfirmDeleteId(null)}>No</button>
+                    </span>
+                  ) : (
+                    <button className="doc-card-delete" title="Delete document" onClick={() => setConfirmDeleteId(doc.id)}>✕</button>
+                  )}
+                </div>
+              ))}
+            </div>
           )}
           <div className="input-hint">⏎ {t('send')} · ⇧⏎ {t('newline_hint')}</div>
         </div>
