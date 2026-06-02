@@ -32,3 +32,8 @@ Thumbs.db
 .env.production
 .env.development
 .env.*.local
+backend/venv/
+backend/data/
+.pytest_cache/
+**/__pycache__/
+*.pyc
