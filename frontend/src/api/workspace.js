@@ -22,3 +22,8 @@ export const updateWorkspaceName = async (workspaceId, name) => {
 export const deleteWorkspace = async (workspaceId) => {
   await client.delete(`/workspaces/${workspaceId}`);
 };
+
+export const createWorkspaceInvite = async (workspaceId) => {
+  const { data } = await client.post(`/workspaces/${workspaceId}/invite`);
+  return data;
+};
