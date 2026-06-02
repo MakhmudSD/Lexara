@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import client from '../api/client';
-import { deleteWorkspace, listWorkspaces, quickCreateWorkspace, updateWorkspaceName } from '../api/workspace';
+import { createWorkspaceInvite, deleteWorkspace, listWorkspaces, quickCreateWorkspace, updateWorkspaceName } from '../api/workspace';
 import { useTranslation } from '../i18n/useTranslation';
 import '../styles/WorkspaceSelector.css';
 
@@ -219,7 +219,7 @@ function WorkspaceSelector({
                     onClick={async (e) => {
                       e.stopPropagation();
                       try {
-                        const res = await import('../api/workspace.js').then(m => m.createWorkspaceInvite(ws.id));
+                        const res = await createWorkspaceInvite(ws.id);
                         await navigator.clipboard.writeText(res.invite_url);
                         setMenuOpenId(null);
                         alert('Invite link copied to clipboard!');
