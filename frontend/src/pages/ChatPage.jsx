@@ -421,10 +421,13 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
                     const u = JSON.parse(localStorage.getItem('authUser') || '{}');
                     const name = u.full_name?.split(' ')[0] || u.email?.split('@')[0] || '';
                     const hour = new Date().getHours();
-                    const tod = hour < 12 ? (t('good_morning') || 'Good morning') : hour < 18 ? (t('good_afternoon') || 'Good afternoon') : (t('good_evening') || 'Good evening');
+                    const tod = hour < 12 ? t('good_morning') : hour < 18 ? t('good_afternoon') : t('good_evening');
                     return name ? `${tod}, ${name} 👋` : `${tod} 👋`;
                   } catch { return '👋'; }
                 })()}
+              </div>
+              <div className="chat-greeting-sub">
+                {t('greeting_upload_prompt') || 'Upload a document to get started — then ask anything about it.'}
               </div>
 
               {/* No workspace: direct pointer to sidebar */}

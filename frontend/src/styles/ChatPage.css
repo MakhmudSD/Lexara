@@ -853,3 +853,15 @@
   border-radius: 14px;
   box-shadow: var(--shadow-sm);
 }
+
+.chat-greeting-sub {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: -0.75rem;
+  margin-bottom: 2rem;
+  max-width: 380px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+}
