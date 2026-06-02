@@ -190,7 +190,7 @@ class Document(Base):
 
     is_processed = Column(Boolean, default=False, index=True)
 
-    status = Column(Enum(DocumentStatus, name="documentstatus"), nullable=False, default=DocumentStatus.PROCESSING)
+    status = Column(Enum(DocumentStatus, name="documentstatus", values_callable=lambda x: [e.value for e in x]), nullable=False, default=DocumentStatus.PROCESSING)
 
     error_message = Column(Text, nullable=True)
 
