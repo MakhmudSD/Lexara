@@ -42,3 +42,6 @@ backend/data/
 .pytest_cache/
 **/__pycache__/
 *.pyc
+council-report*.html
+council-transcript*.md
+studio-web/
