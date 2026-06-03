@@ -373,6 +373,31 @@ class Conversation(Base):
                          order_by="ConversationTurn.turn_index")
 
 
+class LawDocument(Base):
+    """Law document synced from an external government API."""
+    __tablename__ = "law_documents"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    country = Column(String(10), nullable=False, index=True)       # "KR" or "UZ"
+    law_id = Column(String(100), nullable=False, unique=True, index=True)
+    law_name = Column(String(500), nullable=False)
+    law_type = Column(String(100), nullable=False, default="")     # 법률, 대통령령, …
+    full_text = Column(Text, nullable=False, default="")
+    workspace_id = Column(UUID(as_uuid=True), ForeignKey("workspaces.id"), nullable=True, index=True)
+    promulgation_date = Column(String(50), nullable=True)
+    law_version = Column(String(50), nullable=True)
+    last_synced_at = Column(DateTime, nullable=True)
+    is_active = Column(Boolean, default=True, nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    workspace = relationship("Workspace")
+
+    __table_args__ = (
+        Index("idx_law_document_country", "country"),
+        Index("idx_law_document_workspace_id", "workspace_id"),
+    )
+
+
 class ConversationTurn(Base):
     __tablename__ = "conversation_turns"
 
