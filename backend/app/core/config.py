@@ -71,6 +71,10 @@ class Settings(BaseSettings):
     paddle_price_pro: str = ""
     paddle_price_business: str = ""
 
+    # Korean Law API (data.go.kr)
+    korean_law_api_key: str = ""
+    korean_law_api_base_url: str = "http://apis.data.go.kr/1170000/law"
+
     # Email (Resend)
     resend_api_key: str = ""
     from_email: str = "noreply@lexara.app"
@@ -151,4 +155,6 @@ def get_settings() -> Settings:
         enable_reranking=os.getenv("ENABLE_RERANKING", "false").lower() == "true",
         resend_api_key=os.getenv("RESEND_API_KEY", ""),
         from_email=os.getenv("FROM_EMAIL", "noreply@lexara.app"),
+        korean_law_api_key=os.getenv("KOREAN_LAW_API_KEY", ""),
+        korean_law_api_base_url=os.getenv("KOREAN_LAW_API_BASE_URL", "http://apis.data.go.kr/1170000/law"),
     )
