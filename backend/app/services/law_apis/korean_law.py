@@ -10,6 +10,29 @@ from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
+_HANGUL_RE = re.compile(r"[가-힣]")
+_JS_FRAGMENTS = ("function", "var ", "$(")
+
+
+def _is_clean_line(line: str) -> bool:
+    """Return True only for clean English-language law text lines.
+
+    Rejects:
+    - Empty lines or lines shorter than 20 characters
+    - Lines containing Korean Hangul characters (가–힣)
+    - Lines starting with known Korean UI prefixes ("법령보기", "화면")
+    - Lines containing JavaScript fragments ("function", "var ", "$(")
+    """
+    if not line or len(line) < 20:
+        return False
+    if _HANGUL_RE.search(line):
+        return False
+    if line.startswith(("법령보기", "화면")):
+        return False
+    if any(frag in line for frag in _JS_FRAGMENTS):
+        return False
+    return True
+
 
 class KoreanLawScraper:
     BASE = "https://elaw.klri.re.kr/eng_service/lawViewContent.do"
@@ -35,6 +58,12 @@ class KoreanLawScraper:
 
         # Full plain text
         raw = soup.get_text(separator="\n")
+
+        # Filter out Hangul UI chrome, JS fragments, and short/empty lines
+        raw_lines = raw.splitlines()
+        clean_lines = [l for l in raw_lines if _is_clean_line(l.strip())]
+        raw = "\n".join(clean_lines)
+
         # Collapse runs of blank lines
         text = re.sub(r"\n{3,}", "\n\n", raw).strip()
 
