@@ -117,6 +117,33 @@ class FaissVectorStore:
             )
         return hits
 
+    def remove_embeddings(
+        self,
+        workspace_id: str,
+        chunk_ids_to_remove: list[str],
+    ) -> None:
+        """Remove specific chunk IDs from the FAISS index by rebuilding without them."""
+        if not chunk_ids_to_remove:
+            return
+        workspace_index = self._load_workspace(workspace_id)
+        remove_set = set(chunk_ids_to_remove)
+        kept_positions = [
+            i for i, cid in enumerate(workspace_index.chunk_ids) if cid not in remove_set
+        ]
+        kept_ids = [workspace_index.chunk_ids[i] for i in kept_positions]
+        if not kept_positions:
+            workspace_index.chunk_ids = []
+            workspace_index.index = faiss.IndexFlatIP(self.dimension)
+        else:
+            vecs = np.zeros((len(kept_positions), self.dimension), dtype="float32")
+            for new_pos, old_pos in enumerate(kept_positions):
+                workspace_index.index.reconstruct(old_pos, vecs[new_pos])
+            new_index = faiss.IndexFlatIP(self.dimension)
+            new_index.add(vecs)
+            workspace_index.index = new_index
+            workspace_index.chunk_ids = kept_ids
+        self._persist(workspace_index)
+
     def rebuild_workspace_index(
         self,
         workspace_id: str,
