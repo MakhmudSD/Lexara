@@ -20,6 +20,7 @@ from app.services.llm_service import (
     generate_answer,
     generate_answer_stream,
 )
+from app.services.embeddings import embed_query
 from app.services.query_service import query_workspace
 
 router = APIRouter(prefix="/chat", tags=["chat"])
@@ -80,6 +81,14 @@ async def chat_query(
     uid = str(current_user.id)
     quota_user = _check_quota(db, uid)
     started_at = time.perf_counter()
+    query_embedding = embed_query(payload.question, runtime.settings)
+    hybrid_texts = runtime.vector_store.hybrid_search(
+        workspace_id=str(payload.workspace_id),
+        query=payload.question,
+        top_k=payload.top_k,
+        query_embedding=query_embedding,
+        db=db,
+    )
     retrieved_chunks = query_workspace(
         db,
         runtime.vector_store,
@@ -88,13 +97,15 @@ async def chat_query(
         question=payload.question,
         top_k=payload.top_k,
     )
+    # Prefer hybrid-ranked texts for LLM context; fall back to vector-search texts.
+    context_texts = hybrid_texts if hybrid_texts else [chunk.text for chunk in retrieved_chunks]
 
     answer = None
     mode = "retrieval" if not retrieved_chunks else "rag"
     if retrieved_chunks:
         answer, usage = await generate_answer(
             payload.question,
-            [f"[Excerpt {i+1}, section={chunk.chunk_index}]\n{chunk.text}" for i, chunk in enumerate(retrieved_chunks)],
+            [f"[Excerpt {i+1}]\n{text}" for i, text in enumerate(context_texts)],
             runtime.settings,
             history=payload.history,
             top_score=retrieved_chunks[0].score if retrieved_chunks else None,
@@ -204,6 +215,14 @@ async def chat_stream(
 ) -> StreamingResponse:
     uid = str(current_user.id)
     quota_user = _check_quota(db, uid)
+    stream_embedding = embed_query(payload.question, runtime.settings)
+    stream_hybrid_texts = runtime.vector_store.hybrid_search(
+        workspace_id=str(payload.workspace_id),
+        query=payload.question,
+        top_k=payload.top_k,
+        query_embedding=stream_embedding,
+        db=db,
+    )
     sources = query_workspace(
         db,
         runtime.vector_store,
@@ -212,6 +231,8 @@ async def chat_stream(
         question=payload.question,
         top_k=payload.top_k,
     )
+    # Prefer hybrid-ranked texts for LLM context; fall back to vector-search texts.
+    stream_context_texts = stream_hybrid_texts if stream_hybrid_texts else [chunk.text for chunk in sources]
     serialized_sources = _serialize_sources(sources)
 
     async def event_stream():
@@ -248,7 +269,7 @@ async def chat_stream(
             mode = "rag"
             async for delta in generate_answer_stream(
                 payload.question,
-                [f"[Excerpt {i+1}, section={chunk.chunk_index}]\n{chunk.text}" for i, chunk in enumerate(sources)],
+                [f"[Excerpt {i+1}]\n{text}" for i, text in enumerate(stream_context_texts)],
                 runtime.settings,
                 history=payload.history,
                 top_score=sources[0].score if sources else None,

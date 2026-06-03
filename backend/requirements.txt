@@ -20,6 +20,7 @@ numpy
 faiss-cpu
 sentence-transformers>=2.2.0
 torch
+rank-bm25==0.2.2
 
 # Environment & config
 python-dotenv
