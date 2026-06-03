@@ -35,6 +35,15 @@ def main() -> None:
         if ws:
             print(f"Workspace already exists: {ws.name}")
             print(f"WORKSPACE_ID={ws.id}")
+            # Backfill description if not yet set
+            if not ws.description:
+                ws.description = (
+                    "Pre-loaded with Korean statutes including Personal Information Protection Act, "
+                    "Labor Standards Act, Civil Act, Criminal Act, and the Constitution. "
+                    "Updated regularly."
+                )
+                db.commit()
+                print("Updated workspace description.")
             return
 
         # Find or create a seed admin user (owner of the org)
@@ -81,6 +90,11 @@ def main() -> None:
             id=uuid4(),
             organization_id=org.id,
             name=WORKSPACE_NAME,
+            description=(
+                "Pre-loaded with Korean statutes including Personal Information Protection Act, "
+                "Labor Standards Act, Civil Act, Criminal Act, and the Constitution. "
+                "Updated regularly."
+            ),
             is_active=True,
         )
         db.add(workspace)

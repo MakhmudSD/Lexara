@@ -38,6 +38,7 @@ def rebuild_faiss_from_db(db: Session, settings: Settings) -> int:
                 workspace_id=str(ws.id),
                 chunk_ids=chunk_ids,
                 embeddings=all_embeddings,
+                chunk_texts=texts,
             )
             logger.info(f"Rebuilt FAISS for workspace {ws.id}: {len(chunks)} chunks")
             rebuilt += 1

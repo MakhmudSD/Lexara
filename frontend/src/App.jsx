@@ -9,6 +9,7 @@ const LandingPage = lazy(() => import('./pages/LandingPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 const RefundPage = lazy(() => import('./pages/RefundPage'));
+const LegalPage = lazy(() => import('./pages/LegalPage'));
 import { LexaraIcon, LexaraLogo } from './assets/LexaraLogo';
 import { useTranslation } from './i18n/useTranslation';
 import './App.css';
@@ -267,6 +268,13 @@ function App() {
             <span className="nav-dot" />
             {t('query')}
           </button>
+          <button
+            className={`nav-button${page === 'app' && currentPage === 'legal' ? ' active' : ''}`}
+            onClick={() => { goAppSection('legal'); closeMobileNav(); }}
+          >
+            <span className="nav-dot" />
+            Legal
+          </button>
           {authUser.role?.toLowerCase() === 'admin' && (
             <button
               className={`nav-button${page === 'admin' ? ' active' : ''}`}
@@ -302,6 +310,13 @@ function App() {
             >
               <span className="nav-dot" />
               {t('query')}
+            </button>
+            <button
+              className={`nav-button ${page === 'app' && currentPage === 'legal' ? 'active' : ''}`}
+              onClick={() => goAppSection('legal')}
+            >
+              <span className="nav-dot" />
+              Legal
             </button>
             <button
               className={`nav-button ${page === 'admin' ? 'active' : ''}`}
@@ -381,6 +396,17 @@ function App() {
           />
         )}
         {page === 'admin' && authUser.role?.toLowerCase() === 'admin' && lazySuspense(<AdminPage onGoChat={() => goAppSection('chat')} />)}
+        {page === 'app' && currentPage === 'legal' && lazySuspense(
+          <LegalPage
+            onAskQuestion={(ws) => {
+              if (ws?.id) {
+                setWorkspaceId(ws.id);
+                setWorkspaceName(ws.name || '');
+              }
+              goAppSection('chat');
+            }}
+          />
+        )}
         {page === 'app' && currentPage === 'mypage' && lazySuspense(<MyPage authUser={authUser} onLogout={() => {
               localStorage.removeItem('access_token');
               localStorage.removeItem('workspaceId');
