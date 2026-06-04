@@ -1,7 +1,8 @@
 from uuid import UUID
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from app.core.exceptions import AppError
-from app.db.models import UserWorkspace, Workspace
+from app.db.models import Organization, UserWorkspace, Workspace
 
 
 def get_workspace(db: Session, workspace_id: UUID) -> Workspace | None:
@@ -29,9 +30,11 @@ def list_workspaces(
     query = (
         db.query(Workspace)
         .join(UserWorkspace, UserWorkspace.workspace_id == Workspace.id)
+        .outerjoin(Organization, Organization.id == Workspace.organization_id)
         .filter(
             Workspace.is_active.is_(True),
             UserWorkspace.user_id == user_id,
+            or_(Workspace.organization_id.is_(None), Organization.name != "Lexara Legal"),
         )
     )
     if organization_id is not None:
