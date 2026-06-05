@@ -560,9 +560,9 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
         <div className="hero-orb hero-orb-3" aria-hidden="true" />
         <div className="landing-hero-section-inner">
           <div className="landing-hero-left reveal">
-            <div className="landing-hero-badge">Early access · 100 free queries</div>
+            <div className="landing-hero-badge">Early access · 100 free queries · 3 modes</div>
             <h1 ref={headlineRef} className="landing-hero-headline">{t('landing_headline')}</h1>
-            <p className="landing-hero-sub">{t('landing_subhead')}</p>
+            <p className="landing-hero-sub">Upload documents. Ask questions. Run compliance research. Search Korean law. Get cited answers in seconds.</p>
             <div className="landing-hero-actions">
               <button onClick={onSignUp} className="landing-btn-cta-primary landing-btn-cta-glow">{t('landing_cta_primary')}</button>
               <button onClick={onSignIn} className="landing-btn-cta-ghost">{t('landing_cta_secondary')}</button>
@@ -570,17 +570,22 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
             <div className="landing-hero-trust">
               <span className="landing-trust-chip">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                {t('badge_private') || 'Private'}
+                Private
               </span>
               <span className="landing-trust-sep">·</span>
               <span className="landing-trust-chip">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
-                {t('badge_fast') || 'Fast'}
+                Multilingual
               </span>
               <span className="landing-trust-sep">·</span>
               <span className="landing-trust-chip">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
-                {t('badge_cited') || 'Cited sources'}
+                Cited sources
+              </span>
+              <span className="landing-trust-sep">·</span>
+              <span className="landing-trust-chip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+                Korean law
               </span>
             </div>
           </div>
@@ -592,14 +597,11 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
               style={{ '--reveal-delay': '120ms' }}
             >
               <div className="landing-hero-demo-urlbar">{t('demo_url') || 'app.lexara.ai'}</div>
-              <div className="landing-hero-demo-msg landing-hero-demo-msg--user">{t('demo_q2') || 'What changed in the latest version?'}</div>
+              <div className="landing-hero-demo-msg landing-hero-demo-msg--user">Does this contract comply with Korean labor law?</div>
               <div className="landing-hero-demo-msg landing-hero-demo-msg--assistant">
-                {t('demo_a2_intro') || 'Version 3.2 introduces three changes:'}
-                <div className="landing-hero-demo-list-item">1. {t('demo_a2_l1') || 'Better retrieval ranking for long legal docs.'}</div>
-                <div className="landing-hero-demo-list-item">2. {t('demo_a2_l2') || 'Faster indexing for DOCX and scanned PDFs.'}</div>
-                <div className="landing-hero-demo-list-item">3. {t('demo_a2_l3') || 'Updated usage analytics for clearer spend tracking.'}</div>
+                Article 17 of the Labor Standards Act requires written employment contracts specifying wages, working hours, and holidays. Section 3.2 of the uploaded contract does not specify overtime compensation — this is a compliance gap.
               </div>
-              <div className="landing-hero-demo-msg landing-hero-demo-msg--user">{t('demo_q3') || 'Show source lines for the ranking update.'}</div>
+              <div className="landing-hero-demo-msg landing-hero-demo-msg--user">Show the source passage.</div>
               <div className="landing-hero-demo-msg landing-hero-demo-msg--assistant">
                 {t('demo_references') || 'References: policy_v2.pdf · contract_notes.docx'}
               </div>
@@ -615,10 +617,11 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
         <div className="landing-trust-strip-label">{t('stats_strip_label') || 'Built for people who work with dense, complex documents'}</div>
         <div className="landing-trust-chips">
           {[
-            t('stats_chip_contract') || 'Contract review',
-            t('stats_chip_research') || 'Research synthesis',
-            t('stats_chip_qa') || 'Document Q&A',
-            t('stats_chip_report') || 'Report analysis',
+            'Contract review',
+            'Compliance research',
+            'Korean law',
+            'Document Q&A',
+            'Due diligence',
           ].map((chip) => (
             <span key={chip} className="landing-trust-pill">{chip}</span>
           ))}
@@ -650,10 +653,10 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
           </div>
           <div className="landing-demo-body">
             <div className="landing-demo-user">
-              {t('demo_question') || 'What are the termination conditions?'}
+              Does this contract comply with Korean labor law?
             </div>
             <div className="landing-demo-assistant">
-              <p>{t('demo_answer') || 'Per clause 14.2, either party may terminate this agreement with 30 days written notice. Immediate termination is permitted in cases of material breach (clause 14.3) or insolvency (clause 14.4).'}</p>
+              <p>Article 17 of the Labor Standards Act requires written employment contracts specifying wages, working hours, and holidays. Section 3.2 of the uploaded contract does not specify overtime compensation — this is a compliance gap.</p>
               <div className="landing-demo-sources">
                 <span className="landing-demo-source">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
