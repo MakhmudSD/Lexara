@@ -33,6 +33,13 @@ const ScaleIcon = () => (
   </svg>
 );
 
+const ShieldIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+  </svg>
+);
+
 const MODES = [
   {
     key: 'chat',
@@ -116,6 +123,31 @@ export default function HomePage({ authUser, onSelectMode }) {
             <span className="mode-card-arrow" aria-hidden="true">→</span>
           </button>
         ))}
+
+        {authUser?.role?.toLowerCase() === 'admin' && (
+          <button
+            key="admin"
+            className="mode-card"
+            role="listitem"
+            onClick={() => onSelectMode('admin')}
+            aria-label="Admin — Manage users, workspaces, and system health"
+          >
+            <div className="mode-card-icon">
+              <ShieldIcon />
+            </div>
+
+            <h2 className="mode-card-name">Admin</h2>
+            <p className="mode-card-desc">Manage users, workspaces, and system health</p>
+
+            <div className="mode-card-uses" aria-hidden="true">
+              {['User management', 'KPI dashboard', 'System logs'].map((use) => (
+                <span key={use} className="mode-card-use-chip">{use}</span>
+              ))}
+            </div>
+
+            <span className="mode-card-arrow" aria-hidden="true">→</span>
+          </button>
+        )}
       </div>
     </div>
   );
