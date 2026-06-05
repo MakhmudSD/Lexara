@@ -27,8 +27,6 @@ class Settings(BaseSettings):
     # Database (PostgreSQL)
     database_url: str = "postgresql://user:password@localhost:5432/rag_db"
 
-    # FAISS persistence
-    faiss_data_dir: str = ""
     uploads_data_dir: str = ""
     
     # Legacy SQLite (kept for now)
@@ -74,6 +72,9 @@ class Settings(BaseSettings):
     # Korean Law API (data.go.kr)
     korean_law_api_key: str = ""
     korean_law_api_base_url: str = "http://apis.data.go.kr/1170000/law"
+
+    # Tavily web search (used by the research agent)
+    tavily_api_key: str = ""
 
     # Email (Resend)
     resend_api_key: str = ""
@@ -133,7 +134,6 @@ def get_settings() -> Settings:
         sqlite_db_path=os.getenv("SQLITE_DB_PATH", DEFAULT_SQLITE_DB_PATH),
         local_embedding_model=os.getenv("LOCAL_EMBEDDING_MODEL", ""),
         embedding_dimension=int(os.getenv("EMBEDDING_DIMENSION", "1536")),
-        faiss_data_dir=os.getenv("FAISS_DATA_DIR", str(data_root / "faiss")),
         uploads_data_dir=os.getenv("UPLOADS_DATA_DIR", str(data_root / "uploads")),
         debug=os.getenv("DEBUG", "false").lower() == "true",
         environment=os.getenv("ENVIRONMENT", "development"),
@@ -157,4 +157,5 @@ def get_settings() -> Settings:
         from_email=os.getenv("FROM_EMAIL", "noreply@lexara.app"),
         korean_law_api_key=os.getenv("KOREAN_LAW_API_KEY", ""),
         korean_law_api_base_url=os.getenv("KOREAN_LAW_API_BASE_URL", "http://apis.data.go.kr/1170000/law"),
+        tavily_api_key=os.getenv("TAVILY_API_KEY", ""),
     )
