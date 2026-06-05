@@ -11,6 +11,8 @@ const TermsPage = lazy(() => import('./pages/TermsPage'));
 const RefundPage = lazy(() => import('./pages/RefundPage'));
 const LegalPage = lazy(() => import('./pages/LegalPage'));
 const LegalChatPage = lazy(() => import('./pages/LegalChatPage'));
+const HomePage = lazy(() => import('./pages/HomePage'));
+const ResearchPage = lazy(() => import('./pages/ResearchPage'));
 import { LexaraIcon, LexaraLogo } from './assets/LexaraLogo';
 import { useTranslation } from './i18n/useTranslation';
 import './App.css';
@@ -21,7 +23,7 @@ function App() {
   const [workspaceName, setWorkspaceName] = useState(() => localStorage.getItem('workspaceName') || '');
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') === 'dark');
   const [legalChatWs, setLegalChatWs] = useState({ id: '', name: '' });
-  const [currentPage, setCurrentPage] = useState('chat');
+  const [currentPage, setCurrentPage] = useState('home');
   const [page, setPage] = useState(() => (localStorage.getItem('authUser') ? 'app' : 'landing'));
   const [transitioning, setTransitioning] = useState(false);
   const [authUser, setAuthUser] = useState(() => {
@@ -264,19 +266,24 @@ function App() {
         </div>
         <div className="mobile-nav-links">
           <button
-            className={`nav-button${page === 'app' && currentPage === 'chat' ? ' active' : ''}`}
-            onClick={() => { goAppSection('chat'); closeMobileNav(); }}
+            className={`nav-button${page === 'app' && currentPage === 'home' ? ' active' : ''}`}
+            onClick={() => { goAppSection('home'); closeMobileNav(); }}
           >
             <span className="nav-dot" />
-            {t('query')}
+            Home
           </button>
-          <button
-            className={`nav-button${page === 'app' && currentPage === 'legal' ? ' active' : ''}`}
-            onClick={() => { goAppSection('legal'); closeMobileNav(); }}
-          >
-            <span className="nav-dot" />
-            Legal
-          </button>
+          {page === 'app' && currentPage !== 'home' && (
+            <button
+              className="nav-button active"
+              onClick={closeMobileNav}
+            >
+              <span className="nav-dot" />
+              {currentPage === 'chat' ? 'Ask'
+               : currentPage === 'research' ? 'Research'
+               : (currentPage === 'legal' || currentPage === 'legal-chat') ? 'Legal'
+               : currentPage === 'mypage' ? 'Account' : ''}
+            </button>
+          )}
           {authUser.role?.toLowerCase() === 'admin' && (
             <button
               className={`nav-button${page === 'admin' ? ' active' : ''}`}
@@ -301,34 +308,47 @@ function App() {
           <button className="hamburger" onClick={() => setMobileNavOpen(true)} aria-label="Open menu">
             <span /><span /><span />
           </button>
-          <LexaraLogo height={32} />
+          <button
+            className="nav-logo-btn"
+            onClick={() => goAppSection('home')}
+            aria-label="Go to home"
+          >
+            <LexaraLogo height={32} />
+          </button>
         </div>
 
-        <div className="nav-controls">
-          <div className="nav-links">
+        {/* Mode breadcrumb — shown when not on home */}
+        {page === 'app' && currentPage !== 'home' && (
+          <div className="nav-breadcrumb">
             <button
-              className={`nav-button ${page === 'app' && currentPage === 'chat' ? 'active' : ''}`}
-              onClick={() => goAppSection('chat')}
+              className="nav-back-btn"
+              onClick={() => goAppSection('home')}
+              aria-label="Back to home"
             >
-              <span className="nav-dot" />
-              {t('query')}
+              ← Home
             </button>
-            <button
-              className={`nav-button ${page === 'app' && currentPage === 'legal' ? 'active' : ''}`}
-              onClick={() => goAppSection('legal')}
-            >
-              <span className="nav-dot" />
-              Legal
-            </button>
-            <button
-              className={`nav-button ${page === 'admin' ? 'active' : ''}`}
-              onClick={() => { if (authUser.role?.toLowerCase() === 'admin') { navigate('admin'); } }}
-              style={authUser.role?.toLowerCase() !== 'admin' ? { display: 'none' } : undefined}
-            >
-              <span className="nav-dot" />
-              Admin
-            </button>
+            <span className="nav-breadcrumb-sep" aria-hidden="true">/</span>
+            <span className="nav-breadcrumb-current">
+              {currentPage === 'chat' ? 'Ask'
+               : currentPage === 'research' ? 'Research'
+               : (currentPage === 'legal' || currentPage === 'legal-chat') ? 'Legal'
+               : currentPage === 'mypage' ? 'Account' : ''}
+            </span>
           </div>
+        )}
+
+        <div className="nav-controls">
+          {authUser.role?.toLowerCase() === 'admin' && (
+            <div className="nav-links">
+              <button
+                className={`nav-button ${page === 'admin' ? 'active' : ''}`}
+                onClick={() => navigate('admin')}
+              >
+                <span className="nav-dot" />
+                Admin
+              </button>
+            </div>
+          )}
 
           <label className="lang-switcher" style={{ direction: 'ltr' }}>
             <span className="lang-switcher-label">{t('language_label')}</span>
@@ -387,6 +407,21 @@ function App() {
       <div ref={contentRef} className="app-content" key={`${page}-${currentPage}`}>
         {accessDenied && (
           <div style={{ margin: '20px auto', color: '#dc2626', fontFamily: 'var(--font-mono)' }}>{accessDenied}</div>
+        )}
+        {page === 'app' && currentPage === 'home' && lazySuspense(
+          <HomePage
+            authUser={authUser}
+            onSelectMode={(mode) => goAppSection(mode)}
+          />
+        )}
+        {page === 'app' && currentPage === 'research' && lazySuspense(
+          <ResearchPage
+            workspaceId={workspaceId}
+            workspaceName={workspaceName}
+            onBack={() => goAppSection('home')}
+            onChangeWorkspace={setWorkspaceId}
+            onWorkspaceNameChange={setWorkspaceName}
+          />
         )}
         {page === 'app' && currentPage === 'chat' && lazySuspense(
           <ChatPage

@@ -1,0 +1,497 @@
+/* ResearchPage.css — tokens only, dark-first */
+
+.research-page {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  padding: 40px 24px 80px;
+}
+
+.research-inner {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: card-enter 280ms var(--ease-out) both;
+}
+
+/* ── Page header ── */
+.research-page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.research-title {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  margin: 0;
+  letter-spacing: -0.015em;
+}
+
+.research-workspace-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  background: var(--color-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 3px 10px;
+  align-self: flex-start;
+}
+
+/* ── Input form ── */
+.research-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.research-topic-input {
+  width: 100%;
+  background: var(--color-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  font-size: 15px;
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  resize: vertical;
+  min-height: 64px;
+  line-height: 1.55;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.research-topic-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-glow);
+}
+
+.research-topic-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* ── Mode toggle ── */
+.research-mode-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.research-mode-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.research-mode-group {
+  display: flex;
+  gap: 6px;
+}
+
+.research-mode-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.research-mode-btn.active {
+  border-color: var(--color-accent);
+  background: var(--lexara-blue-subtle);
+  color: var(--color-accent);
+}
+
+.research-mode-btn:not(.active):hover {
+  background: var(--color-elevated);
+  color: var(--color-text-primary);
+}
+
+.research-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.research-submit-btn {
+  padding: 10px 24px;
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), opacity var(--transition), transform var(--transition);
+}
+
+.research-submit-btn:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+.research-submit-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.research-submit-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── Error ── */
+.research-error {
+  font-size: 13px;
+  color: var(--error, #c2410c);
+  border-left: 3px solid var(--error, #c2410c);
+  background: rgba(194, 65, 12, 0.07);
+  padding: 10px 14px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  line-height: 1.5;
+}
+
+/* ── Loading phase indicators ── */
+.research-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 52px 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.research-phase-dots {
+  display: flex;
+  gap: 7px;
+}
+
+.research-phase-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  animation: pulse-dot 1.2s ease-in-out infinite;
+}
+
+.research-phase-dot:nth-child(2) { animation-delay: 0.2s; }
+.research-phase-dot:nth-child(3) { animation-delay: 0.4s; }
+
+.research-phase-label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.03em;
+}
+
+.research-phases-track {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.research-phase-step {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  transition: color 300ms ease;
+  letter-spacing: 0.03em;
+}
+
+.research-phase-step.active {
+  color: var(--color-accent);
+}
+
+.research-phase-step.done {
+  color: var(--color-text-secondary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .research-phase-dot {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+/* ── Results panel ── */
+.research-results {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  animation: card-enter 300ms var(--ease-out) both;
+}
+
+.research-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-elevated);
+}
+
+.research-tab {
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition), background var(--transition);
+}
+
+.research-tab.active {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+  background: var(--color-surface);
+}
+
+.research-tab:not(.active):hover {
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+}
+
+.research-tab-panel {
+  padding: 28px;
+  animation: card-enter 200ms var(--ease-out) both;
+}
+
+/* ── Plan tab ── */
+.research-plan-text {
+  font-size: 15px;
+  color: var(--color-text-primary);
+  line-height: 1.75;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* ── Searches tab ── */
+.research-search-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.research-search-row:last-child {
+  border-bottom: none;
+}
+
+.research-search-index {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  width: 20px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.research-search-query {
+  font-size: 13px;
+  color: var(--color-text-primary);
+  flex: 1;
+  line-height: 1.4;
+}
+
+.research-search-hits {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.research-hit-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.research-hit-badge.doc {
+  color: var(--color-accent);
+  background: var(--lexara-blue-subtle);
+  border-color: var(--color-accent-glow);
+}
+
+.research-hit-badge.web {
+  color: var(--color-text-muted);
+  background: var(--color-elevated);
+  border-color: var(--color-border);
+}
+
+/* ── Report tab ── */
+.research-report-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.research-verdict-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid;
+}
+
+.research-verdict-badge.pass {
+  color: var(--success, #2f855a);
+  background: var(--success-muted, rgba(47, 133, 90, 0.12));
+  border-color: rgba(47, 133, 90, 0.3);
+}
+
+.research-verdict-badge.revise {
+  color: var(--warning, #b7791f);
+  background: rgba(183, 121, 31, 0.12);
+  border-color: rgba(183, 121, 31, 0.3);
+}
+
+.research-copy-btn {
+  padding: 6px 14px;
+  background: var(--color-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.research-copy-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* Rendered markdown report body */
+.research-report-body {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--color-text-primary);
+}
+
+.research-report-body h1,
+.research-report-body h2,
+.research-report-body h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  color: var(--color-text-primary);
+  margin: 24px 0 8px;
+  letter-spacing: -0.01em;
+}
+
+.research-report-body h1 { font-size: 1.4rem; margin-top: 0; }
+.research-report-body h2 { font-size: 1.2rem; }
+.research-report-body h3 { font-size: 1.05rem; }
+
+.research-report-body p {
+  margin: 0 0 12px;
+}
+
+.research-report-body ul,
+.research-report-body ol {
+  padding-left: 20px;
+  margin: 0 0 12px;
+}
+
+.research-report-body li {
+  margin-bottom: 5px;
+}
+
+.research-report-body strong {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Reflection note below report */
+.research-reflection-note {
+  margin-top: 24px;
+  padding: 14px 16px;
+  background: var(--color-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.research-reflection-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.research-reflection-text {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+/* ── No workspace prompt ── */
+.research-no-workspace {
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.research-no-workspace p { margin: 0 0 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .research-inner,
+  .research-results,
+  .research-tab-panel {
+    animation: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .research-page {
+    padding: 24px 16px 60px;
+  }
+  .research-tab-panel {
+    padding: 20px 16px;
+  }
+  .research-phases-track {
+    gap: 12px;
+  }
+  .research-title {
+    font-size: 1.6rem;
+  }
+}

@@ -1,0 +1,213 @@
+/* HomePage.css — Editorial Precision, dark-first, tokens only */
+
+.home-page {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 72px 24px 80px;
+  background: var(--color-bg);
+}
+
+/* ── Greeting ── */
+.home-header {
+  text-align: center;
+  margin-bottom: 56px;
+  animation: card-enter 280ms var(--ease-out) both;
+}
+
+.home-greeting {
+  font-family: var(--font-serif);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 400;
+  color: var(--color-text-primary);
+  margin: 0 0 10px;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.home-subtitle {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  margin: 0;
+  letter-spacing: 0.01em;
+  font-family: var(--font-sans);
+}
+
+/* ── Three-column grid ── */
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
+  max-width: 960px;
+}
+
+/* ── Mode card ── */
+.mode-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 28px 24px 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-sm);
+  /* stagger via nth-child */
+  animation: card-enter 400ms var(--ease-out) both;
+  opacity: 0;
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    transform 200ms ease,
+    background 200ms ease;
+}
+
+.mode-card:nth-child(1) { animation-delay: 200ms; }
+.mode-card:nth-child(2) { animation-delay: 280ms; }
+.mode-card:nth-child(3) { animation-delay: 360ms; }
+
+.mode-card:hover {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--color-accent-glow);
+  transform: translateY(-3px);
+  background: var(--color-elevated);
+}
+
+.mode-card:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.mode-card:active {
+  transform: translateY(-1px);
+}
+
+/* ── Icon wrapper ── */
+.mode-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--color-elevated);
+  border: 1px solid var(--color-border);
+  color: var(--color-accent);
+  flex-shrink: 0;
+  transition: background 200ms ease, border-color 200ms ease;
+}
+
+.mode-card:hover .mode-card-icon {
+  background: var(--lexara-blue-subtle);
+  border-color: var(--color-accent-glow);
+}
+
+/* ── NEW / KR badge ── */
+.mode-badge {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--color-accent);
+  background: var(--lexara-blue-subtle);
+  border: 1px solid var(--color-accent-glow);
+  border-radius: 999px;
+  padding: 2px 8px;
+  line-height: 1.6;
+}
+
+/* ── Card name (serif display) ── */
+.mode-card-name {
+  font-family: var(--font-serif);
+  font-size: 1.55rem;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  margin: 0;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+
+/* ── One-line description ── */
+.mode-card-desc {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.55;
+}
+
+/* ── Use-case chips ── */
+.mode-card-uses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+.mode-card-use-chip {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  background: var(--color-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+/* ── Arrow (appears on hover) ── */
+.mode-card-arrow {
+  position: absolute;
+  bottom: 22px;
+  right: 22px;
+  font-size: 16px;
+  color: var(--color-accent);
+  opacity: 0;
+  transform: translateX(-5px);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.mode-card:hover .mode-card-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .home-header,
+  .mode-card {
+    animation: none;
+    opacity: 1;
+  }
+  .mode-card:hover {
+    transform: none;
+  }
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .home-page {
+    padding: 40px 16px 60px;
+    align-items: stretch;
+  }
+  .home-header {
+    margin-bottom: 32px;
+  }
+  .home-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .mode-card {
+    padding: 20px;
+  }
+}

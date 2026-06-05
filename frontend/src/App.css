@@ -63,6 +63,65 @@
 .nav-brand {
   display: flex;
   align-items: center;
+  gap: 4px;
+}
+
+/* Logo as a home button */
+.nav-logo-btn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-md);
+  transition: opacity var(--transition);
+}
+
+.nav-logo-btn:hover {
+  opacity: 0.75;
+}
+
+/* Breadcrumb — visible when not on home */
+.nav-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.nav-back-btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition), background var(--transition);
+  line-height: 1;
+}
+
+.nav-back-btn:hover {
+  color: var(--color-text-primary);
+  background: var(--color-elevated);
+}
+
+.nav-breadcrumb-sep {
+  color: var(--color-border);
+  font-size: 14px;
+  user-select: none;
+}
+
+.nav-breadcrumb-current {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 .nav-controls {
