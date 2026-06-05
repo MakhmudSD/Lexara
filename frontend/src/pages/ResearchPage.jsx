@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import client, { API_BASE_URL } from '../api/client';
+import { useTranslation } from '../i18n/useTranslation';
+import WorkspaceSelector from '../components/WorkspaceSelector';
 import '../styles/ResearchPage.css';
 
 const PHASES = ['Planning…', 'Searching…', 'Reflecting…', 'Writing…'];
@@ -50,6 +52,8 @@ function getVerdict(reflection = '') {
 }
 
 export default function ResearchPage({ workspaceId, workspaceName, onBack, onChangeWorkspace, onWorkspaceNameChange }) {
+  const { t } = useTranslation();
+  const workspaceSelectorRef = useRef(null);
   const [topic, setTopic] = useState('');
   const [mode, setMode] = useState('general_research');
   const [loading, setLoading] = useState(false);
@@ -121,19 +125,27 @@ export default function ResearchPage({ workspaceId, workspaceName, onBack, onCha
       <div className="research-inner">
         {/* Page header */}
         <div className="research-page-header">
-          <h1 className="research-title">Research</h1>
+          <h1 className="research-title">{t('research_title')}</h1>
           {workspaceName && (
             <span className="research-workspace-badge">{workspaceName}</span>
           )}
         </div>
 
-        {/* No workspace warning */}
+        {/* Workspace selector (when no workspace selected) */}
         {!workspaceId && (
-          <div className="research-no-workspace">
-            <p>No workspace selected.</p>
-            <p style={{ marginTop: 4, fontSize: 12 }}>
-              Visit <strong>Ask</strong> first and select a workspace, then come back.
+          <div className="research-workspace-setup">
+            <p className="research-workspace-setup-label">
+              {t('research_select_workspace') || 'Select a workspace to search your documents.'}
             </p>
+            <WorkspaceSelector
+              ref={workspaceSelectorRef}
+              workspaceId={workspaceId}
+              workspaceName={workspaceName}
+              onWorkspaceChange={(id) => onChangeWorkspace?.(id)}
+              onWorkspaceNameChange={(name) => onWorkspaceNameChange?.(name)}
+              onConnectionError={() => {}}
+              onCreatingChange={() => {}}
+            />
           </div>
         )}
 
@@ -144,22 +156,22 @@ export default function ResearchPage({ workspaceId, workspaceName, onBack, onCha
               className="research-topic-input"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              placeholder="Describe what you want to research…"
+              placeholder={t('research_topic_placeholder') || "Describe what you want to research…"}
               rows={3}
               disabled={loading}
-              aria-label="Research topic"
+              aria-label={t('research_topic_label')}
             />
 
             <div className="research-mode-row">
-              <span className="research-mode-label">Mode</span>
-              <div className="research-mode-group" role="group" aria-label="Research mode">
+              <span className="research-mode-label">{t('research_topic_label')}</span>
+              <div className="research-mode-group" role="group" aria-label={t('research_topic_label')}>
                 <button
                   type="button"
                   className={`research-mode-btn${mode === 'general_research' ? ' active' : ''}`}
                   onClick={() => setMode('general_research')}
                   aria-pressed={mode === 'general_research'}
                 >
-                  Research
+                  {t('research_mode_web')}
                 </button>
                 <button
                   type="button"
@@ -167,7 +179,7 @@ export default function ResearchPage({ workspaceId, workspaceName, onBack, onCha
                   onClick={() => setMode('document_lookup')}
                   aria-pressed={mode === 'document_lookup'}
                 >
-                  Document lookup
+                  {t('research_mode_doc')}
                 </button>
               </div>
             </div>
@@ -178,7 +190,7 @@ export default function ResearchPage({ workspaceId, workspaceName, onBack, onCha
                 className="research-submit-btn"
                 disabled={loading || !topic.trim()}
               >
-                {loading ? 'Running…' : 'Run research'}
+                {loading ? 'Running…' : t('research_run')}
               </button>
             </div>
           </form>

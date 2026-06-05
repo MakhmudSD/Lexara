@@ -562,7 +562,7 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
           <div className="landing-hero-left reveal">
             <div className="landing-hero-badge">Early access · 100 free queries · 3 modes</div>
             <h1 ref={headlineRef} className="landing-hero-headline">{t('landing_headline')}</h1>
-            <p className="landing-hero-sub">Upload documents. Ask questions. Run compliance research. Search Korean law. Get cited answers in seconds.</p>
+            <p className="landing-hero-sub">{t('landing_subhead') || 'Upload documents. Ask questions. Run compliance research. Search Korean law. Get cited answers in seconds.'}</p>
             <div className="landing-hero-actions">
               <button onClick={onSignUp} className="landing-btn-cta-primary landing-btn-cta-glow">{t('landing_cta_primary')}</button>
               <button onClick={onSignIn} className="landing-btn-cta-ghost">{t('landing_cta_secondary')}</button>

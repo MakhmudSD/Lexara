@@ -1,4 +1,5 @@
 import '../styles/HomePage.css';
+import { useTranslation } from '../i18n/useTranslation';
 
 /* ── Inline SVG icons (no dependency) ── */
 const FileQuestionIcon = () => (
@@ -40,53 +41,50 @@ const ShieldIcon = () => (
   </svg>
 );
 
-const MODES = [
-  {
-    key: 'chat',
-    name: 'Ask',
-    desc: 'Get answers from your documents',
-    uses: ['Summarise a contract', 'Find a clause', 'Compare documents'],
-    Icon: FileQuestionIcon,
-    badge: null,
-  },
-  {
-    key: 'research',
-    name: 'Research',
-    desc: 'Plan, search, and synthesise a full report',
-    uses: ['Compliance analysis', 'Due diligence', 'Market research'],
-    Icon: NetworkIcon,
-    badge: 'NEW',
-  },
-  {
-    key: 'legal',
-    name: 'Legal',
-    desc: 'Search Korean law and regulations',
-    uses: ['Find applicable statutes', 'Check compliance', 'Cite sources'],
-    Icon: ScaleIcon,
-    badge: 'KR',
-  },
-];
-
-function getGreeting() {
-  const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 17) return 'Good afternoon';
-  return 'Good evening';
-}
-
 export default function HomePage({ authUser, onSelectMode }) {
-  const firstName =
-    authUser?.full_name?.split(' ')[0] ||
-    authUser?.email?.split('@')[0] ||
-    'there';
+  const { t } = useTranslation();
+  
+  const MODES = [
+    {
+      key: 'chat',
+      name: t('mode_ask_name'),
+      desc: t('mode_ask_desc'),
+      uses: [t('mode_ask_use1'), t('mode_ask_use2'), t('mode_ask_use3')],
+      Icon: FileQuestionIcon,
+      badge: null,
+    },
+    {
+      key: 'research',
+      name: t('mode_research_name'),
+      desc: t('mode_research_desc'),
+      uses: [t('mode_research_use1'), t('mode_research_use2'), t('mode_research_use3')],
+      Icon: NetworkIcon,
+      badge: 'NEW',
+    },
+    {
+      key: 'legal',
+      name: t('mode_legal_name'),
+      desc: t('mode_legal_desc'),
+      uses: [t('mode_legal_use1'), t('mode_legal_use2'), t('mode_legal_use3')],
+      Icon: ScaleIcon,
+      badge: 'KR',
+    },
+  ];
+  
+  const rawName = authUser?.full_name?.split(' ')[0] || '';
+  // If full_name is empty or looks like a username (no spaces, all lowercase + numbers),
+  // use a generic greeting instead
+  const looksLikeUsername = rawName && /^[a-z0-9_]+$/.test(rawName);
+  const displayName = looksLikeUsername ? '' : rawName;
+  const greeting = displayName ? `${getGreeting(t)}, ${displayName}` : `${getGreeting(t)}!`;
 
   return (
     <div className="home-page">
       <header className="home-header">
         <h1 className="home-greeting">
-          {getGreeting()}, {firstName}
+          {greeting}
         </h1>
-        <p className="home-subtitle">What would you like to work on today?</p>
+        <p className="home-subtitle">{t('home_subtitle')}</p>
       </header>
 
       <div className="home-grid" role="list">
@@ -130,14 +128,14 @@ export default function HomePage({ authUser, onSelectMode }) {
             className="mode-card"
             role="listitem"
             onClick={() => onSelectMode('admin')}
-            aria-label="Admin — Manage users, workspaces, and system health"
+            aria-label={`${t('mode_admin_name')} — ${t('mode_admin_desc')}`}
           >
             <div className="mode-card-icon">
               <ShieldIcon />
             </div>
 
-            <h2 className="mode-card-name">Admin</h2>
-            <p className="mode-card-desc">Manage users, workspaces, and system health</p>
+            <h2 className="mode-card-name">{t('mode_admin_name')}</h2>
+            <p className="mode-card-desc">{t('mode_admin_desc')}</p>
 
             <div className="mode-card-uses" aria-hidden="true">
               {['User management', 'KPI dashboard', 'System logs'].map((use) => (
