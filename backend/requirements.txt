@@ -13,6 +13,8 @@ openai==1.57.0
 
 # Document processing
 pypdf
+llama-index-core>=0.10.0,<0.13.0
+llama-index-readers-file>=0.1.0,<0.5.0
 python-docx
 
 # Vector search & local embeddings

@@ -13,15 +13,16 @@ from app.core.cache import get_retrieval_cache
 from app.core.config import Settings
 from app.core.dependencies import get_db, get_runtime
 from app.core.exceptions import AppError
+from app.core.runtime import AppRuntime
 from app.db import SessionLocal
 from app.db.models import Document, DocumentStatus, OrganizationMember, User, Workspace
-from app.core.runtime import AppRuntime
 from app.crud import document as document_crud
 from app.schemas.document import DocumentUploadResponse
 from app.services.file_parsers.docx_parser import parse_docx_bytes
 from app.services.file_parsers.pdf_parser import parse_pdf_bytes
 from app.services.file_parsers.txt_parser import parse_txt_bytes
-from app.services.embeddings import embed_texts
+from app.services.embedding_service import embed_texts
+from app.services.pgvector_store import store_chunk_embedding
 from app.services import r2_service
 
 router = APIRouter(prefix="/documents", tags=["documents"])
@@ -78,7 +79,7 @@ def upload_document(
     workspace_id: UUID = Form(...),
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    runtime: AppRuntime = Depends(get_runtime),
+    runtime = Depends(get_runtime),
     current_user: User = Depends(get_current_user),
 ) -> JSONResponse:
     _assert_workspace_access(workspace_id, current_user, db)
@@ -166,7 +167,6 @@ def upload_document(
         workspace_id=workspace_id,
         raw_text=raw_text,
         settings=runtime.settings,
-        vector_store=runtime.vector_store,
     )
 
     response_data = DocumentUploadResponse(
@@ -309,7 +309,6 @@ def _ingest_document_background(
     workspace_id: UUID,
     raw_text: str,
     settings: Settings,
-    vector_store,
     _attempt: int = 1,
 ) -> None:
     """Chunk, embed, and index a document. Runs after the 202 response is returned.
@@ -318,6 +317,7 @@ def _ingest_document_background(
     times on transient failures. On permanent failure the document status is set
     to FAILED and the error message is persisted.
     """
+    import os as _os
     from app.services.chunking import chunk_text
 
     max_attempts = 3
@@ -328,11 +328,20 @@ def _ingest_document_background(
             logger.error("Background ingestion skipped: document %s not found", document_id)
             return
 
-        chunks = chunk_text(
-            raw_text,
-            chunk_size=settings.default_chunk_size,
-            overlap=settings.default_chunk_overlap,
-        )
+        _ext = _os.path.splitext(temp_path)[1].lower() if temp_path else ""
+        if _ext == ".pdf":
+            from app.services.llama_ingestion import chunk_with_sentence_splitter
+            chunks = chunk_with_sentence_splitter(
+                raw_text,
+                chunk_size=settings.default_chunk_size,
+                chunk_overlap=settings.default_chunk_overlap,
+            )
+        else:
+            chunks = chunk_text(
+                raw_text,
+                chunk_size=settings.default_chunk_size,
+                overlap=settings.default_chunk_overlap,
+            )
         if not chunks:
             raise ValueError("No chunks were generated from the document text.")
 
@@ -343,11 +352,15 @@ def _ingest_document_background(
             chunks=chunks,
             embeddings=embeddings,
         )
-        vector_store.add_embeddings(
-            workspace_id=str(document.workspace_id),
-            chunk_ids=[str(chunk.id) for chunk in chunk_records],
-            embeddings=embeddings,
-        )
+
+        for chunk_record, chunk_text in zip(chunk_records, chunks):
+            store_chunk_embedding(
+                db=db,
+                chunk_id=chunk_record.id,
+                chunk_text=chunk_text,
+                metadata={"workspace_id": str(document.workspace_id)},
+                settings=settings,
+            )
 
         document_crud.mark_document_processed(db, document_id, len(chunk_records))
         db.commit()
@@ -369,7 +382,6 @@ def _ingest_document_background(
                 workspace_id=workspace_id,
                 raw_text=raw_text,
                 settings=settings,
-                vector_store=vector_store,
                 _attempt=_attempt + 1,
             )
         else:

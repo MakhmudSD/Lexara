@@ -30,6 +30,7 @@ def process_text_document(
     file_bytes: bytes,
     document_id: Optional[UUID] = None,
     storage_path: Optional[str] = None,
+    extension: str = "",
 ) -> tuple[Document, list[str]]:
     """Persist the uploaded document and return chunks for background indexing.
 
@@ -61,11 +62,19 @@ def process_text_document(
     if not storage_path:
         document.storage_path = _write_local(settings, workspace.id, document.id, raw_text)
 
-    chunks = chunk_text(
-        raw_text,
-        chunk_size=settings.default_chunk_size,
-        overlap=settings.default_chunk_overlap,
-    )
+    if extension.lower() == ".pdf":
+        from app.services.llama_ingestion import chunk_with_sentence_splitter
+        chunks = chunk_with_sentence_splitter(
+            raw_text,
+            chunk_size=settings.default_chunk_size,
+            chunk_overlap=settings.default_chunk_overlap,
+        )
+    else:
+        chunks = chunk_text(
+            raw_text,
+            chunk_size=settings.default_chunk_size,
+            overlap=settings.default_chunk_overlap,
+        )
     if not chunks:
         raise AppError(400, "no_chunks_generated", "No chunks were generated from the document.")
 
