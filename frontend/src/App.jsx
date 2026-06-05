@@ -281,7 +281,8 @@ function App() {
               {currentPage === 'chat' ? 'Ask'
                : currentPage === 'research' ? 'Research'
                : (currentPage === 'legal' || currentPage === 'legal-chat') ? 'Legal'
-               : currentPage === 'mypage' ? 'Account' : ''}
+               : currentPage === 'mypage' ? 'Account'
+               : currentPage === 'admin' ? 'Admin' : ''}
             </button>
           )}
           {authUser.role?.toLowerCase() === 'admin' && (
@@ -318,7 +319,7 @@ function App() {
         </div>
 
         {/* Mode breadcrumb — shown when not on home */}
-        {page === 'app' && currentPage !== 'home' && (
+        {(page === 'admin' || (page === 'app' && currentPage !== 'home')) && (
           <div className="nav-breadcrumb">
             <button
               className="nav-back-btn"
@@ -329,7 +330,8 @@ function App() {
             </button>
             <span className="nav-breadcrumb-sep" aria-hidden="true">/</span>
             <span className="nav-breadcrumb-current">
-              {currentPage === 'chat' ? 'Ask'
+              {page === 'admin' ? 'Admin'
+               : currentPage === 'chat' ? 'Ask'
                : currentPage === 'research' ? 'Research'
                : (currentPage === 'legal' || currentPage === 'legal-chat') ? 'Legal'
                : currentPage === 'mypage' ? 'Account' : ''}
