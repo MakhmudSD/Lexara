@@ -5,9 +5,9 @@
 
 .mypage-wrap {
   width: 100%;
-  max-width: 900px;
+  max-width: 680px;
   margin: 0 auto;
-  padding: 32px 32px 60px;
+  padding: 48px 24px 80px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -21,12 +21,13 @@
 
 /* ── Header card ── */
 .mypage-header-card {
-  background: var(--glass-bg);
+  background: var(--color-surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 20px 24px 0;
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  margin-bottom: 24px;
 }
 
 .mypage-avatar-row {
@@ -52,15 +53,18 @@
 }
 
 .mypage-name {
-  font-size: 16px;
+  font-family: var(--font-serif);
+  font-size: 22px;
   font-weight: 600;
+  font-style: italic;
   color: var(--color-text-primary);
   letter-spacing: -0.02em;
 }
 
 .mypage-email {
-  font-size: 13px;
-  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-muted);
   margin-top: 2px;
 }
 
@@ -80,20 +84,22 @@
 .mypage-tabs {
   display: flex;
   gap: 4px;
-  border-top: 1px solid var(--color-border);
-  padding: 8px 0;
-  margin-top: 4px;
+  background: var(--color-elevated);
+  padding: 4px;
+  border-radius: var(--radius-lg);
+  margin-bottom: 24px;
 }
 
 .mypage-tab-btn {
-  padding: 6px 14px;
-  border-radius: 999px;
+  flex: 1;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
   border: none;
   font-size: 13px;
   font-family: inherit;
   cursor: pointer;
-  background: transparent;
-  color: var(--color-text-secondary);
+  background: none;
+  color: var(--color-text-muted);
   transition: all 120ms ease-out;
 }
 
@@ -103,26 +109,29 @@
 }
 
 .mypage-tab-btn.active {
-  background: var(--color-accent);
-  color: #ffffff;
-  font-weight: 600;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
 }
 
 /* ── Section card ── */
 .mypage-section-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 20px 24px;
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  margin-bottom: 16px;
 }
 
 .mypage-section-title {
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: 10px;
   font-weight: 600;
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 /* ── Stats ── */
@@ -147,7 +156,9 @@
 }
 
 .mypage-stat-value {
-  font-size: 36px;
+  font-family: var(--font-serif);
+  font-size: 48px;
+  font-style: italic;
   font-weight: 700;
   color: var(--color-text-primary);
   line-height: 1;
@@ -186,7 +197,12 @@
   justify-content: space-between;
   align-items: center;
   font-size: 13px;
-  padding: 6px 0;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mypage-info-row:last-child {
+  border-bottom: none;
 }
 
 .mypage-info-key { color: var(--color-text-secondary); }
@@ -215,20 +231,21 @@
 
 /* ── Sign out ── */
 .mypage-signout-btn {
-  padding: 8px 14px;
-  background: transparent;
-  border: 1px solid rgba(239, 68, 68, 0.35);
-  border-radius: var(--radius-sm);
-  color: #dc2626;
-  font-size: 12px;
+  padding: 8px 16px;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  font-size: 13px;
   cursor: pointer;
   font-family: inherit;
   transition: all 120ms ease-out;
 }
 
 .mypage-signout-btn:hover {
-  background: rgba(239, 68, 68, 0.07);
-  border-color: #ef4444;
+  background: var(--error-muted);
+  border-color: var(--error);
+  color: var(--error);
 }
 
 /* ── Plan card (current plan — clean, readable) ── */
@@ -519,10 +536,8 @@
 
 /* ── Responsive ── */
 @media (min-width: 768px) {
-  .mypage-header-card { padding: 24px 28px 0; }
   .mypage-avatar-row  { gap: 20px; margin-bottom: 20px; }
   .mypage-avatar      { width: 64px; height: 64px; font-size: 22px; }
-  .mypage-name        { font-size: 18px; }
 }
 
 @media (max-width: 600px) {
