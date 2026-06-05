@@ -411,7 +411,7 @@ function App() {
         {page === 'app' && currentPage === 'home' && lazySuspense(
           <HomePage
             authUser={authUser}
-            onSelectMode={(mode) => goAppSection(mode)}
+            onSelectMode={(mode) => mode === 'admin' ? navigate('admin') : goAppSection(mode)}
           />
         )}
         {page === 'app' && currentPage === 'research' && lazySuspense(
