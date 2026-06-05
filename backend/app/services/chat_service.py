@@ -6,7 +6,7 @@ from app.api.schemas.chat import ChatDebugResponse, ChatRequest, ChatResponse, C
 from app.core.exceptions import AppError
 from app.core.runtime import AppRuntime
 from app.observability.models import PipelineStepEntry, RetrievalHistoryEntry, RetrievalResultEntry
-from app.services.embeddings import embed_query
+from app.services.embedding_service import embed_query
 from app.services.llm_service import generate_answer
 from app.services.retrieval_service import retrieve_top_chunks
 

@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def run_migrations() -> None:
-    """Run all pending Alembic migrations, then start FAISS rebuild in background."""
+    """Run all pending Alembic migrations."""
     import os
     from app.core.monitoring import init_sentry
 
@@ -22,27 +22,6 @@ def run_migrations() -> None:
     command.upgrade(alembic_cfg, "head")
     init_sentry(_settings.sentry_dsn, _settings.environment)
     logger.info("database_migrations_completed")
-
-    import threading
-
-    def _bg_rebuild():
-        import time
-        time.sleep(8)
-        try:
-            from app.services.faiss_rebuild import rebuild_faiss_from_db as _rebuild
-            from app.db import SessionLocal as _SessionLocal
-            _db = _SessionLocal()
-            n = _rebuild(_db, _get_settings())
-            _db.close()
-            logger.info(f"FAISS rebuild complete: {n} workspaces indexed")
-        except Exception as _e:
-            logger.warning(f"FAISS rebuild skipped: {_e}")
-
-    if not os.getenv("DISABLE_FAISS_REBUILD"):
-        threading.Thread(target=_bg_rebuild, daemon=True).start()
-        logger.info("FAISS rebuild scheduled in background")
-    else:
-        logger.info("FAISS rebuild disabled")
 
 
 def run_startup_cleanup() -> None:

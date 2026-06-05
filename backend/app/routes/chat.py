@@ -12,7 +12,6 @@ from app.core.config import PLAN_LIMITS
 from app.core.dependencies import get_db, get_request_id, get_runtime
 from app.core.exceptions import AppError
 from app.observability.models import ConversationEntry, TokenUsageEntry
-from app.core.runtime import AppRuntime
 from app.db.models import Organization, TokenUsage, User, Workspace
 from app.schemas.chat import ChatQueryRequest, ChatQueryResponse
 from app.services.llm_service import (
@@ -20,7 +19,6 @@ from app.services.llm_service import (
     generate_answer,
     generate_answer_stream,
 )
-from app.services.embeddings import embed_query
 from app.services.query_service import query_workspace
 
 router = APIRouter(prefix="/chat", tags=["chat"])
@@ -89,35 +87,22 @@ def _sse_payload(event_type: str, data) -> str:
 async def chat_query(
     payload: ChatQueryRequest,
     db: Session = Depends(get_db),
-    runtime: AppRuntime = Depends(get_runtime),
+    runtime = Depends(get_runtime),
     request_id: str = Depends(get_request_id),
     current_user: User = Depends(get_current_user),
 ) -> ChatQueryResponse:
     uid = str(current_user.id)
     quota_user = _check_quota(db, uid)
     started_at = time.perf_counter()
-    query_embedding = None
-    hybrid_texts = []
-    if runtime.settings.openai_api_key:
-        query_embedding = embed_query(payload.question, runtime.settings)
-        hybrid_texts = runtime.vector_store.hybrid_search(
-            workspace_id=str(payload.workspace_id),
-            query=payload.question,
-            top_k=payload.top_k,
-            query_embedding=query_embedding,
-            db=db,
-        )
     retrieved_chunks = query_workspace(
         db,
-        runtime.vector_store,
         runtime.settings,
         workspace_id=payload.workspace_id,
         question=payload.question,
         top_k=payload.top_k,
     )
     legal_prefix = LEGAL_SYSTEM_PREFIX if _is_legal_workspace(db, payload.workspace_id) else None
-    # Prefer hybrid-ranked texts for LLM context; fall back to vector-search texts.
-    context_texts = hybrid_texts if hybrid_texts else [chunk.text for chunk in retrieved_chunks]
+    context_texts = [chunk.text for chunk in retrieved_chunks]
 
     answer = None
     mode = "retrieval" if not retrieved_chunks else "rag"
@@ -212,7 +197,7 @@ async def chat_query(
 async def chat_root(
     payload: ChatQueryRequest,
     db: Session = Depends(get_db),
-    runtime: AppRuntime = Depends(get_runtime),
+    runtime = Depends(get_runtime),
     request_id: str = Depends(get_request_id),
     current_user: User = Depends(get_current_user),
 ) -> ChatQueryResponse:
@@ -229,33 +214,21 @@ async def chat_root(
 async def chat_stream(
     payload: ChatQueryRequest,
     db: Session = Depends(get_db),
-    runtime: AppRuntime = Depends(get_runtime),
+    runtime = Depends(get_runtime),
     request_id: str = Depends(get_request_id),
     current_user: User = Depends(get_current_user),
 ) -> StreamingResponse:
     uid = str(current_user.id)
     quota_user = _check_quota(db, uid)
-    stream_hybrid_texts = []
-    if runtime.settings.openai_api_key:
-        stream_embedding = embed_query(payload.question, runtime.settings)
-        stream_hybrid_texts = runtime.vector_store.hybrid_search(
-            workspace_id=str(payload.workspace_id),
-            query=payload.question,
-            top_k=payload.top_k,
-            query_embedding=stream_embedding,
-            db=db,
-        )
     sources = query_workspace(
         db,
-        runtime.vector_store,
         runtime.settings,
         workspace_id=payload.workspace_id,
         question=payload.question,
         top_k=payload.top_k,
     )
     legal_prefix = LEGAL_SYSTEM_PREFIX if _is_legal_workspace(db, payload.workspace_id) else None
-    # Prefer hybrid-ranked texts for LLM context; fall back to vector-search texts.
-    stream_context_texts = stream_hybrid_texts if stream_hybrid_texts else [chunk.text for chunk in sources]
+    stream_context_texts = [chunk.text for chunk in sources]
     serialized_sources = _serialize_sources(sources)
 
     async def event_stream():

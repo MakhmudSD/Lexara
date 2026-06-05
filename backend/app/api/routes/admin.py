@@ -259,15 +259,17 @@ async def admin_delete_user(
     return Response(status_code=204)
 
 
-@router.post("/faiss/rebuild", status_code=202)
-async def admin_faiss_rebuild(
+@router.post("/embeddings/rebuild", status_code=202)
+async def admin_embeddings_rebuild(
     background_tasks: BackgroundTasks,
     runtime: AppRuntime = Depends(get_runtime),
     _claims: dict = Depends(require_admin),
 ) -> dict:
     """Kick off async re-embedding of all workspace chunks (returns 202 immediately)."""
     import logging
-    from app.services.faiss_rebuild import rebuild_faiss_from_db
+    from app.services.embedding_service import embed_texts
+    from app.db.models import Document, DocumentChunk, Workspace
+    from app.services.pgvector_store import store_chunk_embedding
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
 
@@ -278,8 +280,32 @@ async def admin_faiss_rebuild(
         engine = create_engine(settings.database_url)
         Session = sessionmaker(bind=engine)
         with Session() as session:
-            count = rebuild_faiss_from_db(session, settings)
-            logger.info("faiss_rebuild_complete workspaces=%d model=%s", count, settings.local_embedding_model)
+            workspaces = session.query(Workspace).filter(Workspace.is_active.is_(True)).all()
+            count = 0
+            for workspace in workspaces:
+                chunks = (
+                    session.query(DocumentChunk)
+                    .join(Document, Document.id == DocumentChunk.document_id)
+                    .filter(Document.workspace_id == workspace.id)
+                    .order_by(DocumentChunk.created_at.asc())
+                    .all()
+                )
+                if not chunks:
+                    continue
+                texts = [chunk.text for chunk in chunks]
+                embeddings = embed_texts(texts, settings)
+                for chunk, embedding in zip(chunks, embeddings):
+                    chunk.embedding = embedding
+                    store_chunk_embedding(
+                        db=session,
+                        chunk_id=chunk.id,
+                        chunk_text=chunk.text,
+                        metadata={"workspace_id": str(workspace.id)},
+                        settings=settings,
+                    )
+                session.commit()
+                count += 1
+            logger.info("embedding_rebuild_complete workspaces=%d model=%s", count, settings.local_embedding_model)
 
     background_tasks.add_task(_do_rebuild)
     return {"status": "rebuilding", "model": settings.local_embedding_model}

@@ -57,7 +57,7 @@ def get_health_status(runtime: AppRuntime) -> HealthResponse:
         indexed_documents=doc_count,
         indexed_chunks=chunk_count,
         persistence_backend="postgresql",
-        vector_backend="faiss",
+        vector_backend="pgvector",
         total_logs=len(runtime.observability.list_logs()),
         total_requests=len(runtime.observability.list_requests()),
         total_retrievals=len(runtime.observability.list_retrievals()),

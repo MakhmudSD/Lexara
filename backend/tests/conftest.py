@@ -9,6 +9,11 @@ import os
 
 os.environ.setdefault("DATABASE_URL", "sqlite:///./test_rag.db")
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-tests-only-32c")
+os.environ["OPENAI_API_KEY"] = ""
+os.environ["R2_ENDPOINT_URL"] = ""
+os.environ["R2_ACCESS_KEY_ID"] = ""
+os.environ["R2_SECRET_ACCESS_KEY"] = ""
+os.environ["R2_BUCKET_NAME"] = ""
 
 # Make PostgreSQL-specific column types work transparently with SQLite.
 # Must happen before app.db.models is first imported.
@@ -78,9 +83,9 @@ def db(engine):
 def mock_runtime():
     settings = get_settings()
     settings.__dict__["jwt_secret_key"] = "test-secret-key-for-tests-only-32c"
+    settings.__dict__["openai_api_key"] = None
     runtime = AppRuntime(
         settings=settings,
-        vector_store=MagicMock(),
         observability=MagicMock(),
     )
     runtime.observability.add_token_usage = MagicMock()

@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import pytest
 
+from app.services.query_service import query_workspace
+
 
 def _make_workspace(client, org_id: str) -> str:
     r = client.post("/workspaces", json={"name": "ret-ws", "organization_id": org_id})
@@ -48,3 +50,16 @@ def test_query_with_top_k_param(client, mock_user):
     assert r.status_code == 200, r.text
     sources = r.json().get("sources", [])
     assert len(sources) <= 1
+
+
+def test_query_workspace_signature_without_vector_store(client, db, mock_runtime, mock_user):
+    ws_id = _make_workspace(client, str(mock_user._test_org_id))
+    # Direct signature regression check: query_workspace no longer accepts vector_store.
+    result = query_workspace(
+        db=db,
+        settings=mock_runtime.settings,
+        workspace_id=ws_id,
+        question="anything",
+        top_k=3,
+    )
+    assert isinstance(result, list)

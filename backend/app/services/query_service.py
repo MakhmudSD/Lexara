@@ -1,4 +1,4 @@
-"""Retrieval flow: embed question → FAISS search → load chunks."""
+"""Retrieval flow: embed question → pgvector hybrid search → rerank."""
 
 from __future__ import annotations
 
@@ -9,17 +9,15 @@ from sqlalchemy.orm import Session
 
 from app.core.cache import get_retrieval_cache
 from app.core.config import Settings
-from app.crud import document as document_crud
 from app.crud.workspace import get_workspace_or_404
 from app.schemas.chat import RetrievedChunk
-from app.services.embeddings import embed_query
+from app.services.embedding_service import embed_query
+from app.services.pgvector_store import search_bm25_pgvector
 from app.services.reranking import rerank_chunks
-from app.services.vector_store import FaissVectorStore
 
 
 def query_workspace(
     db: Session,
-    vector_store: FaissVectorStore,
     settings: Settings,
     *,
     workspace_id: UUID,
@@ -39,33 +37,28 @@ def query_workspace(
         return []
 
     query_embedding = embed_query(question, settings)
-    hits = vector_store.search(
-        workspace_id=str(workspace_id),
+    hits = search_bm25_pgvector(
+        db=db,
+        workspace_id=workspace_id,
+        query=question,
         query_embedding=query_embedding,
         top_k=top_k,
     )
     if not hits:
         return []
 
-    chunk_ids = [UUID(hit.chunk_id) for hit in hits]
-    db_chunks = document_crud.get_chunks_by_ids(db, chunk_ids)
-    chunk_lookup = {chunk.id: chunk for chunk in db_chunks}
-
     retrieved: list[RetrievedChunk] = []
     for hit in hits:
-        chunk = chunk_lookup.get(UUID(hit.chunk_id))
-        if chunk is None:
-            continue
-        if getattr(chunk, "document", None) is None or chunk.document.workspace_id != workspace_id:
+        if hit.get("document_id") is None:
             continue
         retrieved.append(
             RetrievedChunk(
-                chunk_id=chunk.id,
-                document_id=chunk.document_id,
-                filename=chunk.document.filename if getattr(chunk, "document", None) is not None else None,
-                chunk_index=chunk.chunk_index,
-                text=chunk.text,
-                score=hit.score,
+                chunk_id=UUID(str(hit["chunk_id"])),
+                document_id=UUID(str(hit["document_id"])),
+                filename=hit.get("filename"),
+                chunk_index=int(hit["chunk_index"]),
+                text=hit["text"],
+                score=float(hit.get("score") or 0.0),
             )
         )
 
