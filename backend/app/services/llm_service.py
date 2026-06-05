@@ -142,10 +142,13 @@ def build_messages(
     context_chunks: list[str],
     history: list[dict[str, Any]] | None = None,
     top_score: float | None = None,
+    system_prompt_prefix: str | None = None,
 ) -> tuple[list[dict[str, str]], int, int]:
     prepared_chunks = _prepare_context_chunks(context_chunks)
     context_text = _build_context(prepared_chunks)
     system_content = SYSTEM_PROMPT.format(context=context_text)
+    if system_prompt_prefix:
+        system_content = system_prompt_prefix + "\n\n" + system_content
     if top_score is not None and top_score < 0.15:
         system_content += (
             "\n\nNote: The retrieved passages may only be partially relevant. "
@@ -268,6 +271,7 @@ async def generate_answer(
     settings: Settings,
     history: list[dict[str, Any]] | None = None,
     top_score: float | None = None,
+    system_prompt_prefix: str | None = None,
 ) -> tuple[str, TokenUsageData]:
     """Generate one final answer from retrieved context."""
     if not settings.openai_api_key:
@@ -294,6 +298,7 @@ async def generate_answer(
         context_chunks,
         history,
         top_score=top_score,
+        system_prompt_prefix=system_prompt_prefix,
     )
     started_at = time.perf_counter()
 
@@ -332,6 +337,7 @@ async def generate_answer_stream(
     settings: Settings,
     history: list[dict[str, Any]] | None = None,
     top_score: float | None = None,
+    system_prompt_prefix: str | None = None,
 ) -> Any:
     """Stream answer deltas from the LLM."""
     if not settings.openai_api_key:
@@ -346,6 +352,7 @@ async def generate_answer_stream(
         context_chunks,
         history,
         top_score=top_score,
+        system_prompt_prefix=system_prompt_prefix,
     )
     started_at = time.perf_counter()
 

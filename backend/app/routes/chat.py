@@ -13,7 +13,7 @@ from app.core.dependencies import get_db, get_request_id, get_runtime
 from app.core.exceptions import AppError
 from app.observability.models import ConversationEntry, TokenUsageEntry
 from app.core.runtime import AppRuntime
-from app.db.models import TokenUsage, User
+from app.db.models import Organization, TokenUsage, User, Workspace
 from app.schemas.chat import ChatQueryRequest, ChatQueryResponse
 from app.services.llm_service import (
     build_token_usage_data,
@@ -25,6 +25,21 @@ from app.services.query_service import query_workspace
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 logger = logging.getLogger(__name__)
+
+LEGAL_SYSTEM_PREFIX = (
+    "You are a legal research assistant. Answer questions based strictly on the "
+    "provided statute excerpts. Always cite the specific article number (e.g., "
+    "Article 15, Paragraph 2). Never speculate beyond the provided text. If the "
+    "article is not in the provided excerpts, say so clearly."
+)
+
+
+def _is_legal_workspace(db: Session, workspace_id) -> bool:
+    ws = db.query(Workspace).filter(Workspace.id == workspace_id).first()
+    if not ws or not ws.organization_id:
+        return False
+    org = db.query(Organization).filter(Organization.id == ws.organization_id).first()
+    return org is not None and org.name == "Lexara Legal"
 
 
 def _check_quota(db: Session, user_id: str | None) -> "User | None":
@@ -81,14 +96,17 @@ async def chat_query(
     uid = str(current_user.id)
     quota_user = _check_quota(db, uid)
     started_at = time.perf_counter()
-    query_embedding = embed_query(payload.question, runtime.settings)
-    hybrid_texts = runtime.vector_store.hybrid_search(
-        workspace_id=str(payload.workspace_id),
-        query=payload.question,
-        top_k=payload.top_k,
-        query_embedding=query_embedding,
-        db=db,
-    )
+    query_embedding = None
+    hybrid_texts = []
+    if runtime.settings.openai_api_key:
+        query_embedding = embed_query(payload.question, runtime.settings)
+        hybrid_texts = runtime.vector_store.hybrid_search(
+            workspace_id=str(payload.workspace_id),
+            query=payload.question,
+            top_k=payload.top_k,
+            query_embedding=query_embedding,
+            db=db,
+        )
     retrieved_chunks = query_workspace(
         db,
         runtime.vector_store,
@@ -97,6 +115,7 @@ async def chat_query(
         question=payload.question,
         top_k=payload.top_k,
     )
+    legal_prefix = LEGAL_SYSTEM_PREFIX if _is_legal_workspace(db, payload.workspace_id) else None
     # Prefer hybrid-ranked texts for LLM context; fall back to vector-search texts.
     context_texts = hybrid_texts if hybrid_texts else [chunk.text for chunk in retrieved_chunks]
 
@@ -109,6 +128,7 @@ async def chat_query(
             runtime.settings,
             history=payload.history,
             top_score=retrieved_chunks[0].score if retrieved_chunks else None,
+            system_prompt_prefix=legal_prefix,
         )
         runtime.observability.add_token_usage(
             TokenUsageEntry(
@@ -215,14 +235,16 @@ async def chat_stream(
 ) -> StreamingResponse:
     uid = str(current_user.id)
     quota_user = _check_quota(db, uid)
-    stream_embedding = embed_query(payload.question, runtime.settings)
-    stream_hybrid_texts = runtime.vector_store.hybrid_search(
-        workspace_id=str(payload.workspace_id),
-        query=payload.question,
-        top_k=payload.top_k,
-        query_embedding=stream_embedding,
-        db=db,
-    )
+    stream_hybrid_texts = []
+    if runtime.settings.openai_api_key:
+        stream_embedding = embed_query(payload.question, runtime.settings)
+        stream_hybrid_texts = runtime.vector_store.hybrid_search(
+            workspace_id=str(payload.workspace_id),
+            query=payload.question,
+            top_k=payload.top_k,
+            query_embedding=stream_embedding,
+            db=db,
+        )
     sources = query_workspace(
         db,
         runtime.vector_store,
@@ -231,6 +253,7 @@ async def chat_stream(
         question=payload.question,
         top_k=payload.top_k,
     )
+    legal_prefix = LEGAL_SYSTEM_PREFIX if _is_legal_workspace(db, payload.workspace_id) else None
     # Prefer hybrid-ranked texts for LLM context; fall back to vector-search texts.
     stream_context_texts = stream_hybrid_texts if stream_hybrid_texts else [chunk.text for chunk in sources]
     serialized_sources = _serialize_sources(sources)
@@ -273,6 +296,7 @@ async def chat_stream(
                 runtime.settings,
                 history=payload.history,
                 top_score=sources[0].score if sources else None,
+                system_prompt_prefix=legal_prefix,
             ):
                 streamed_answer_parts.append(delta)
                 yield _sse_payload("delta", delta)

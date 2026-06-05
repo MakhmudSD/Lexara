@@ -10,6 +10,7 @@ const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 const RefundPage = lazy(() => import('./pages/RefundPage'));
 const LegalPage = lazy(() => import('./pages/LegalPage'));
+const LegalChatPage = lazy(() => import('./pages/LegalChatPage'));
 import { LexaraIcon, LexaraLogo } from './assets/LexaraLogo';
 import { useTranslation } from './i18n/useTranslation';
 import './App.css';
@@ -19,6 +20,7 @@ function App() {
   const [workspaceId, setWorkspaceId] = useState(() => localStorage.getItem('workspaceId') || '');
   const [workspaceName, setWorkspaceName] = useState(() => localStorage.getItem('workspaceName') || '');
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') === 'dark');
+  const [legalChatWs, setLegalChatWs] = useState({ id: '', name: '' });
   const [currentPage, setCurrentPage] = useState('chat');
   const [page, setPage] = useState(() => (localStorage.getItem('authUser') ? 'app' : 'landing'));
   const [transitioning, setTransitioning] = useState(false);
@@ -400,11 +402,17 @@ function App() {
           <LegalPage
             onAskQuestion={(ws) => {
               if (ws?.id) {
-                setWorkspaceId(ws.id);
-                setWorkspaceName(ws.name || '');
+                setLegalChatWs({ id: ws.id, name: ws.name || '' });
               }
-              goAppSection('chat');
+              goAppSection('legal-chat');
             }}
+          />
+        )}
+        {page === 'app' && currentPage === 'legal-chat' && lazySuspense(
+          <LegalChatPage
+            workspaceId={legalChatWs.id}
+            workspaceName={legalChatWs.name}
+            onBack={() => goAppSection('legal')}
           />
         )}
         {page === 'app' && currentPage === 'mypage' && lazySuspense(<MyPage authUser={authUser} onLogout={() => {

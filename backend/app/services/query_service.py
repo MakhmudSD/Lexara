@@ -33,6 +33,11 @@ def query_workspace(
     if cached is not None:
         return cached
 
+    # When embeddings are not configured we keep retrieval non-fatal and
+    # return an empty result set instead of surfacing a 500 to callers.
+    if not settings.openai_api_key:
+        return []
+
     query_embedding = embed_query(question, settings)
     hits = vector_store.search(
         workspace_id=str(workspace_id),
