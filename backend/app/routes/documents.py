@@ -42,6 +42,49 @@ ALLOWED_CONTENT_TYPES = {
 def _assert_workspace_access(workspace_id, user, db: Session) -> None:
     """Raise 403/404 if caller cannot access this workspace."""
     from uuid import UUID
+    from app.db.models import UserWorkspace
+
+    ws_id = workspace_id if isinstance(workspace_id, UUID) else UUID(str(workspace_id))
+
+    ws = db.query(Workspace).filter(Workspace.id == ws_id).first()
+
+    if ws is None:
+        raise AppError(404, "workspace_not_found", "Workspace not found.")
+
+    # Check direct workspace membership first
+    workspace_member = (
+        db.query(UserWorkspace)
+        .filter(
+            UserWorkspace.workspace_id == ws_id,
+            UserWorkspace.user_id == user.id,
+        )
+        .first()
+    )
+
+    if workspace_member:
+        return
+
+    # Fall back to organization membership
+    if ws.organization_id is not None:
+        org_member = (
+            db.query(OrganizationMember)
+            .filter(
+                OrganizationMember.organization_id == ws.organization_id,
+                OrganizationMember.user_id == user.id,
+            )
+            .first()
+        )
+
+        if org_member:
+            return
+
+    raise AppError(
+        403,
+        "forbidden",
+        "You do not have access to this workspace.",
+    )
+    """Raise 403/404 if caller cannot access this workspace."""
+    from uuid import UUID
     ws_id = workspace_id if isinstance(workspace_id, UUID) else UUID(str(workspace_id))
     ws = db.query(Workspace).filter(Workspace.id == ws_id).first()
     if ws is None:

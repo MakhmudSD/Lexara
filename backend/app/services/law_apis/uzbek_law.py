@@ -13,10 +13,10 @@ logger = logging.getLogger(__name__)
 
 UZBEK_LAWS = [
     {"name": "Constitution of Uzbekistan", "url": "https://lex.uz/en/docs/35869"},
-    {"name": "Labour Code of Uzbekistan", "url": "https://lex.uz/en/docs/149522"},
+    {"name": "Labour Code of Uzbekistan", "url": "https://lex.uz/en/docs/3483018"},
     {"name": "Civil Code of Uzbekistan Part 1", "url": "https://lex.uz/en/docs/111181"},
     {"name": "Criminal Code of Uzbekistan", "url": "https://lex.uz/en/docs/111457"},
-    {"name": "Law on Personal Data", "url": "https://lex.uz/en/docs/4378831"},
+    {"name": "Law on Personal Data", "url": "https://lex.uz/en/docs/6612945"},
 ]
 
 
