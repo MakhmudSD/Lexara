@@ -47,3 +47,4 @@ council-transcript*.md
 studio-web/
 DESIGN-IS-*/
 plans/
+backend/scripts/seed_korean_laws.py
