@@ -167,11 +167,11 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
 
   const handlePasswordChange = async () => {
     if (newPassword.length < 8) {
-      setPasswordError('Password must be at least 8 characters');
+      setPasswordError(t('password_too_short') || 'Password must be at least 8 characters');
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordError('Passwords do not match');
+      setPasswordError(t('passwords_dont_match') || 'Passwords do not match');
       return;
     }
     setPasswordLoading(true);
@@ -181,14 +181,14 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
         current_password: currentPassword,
         new_password: newPassword,
       });
-      setPasswordSuccess('Password changed successfully');
+      setPasswordSuccess(t('password_changed') || 'Password changed successfully');
       setShowPasswordForm(false);
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
       setTimeout(() => setPasswordSuccess(''), 5000);
     } catch (err) {
-      setPasswordError(err?.response?.data?.detail || 'Password change failed');
+      setPasswordError(err?.response?.data?.detail || t('password_change_failed') || 'Password change failed');
     } finally {
       setPasswordLoading(false);
     }
@@ -405,7 +405,7 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
 
           <div className="mypage-divider" />
 
-          <div className="mypage-section-title">SECURITY</div>
+          <div className="mypage-section-title">{t('security_label') || 'SECURITY'}</div>
           {passwordSuccess && (
             <p className="mypage-password-success">{passwordSuccess}</p>
           )}
@@ -414,27 +414,27 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
               className="mypage-change-password-btn"
               onClick={() => setShowPasswordForm(true)}
             >
-              Change password
+              {t('change_password') || 'Change password'}
             </button>
           ) : (
             <div className="mypage-password-form">
               <input
                 type="password"
-                placeholder="Current password"
+                placeholder={t('current_password') || 'Current password'}
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 className="mypage-password-input"
               />
               <input
                 type="password"
-                placeholder="New password (min 8 chars)"
+                placeholder={t('new_password_label') || 'New password (min 8 chars)'}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 className="mypage-password-input"
               />
               <input
                 type="password"
-                placeholder="Confirm new password"
+                placeholder={t('confirm_password') || 'Confirm new password'}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="mypage-password-input"
@@ -446,14 +446,14 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
                   onClick={handlePasswordChange}
                   disabled={passwordLoading}
                 >
-                  {passwordLoading ? 'Saving…' : 'Save password'}
+                  {passwordLoading ? (t('saving') || 'Saving…') : (t('save_password') || 'Save password')}
                 </button>
                 <button
                   className="mypage-signout-btn"
                   style={{ marginTop: 0 }}
                   onClick={() => { setShowPasswordForm(false); setPasswordError(''); }}
                 >
-                  Cancel
+                  {t('cancel') || 'Cancel'}
                 </button>
               </div>
             </div>
