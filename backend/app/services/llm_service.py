@@ -48,6 +48,34 @@ DOCUMENT EXCERPTS:
 
 Answer the user's question based on the excerpts above."""
 
+RESEARCH_SYSTEM_PROMPT = """You are a professional research analyst embedded in Lexara.
+
+Your role is to synthesize information from multiple sources into clear, structured reports.
+
+Rules:
+- Lead with a concise executive summary
+- Structure findings into clearly labelled sections
+- Cite every factual claim with its source document or URL
+- For compliance topics, flag specific gaps or risks explicitly
+- Use professional, formal language appropriate for legal and business audiences
+- If sources conflict, note the conflict and explain which source is more authoritative
+- Never fabricate citations or invent article numbers
+- End with actionable conclusions"""
+
+LEGAL_SYSTEM_PROMPT = """You are a Korean law research assistant embedded in Lexara Legal.
+
+Your role is to answer legal questions using the Korean law database provided.
+
+Rules:
+- Always cite the specific Act name and Article number (e.g. "Labor Standards Act, Article 17")
+- Quote the relevant statutory text directly when it answers the question
+- If multiple articles apply, list each one separately with its citation
+- Distinguish between what the law requires, prohibits, and permits
+- Note if a provision has been amended and when
+- Add a disclaimer: "This is legal information, not legal advice. Consult a qualified attorney for your specific situation."
+- Never guess or invent article numbers — only cite what appears in the retrieved documents
+- If the retrieved documents do not contain an answer, say so explicitly"""
+
 PRICING = {
     "gpt-4o": (2.50, 10.00),
     "gpt-4o-mini": (0.15, 0.60),
@@ -143,12 +171,21 @@ def build_messages(
     history: list[dict[str, Any]] | None = None,
     top_score: float | None = None,
     system_prompt_prefix: str | None = None,
+    system_prompt_override: str | None = None,
 ) -> tuple[list[dict[str, str]], int, int]:
     prepared_chunks = _prepare_context_chunks(context_chunks)
     context_text = _build_context(prepared_chunks)
-    system_content = SYSTEM_PROMPT.format(context=context_text)
-    if system_prompt_prefix:
-        system_content = system_prompt_prefix + "\n\n" + system_content
+    if system_prompt_override:
+        system_content = (
+            system_prompt_override
+            + "\n\nDOCUMENT EXCERPTS:\n---\n"
+            + context_text
+            + "\n---\n\nAnswer the user's question based on the excerpts above."
+        )
+    else:
+        system_content = SYSTEM_PROMPT.format(context=context_text)
+        if system_prompt_prefix:
+            system_content = system_prompt_prefix + "\n\n" + system_content
     if top_score is not None and top_score < 0.15:
         system_content += (
             "\n\nNote: The retrieved passages may only be partially relevant. "
@@ -272,6 +309,7 @@ async def generate_answer(
     history: list[dict[str, Any]] | None = None,
     top_score: float | None = None,
     system_prompt_prefix: str | None = None,
+    system_prompt_override: str | None = None,
 ) -> tuple[str, TokenUsageData]:
     """Generate one final answer from retrieved context."""
     if not settings.openai_api_key:
@@ -299,6 +337,7 @@ async def generate_answer(
         history,
         top_score=top_score,
         system_prompt_prefix=system_prompt_prefix,
+        system_prompt_override=system_prompt_override,
     )
     started_at = time.perf_counter()
 
@@ -338,6 +377,7 @@ async def generate_answer_stream(
     history: list[dict[str, Any]] | None = None,
     top_score: float | None = None,
     system_prompt_prefix: str | None = None,
+    system_prompt_override: str | None = None,
 ) -> Any:
     """Stream answer deltas from the LLM."""
     if not settings.openai_api_key:
@@ -353,6 +393,7 @@ async def generate_answer_stream(
         history,
         top_score=top_score,
         system_prompt_prefix=system_prompt_prefix,
+        system_prompt_override=system_prompt_override,
     )
     started_at = time.perf_counter()
 

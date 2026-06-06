@@ -129,9 +129,14 @@ async def run_research_loop(
         f"Source: {c.get('filename') or c.get('url', 'web')}\n{c.get('text') or c.get('content', '')}"
         for c in unique_chunks[:15]
     )
+    from app.services.llm_service import RESEARCH_SYSTEM_PROMPT
+
     report_resp = await client.chat.completions.create(
         model=settings.chat_model,
-        messages=[{"role": "user", "content": _REPORT_PROMPT.format(topic=topic, evidence=evidence_str or "(no evidence found)")}],
+        messages=[
+            {"role": "system", "content": RESEARCH_SYSTEM_PROMPT},
+            {"role": "user", "content": _REPORT_PROMPT.format(topic=topic, evidence=evidence_str or "(no evidence found)")},
+        ],
         temperature=0.4,
         max_tokens=1500,
     )

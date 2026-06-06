@@ -15,6 +15,7 @@ from app.observability.models import ConversationEntry, TokenUsageEntry
 from app.db.models import Organization, TokenUsage, User, Workspace
 from app.schemas.chat import ChatQueryRequest, ChatQueryResponse
 from app.services.llm_service import (
+    LEGAL_SYSTEM_PROMPT,
     build_token_usage_data,
     generate_answer,
     generate_answer_stream,
@@ -101,7 +102,7 @@ async def chat_query(
         question=payload.question,
         top_k=payload.top_k,
     )
-    legal_prefix = LEGAL_SYSTEM_PREFIX if _is_legal_workspace(db, payload.workspace_id) else None
+    is_legal = _is_legal_workspace(db, payload.workspace_id)
     context_texts = [chunk.text for chunk in retrieved_chunks]
 
     answer = None
@@ -113,7 +114,7 @@ async def chat_query(
             runtime.settings,
             history=payload.history,
             top_score=retrieved_chunks[0].score if retrieved_chunks else None,
-            system_prompt_prefix=legal_prefix,
+            system_prompt_override=LEGAL_SYSTEM_PROMPT if is_legal else None,
         )
         runtime.observability.add_token_usage(
             TokenUsageEntry(
@@ -227,7 +228,7 @@ async def chat_stream(
         question=payload.question,
         top_k=payload.top_k,
     )
-    legal_prefix = LEGAL_SYSTEM_PREFIX if _is_legal_workspace(db, payload.workspace_id) else None
+    is_legal = _is_legal_workspace(db, payload.workspace_id)
     stream_context_texts = [chunk.text for chunk in sources]
     serialized_sources = _serialize_sources(sources)
 
@@ -269,7 +270,7 @@ async def chat_stream(
                 runtime.settings,
                 history=payload.history,
                 top_score=sources[0].score if sources else None,
-                system_prompt_prefix=legal_prefix,
+                system_prompt_override=LEGAL_SYSTEM_PROMPT if is_legal else None,
             ):
                 streamed_answer_parts.append(delta)
                 yield _sse_payload("delta", delta)
