@@ -10,7 +10,7 @@ from app.core.dependencies import get_db
 from app.core.exceptions import AppError
 from app.crud import workspace as workspace_crud
 from app.crud.organization import get_org_by_slug
-from app.db.models import OrganizationMember, User, Workspace
+from app.db.models import OrganizationMember, User, UserWorkspace, Workspace
 from app.schemas.workspace import (
     WorkspaceCreate,
     WorkspaceListResponse,
@@ -66,13 +66,29 @@ def _assert_org_membership(organization_id, user: User, db: Session) -> None:
 
 
 def _assert_workspace_access(workspace_id, user: User, db: Session) -> None:
-    """Raise 403/404 if user cannot access the given workspace."""
+    """Raise 403/404 if user cannot access the given workspace.
+
+    Opt-out: access is denied unless the user is a direct workspace member
+    (UserWorkspace row) OR a member of the workspace's organization.
+    """
     from uuid import UUID
     ws_id = workspace_id if isinstance(workspace_id, UUID) else UUID(str(workspace_id))
     ws = db.query(Workspace).filter(Workspace.id == ws_id).first()
     if ws is None:
         raise AppError(404, "workspace_not_found", "Workspace not found.")
-    _assert_org_membership(ws.organization_id, user, db)
+
+    uw = db.query(UserWorkspace).filter(
+        UserWorkspace.workspace_id == ws_id,
+        UserWorkspace.user_id == user.id,
+    ).first()
+    if uw is not None:
+        return
+
+    if ws.organization_id is not None:
+        _assert_org_membership(ws.organization_id, user, db)
+        return
+
+    raise AppError(403, "forbidden", "You do not have access to this workspace.")
 
 
 @router.post("/quick", response_model=WorkspaceResponse, status_code=201)
