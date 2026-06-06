@@ -48,3 +48,4 @@ studio-web/
 DESIGN-IS-*/
 plans/
 backend/scripts/seed_korean_laws.py
+backend/scripts/seed_uzbek_laws.py
