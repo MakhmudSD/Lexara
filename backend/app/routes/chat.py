@@ -34,11 +34,18 @@ LEGAL_SYSTEM_PREFIX = (
 
 
 def _is_legal_workspace(db: Session, workspace_id) -> bool:
+    """Returns True if workspace belongs to the Lexara Legal org. Uses LEXARA_LEGAL_ORG_ID env var if set; falls back to case-insensitive name check."""
+    import os
     ws = db.query(Workspace).filter(Workspace.id == workspace_id).first()
     if not ws or not ws.organization_id:
         return False
     org = db.query(Organization).filter(Organization.id == ws.organization_id).first()
-    return org is not None and org.name == "Lexara Legal"
+    if org is None:
+        return False
+    legal_org_id = os.getenv("LEXARA_LEGAL_ORG_ID", "")
+    if legal_org_id:
+        return str(org.id) == legal_org_id
+    return "legal" in org.name.lower()
 
 
 def _check_quota(db: Session, user_id: str | None) -> "User | None":
