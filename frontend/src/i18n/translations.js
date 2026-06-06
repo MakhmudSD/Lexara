@@ -438,6 +438,12 @@ export const translations = {
     landing_stat_free_queries: 'Free queries/month',
     landing_stat_laws: 'Korean laws indexed',
     landing_stat_modes: 'AI modes',
+    admin_support: 'Questions',
+    mode_admin_use1: 'User management',
+    mode_admin_use2: 'KPI dashboard',
+    mode_admin_use3: 'System logs',
+    nav_home: 'Home',
+    nav_admin: 'Admin',
   },
   ko: {
     app_name: 'Lexara',
@@ -879,6 +885,12 @@ export const translations = {
     landing_stat_free_queries: '무료 쿼리/월',
     landing_stat_laws: '인덱싱된 한국 법률',
     landing_stat_modes: 'AI 모드',
+    admin_support: '질문',
+    mode_admin_use1: '사용자 관리',
+    mode_admin_use2: 'KPI 대시보드',
+    mode_admin_use3: '시스템 로그',
+    nav_home: '홈',
+    nav_admin: '관리자',
   },
   ru: {
     app_name: 'Lexara',
@@ -1290,6 +1302,52 @@ export const translations = {
     landing_stat_free_queries: 'Бесплатных запросов/месяц',
     landing_stat_laws: 'Корейских законов проиндексировано',
     landing_stat_modes: 'режима AI',
+    // Home page greetings
+    home_greeting_morning: 'Доброе утро',
+    home_greeting_afternoon: 'Добрый день',
+    home_greeting_evening: 'Добрый вечер',
+    home_subtitle: 'Чем бы вы хотели заняться сегодня?',
+
+    // Mode cards
+    mode_ask_name: 'Спросить',
+    mode_ask_desc: 'Получайте ответы из ваших документов',
+    mode_ask_use1: 'Резюме договора',
+    mode_ask_use2: 'Найти пункт',
+    mode_ask_use3: 'Сравнить документы',
+
+    mode_research_name: 'Исследование',
+    mode_research_desc: 'Планируйте, ищите и создавайте полный отчёт',
+    mode_research_use1: 'Анализ соответствия',
+    mode_research_use2: 'Дью-дилидженс',
+    mode_research_use3: 'Маркетинговое исследование',
+
+    mode_legal_name: 'Право',
+    mode_legal_desc: 'Поиск по корейскому законодательству',
+    mode_legal_use1: 'Найти применимые законы',
+    mode_legal_use2: 'Проверить соответствие',
+    mode_legal_use3: 'Указать источники',
+
+    mode_admin_name: 'Администратор',
+    mode_admin_desc: 'Управление пользователями и системой',
+    mode_admin_use1: 'Управление пользователями',
+    mode_admin_use2: 'KPI-дашборд',
+    mode_admin_use3: 'Системные журналы',
+
+    // Admin tabs
+    admin_support: 'Вопросы',
+
+    // Research page
+    research_title: 'Исследование',
+    research_select_workspace: 'Выберите рабочее пространство для поиска по документам.',
+    research_topic_label: 'Тема исследования',
+    research_topic_placeholder: 'Введите тему для исследования...',
+    research_mode_web: 'Веб',
+    research_mode_doc: 'Документы',
+    research_run: 'Запустить',
+
+    // Nav
+    nav_home: 'Главная',
+    nav_admin: 'Админ',
   },
   uz: {
     app_name: 'Lexara',
@@ -1731,6 +1789,12 @@ export const translations = {
     landing_stat_free_queries: "Bepul so'rovlar/oy",
     landing_stat_laws: 'Indekslangan Koreya qonunlari',
     landing_stat_modes: 'AI rejimlari',
+    admin_support: 'Savollar',
+    mode_admin_use1: 'Foydalanuvchilarni boshqarish',
+    mode_admin_use2: 'KPI paneli',
+    mode_admin_use3: 'Tizim jurnallari',
+    nav_home: 'Bosh sahifa',
+    nav_admin: 'Admin',
   },
   ja: {
     app_name: 'Lexara',
@@ -2094,6 +2158,47 @@ export const translations = {
     good_afternoon: 'こんにちは',
     good_evening: 'こんばんは',
     ai_welcome_msg: 'こんにちは{name}！下のボタンからドキュメントをアップロードして、内容について何でも質問してください。',
+    home_greeting_morning: 'おはようございます',
+    home_greeting_afternoon: 'こんにちは',
+    home_greeting_evening: 'こんばんは',
+    home_subtitle: '今日は何をしますか？',
+
+    mode_ask_name: '質問する',
+    mode_ask_desc: 'ドキュメントから回答を取得する',
+    mode_ask_use1: '契約書を要約する',
+    mode_ask_use2: '条項を探す',
+    mode_ask_use3: '文書を比較する',
+
+    mode_research_name: '調査',
+    mode_research_desc: '計画、検索、完全なレポートの作成',
+    mode_research_use1: 'コンプライアンス分析',
+    mode_research_use2: 'デューデリジェンス',
+    mode_research_use3: '市場調査',
+
+    mode_legal_name: '法律',
+    mode_legal_desc: '韓国の法律と規制を検索する',
+    mode_legal_use1: '適用法規を探す',
+    mode_legal_use2: 'コンプライアンスを確認する',
+    mode_legal_use3: '出典を引用する',
+
+    mode_admin_name: '管理者',
+    mode_admin_desc: 'ユーザー、ワークスペース、システムの管理',
+    mode_admin_use1: 'ユーザー管理',
+    mode_admin_use2: 'KPIダッシュボード',
+    mode_admin_use3: 'システムログ',
+
+    admin_support: '質問',
+
+    research_title: '調査',
+    research_select_workspace: '上からワークスペースを選択してドキュメントを検索してください。',
+    research_topic_label: '調査トピック',
+    research_topic_placeholder: '調査するトピックを入力してください...',
+    research_mode_web: 'ウェブ',
+    research_mode_doc: 'ドキュメント',
+    research_run: '実行',
+
+    nav_home: 'ホーム',
+    nav_admin: '管理者',
   },
 };
 

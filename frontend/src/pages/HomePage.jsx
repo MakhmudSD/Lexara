@@ -151,7 +151,7 @@ export default function HomePage({ authUser, onSelectMode }) {
             <p className="mode-card-desc">{t('mode_admin_desc')}</p>
 
             <div className="mode-card-uses" aria-hidden="true">
-              {['User management', 'KPI dashboard', 'System logs'].map((use) => (
+              {[t('mode_admin_use1'), t('mode_admin_use2'), t('mode_admin_use3')].map((use) => (
                 <span key={use} className="mode-card-use-chip">{use}</span>
               ))}
             </div>

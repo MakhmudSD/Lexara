@@ -270,7 +270,7 @@ function App() {
             onClick={() => { goAppSection('home'); closeMobileNav(); }}
           >
             <span className="nav-dot" />
-            Home
+            {t('nav_home') || 'Home'}
           </button>
           {page === 'app' && currentPage !== 'home' && (
             <button
@@ -282,7 +282,7 @@ function App() {
                : currentPage === 'research' ? 'Research'
                : (currentPage === 'legal' || currentPage === 'legal-chat') ? 'Legal'
                : currentPage === 'mypage' ? 'Account'
-               : currentPage === 'admin' ? 'Admin' : ''}
+               : currentPage === 'admin' ? (t('nav_admin') || 'Admin') : ''}
             </button>
           )}
           {authUser.role?.toLowerCase() === 'admin' && (
@@ -291,7 +291,7 @@ function App() {
               onClick={() => { navigate('admin'); closeMobileNav(); }}
             >
               <span className="nav-dot" />
-              Admin
+              {t('nav_admin') || 'Admin'}
             </button>
           )}
           <button
@@ -326,11 +326,11 @@ function App() {
               onClick={() => goAppSection('home')}
               aria-label="Back to home"
             >
-              ← Home
+              ← {t('nav_home') || 'Home'}
             </button>
             <span className="nav-breadcrumb-sep" aria-hidden="true">/</span>
             <span className="nav-breadcrumb-current">
-              {page === 'admin' ? 'Admin'
+              {page === 'admin' ? (t('nav_admin') || 'Admin')
                : currentPage === 'chat' ? 'Ask'
                : currentPage === 'research' ? 'Research'
                : (currentPage === 'legal' || currentPage === 'legal-chat') ? 'Legal'
@@ -347,7 +347,7 @@ function App() {
                 onClick={() => navigate('admin')}
               >
                 <span className="nav-dot" />
-                Admin
+                {t('nav_admin') || 'Admin'}
               </button>
             </div>
           )}

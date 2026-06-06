@@ -821,9 +821,9 @@ export default function AdminPage({ onGoChat }) {
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Vaqt</th>
-                  <th>Xabar</th>
-                  <th>So'rov ID</th>
+                  <th>{t('admin_metric_time') || 'Time'}</th>
+                  <th>{t('admin_metric_message') || 'Message'}</th>
+                  <th>{t('admin_metric_request_id') || 'Request ID'}</th>
                 </tr>
               </thead>
               <tbody>
@@ -847,7 +847,7 @@ export default function AdminPage({ onGoChat }) {
             <div className="table-container">
               <table className="admin-table">
                 <thead>
-                  <tr><th>Yo'l</th><th>Vaqt (ms)</th><th>Status</th></tr>
+                  <tr><th>{t('admin_metric_path') || 'Path'}</th><th>{t('admin_metric_time_ms') || 'Time (ms)'}</th><th>Status</th></tr>
                 </thead>
                 <tbody>
                   {slowReqs.slice(0, 10).map((r, i) => (
@@ -912,7 +912,7 @@ export default function AdminPage({ onGoChat }) {
     documents: t('admin_documents') || 'Hujjatlar',
     requests: t('admin_requests') || 'So\'rovlar',
     logs: t('admin_metrics') || 'Ko\'rsatkichlar',
-    support: 'Questions',
+    support: t('admin_support') || 'Questions',
   };
   const tabs = Object.keys(tabLabels);
 
