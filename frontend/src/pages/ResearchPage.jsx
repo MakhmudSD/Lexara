@@ -69,14 +69,16 @@ export default function ResearchPage({ workspaceId, workspaceName, onBack, onCha
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedDocs, setUploadedDocs] = useState([]);
 
-  /* Advance loading phase indicator while request is in-flight */
-  useEffect(() => {
-    if (!loading) { setPhaseIndex(0); return; }
-    const id = setInterval(() => {
-      setPhaseIndex((p) => Math.min(p + 1, PHASES.length - 1));
-    }, 2800);
-    return () => clearInterval(id);
-  }, [loading]);
+  const PHASE_MAP = {
+    planning: 0,
+    plan_complete: 0,
+    researching: 1,
+    searches_complete: 1,
+    reflecting: 2,
+    reflect_complete: 2,
+    writing: 3,
+    complete: 3,
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -85,10 +87,11 @@ export default function ResearchPage({ workspaceId, workspaceName, onBack, onCha
     setResult(null);
     setError('');
     setActiveTab('plan');
+    setPhaseIndex(0);
 
     try {
       const token = localStorage.getItem('access_token');
-      const res = await fetch(`${API_BASE_URL}/research`, {
+      const res = await fetch(`${API_BASE_URL}/research/stream`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,9 +109,33 @@ export default function ResearchPage({ workspaceId, workspaceName, onBack, onCha
         throw new Error(body?.detail || body?.message || `Error ${res.status}`);
       }
 
-      const data = await res.json();
-      setResult(data);
-      setActiveTab('report');
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          let event;
+          try { event = JSON.parse(line.slice(6)); } catch { continue; }
+
+          const idx = PHASE_MAP[event.phase];
+          if (idx !== undefined) setPhaseIndex(idx);
+
+          if (event.phase === 'complete') {
+            setResult(event.result);
+            setActiveTab('report');
+          } else if (event.phase === 'error') {
+            throw new Error(event.message || 'Research failed.');
+          }
+        }
+      }
     } catch (err) {
       setError(err.message || 'Research failed. Please try again.');
     } finally {
