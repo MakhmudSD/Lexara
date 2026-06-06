@@ -16,12 +16,20 @@ export default function LegalPage({ onAskQuestion }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [askError, setAskError] = useState('');
+  const [expanded, setExpanded] = useState({});
 
   const formatLegalWorkspaceName = (name) => {
     return name
       .replace(/\s*(Database|DB|Workspace)\s*/gi, ' ')
       .replace(/\s+/g, ' ')
       .trim();
+  };
+
+  const formatDocName = (filename) => {
+    return filename
+      .replace(/\.(txt|pdf|docx)$/i, '')
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase());
   };
 
   useEffect(() => {
@@ -83,7 +91,23 @@ export default function LegalPage({ onAskQuestion }) {
               <h2 className="legal-card-title">{formatLegalWorkspaceName(ws.name)}</h2>
               <p className="legal-card-description">{ws.description}</p>
               {ws.document_count != null && (
-                <span className="legal-card-badge">{`${ws.document_count} ${t('legal_documents') || 'documents'}`}</span>
+                <span className="legal-card-badge">{t('legal_documents').replace('{n}', ws.document_count || 0)}</span>
+              )}
+              <button
+                className="legal-card-expand-btn"
+                onClick={() => setExpanded(prev => ({...prev, [ws.id]: !prev[ws.id]}))}
+              >
+                {expanded[ws.id] ? '▲ Hide laws' : '▼ Show laws'}
+              </button>
+
+              {expanded[ws.id] && ws.documents && ws.documents.length > 0 && (
+                <ul className="legal-card-doc-list">
+                  {ws.documents.map(doc => (
+                    <li key={doc.id} className="legal-card-doc-item">
+                      📄 {formatDocName(doc.filename)}
+                    </li>
+                  ))}
+                </ul>
               )}
               <button
                 className="legal-card-cta"

@@ -597,11 +597,11 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
               style={{ '--reveal-delay': '120ms' }}
             >
               <div className="landing-hero-demo-urlbar">{t('demo_url') || 'app.lexara.ai'}</div>
-              <div className="landing-hero-demo-msg landing-hero-demo-msg--user">Does this contract comply with Korean labor law?</div>
+              <div className="landing-hero-demo-msg landing-hero-demo-msg--user">{t('landing_demo_question')}</div>
               <div className="landing-hero-demo-msg landing-hero-demo-msg--assistant">
-                Article 17 of the Labor Standards Act requires written employment contracts specifying wages, working hours, and holidays. Section 3.2 of the uploaded contract does not specify overtime compensation — this is a compliance gap.
+                {t('landing_demo_answer')}
               </div>
-              <div className="landing-hero-demo-msg landing-hero-demo-msg--user">Show the source passage.</div>
+              <div className="landing-hero-demo-msg landing-hero-demo-msg--user">{t('landing_demo_cta')}</div>
               <div className="landing-hero-demo-msg landing-hero-demo-msg--assistant">
                 {t('demo_references') || 'References: policy_v2.pdf · contract_notes.docx'}
               </div>
@@ -653,10 +653,10 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
           </div>
           <div className="landing-demo-body">
             <div className="landing-demo-user">
-              Does this contract comply with Korean labor law?
+              {t('landing_demo_question')}
             </div>
             <div className="landing-demo-assistant">
-              <p>Article 17 of the Labor Standards Act requires written employment contracts specifying wages, working hours, and holidays. Section 3.2 of the uploaded contract does not specify overtime compensation — this is a compliance gap.</p>
+              <p>{t('landing_demo_answer')}</p>
               <div className="landing-demo-sources">
                 <span className="landing-demo-source">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>

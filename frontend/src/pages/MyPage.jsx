@@ -41,6 +41,21 @@ const PLAN_FEATURES_DEFAULTS = {
   business: ['5,000 queries/month', 'Unlimited workspaces', 'All Pro features', 'Priority support'],
 };
 
+const formatDate = (dateStr, language) => {
+  const locale = {
+    en: 'en-US',
+    ko: 'ko-KR',
+    ru: 'ru-RU',
+    uz: 'uz-UZ',
+    ja: 'ja-JP',
+  }[language] || 'en-US';
+  return new Date(dateStr).toLocaleDateString(locale, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
+
 function SupportTab({ t }) {
   const [tickets, setTickets] = useState([]);
   const [faq, setFaq] = useState([]);
@@ -302,7 +317,7 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
   };
 
   const memberSince = user.created_at
-    ? new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    ? formatDate(user.created_at, lang)
     : '—';
 
   const tabs = [

@@ -280,7 +280,7 @@ function App() {
               <span className="nav-dot" />
               {currentPage === 'chat' ? 'Ask'
                : currentPage === 'research' ? 'Research'
-               : (currentPage === 'legal' || currentPage === 'legal-chat') ? 'Legal'
+               : (currentPage === 'legal' || currentPage === 'legal-chat') ? (t('nav_legal') || 'Legal')
                : currentPage === 'mypage' ? 'Account'
                : currentPage === 'admin' ? (t('nav_admin') || 'Admin') : ''}
             </button>
@@ -333,7 +333,7 @@ function App() {
               {page === 'admin' ? (t('nav_admin') || 'Admin')
                : currentPage === 'chat' ? 'Ask'
                : currentPage === 'research' ? 'Research'
-               : (currentPage === 'legal' || currentPage === 'legal-chat') ? 'Legal'
+               : (currentPage === 'legal' || currentPage === 'legal-chat') ? (t('nav_legal') || 'Legal')
                : currentPage === 'mypage' ? 'Account' : ''}
             </span>
           </div>

@@ -195,6 +195,36 @@
   padding: 3rem 1rem;
 }
 
+/* ── Expandable document list ── */
+.legal-card-expand-btn {
+  background: none;
+  border: none;
+  color: var(--legal-muted);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 4px 0;
+  font-family: var(--font-mono);
+  margin-top: 8px;
+  display: block;
+}
+
+.legal-card-doc-list {
+  list-style: none;
+  padding: 8px 0 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 8px;
+}
+
+.legal-card-doc-item {
+  font-size: 12px;
+  color: var(--legal-muted);
+  padding: 2px 0;
+}
+
 /* ── Disclaimer ── */
 .legal-disclaimer {
   max-width: 600px;
