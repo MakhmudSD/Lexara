@@ -31,9 +31,9 @@ def search_workspace_documents(
     )
     return [
         {
-            "filename": r.get("filename", ""),
-            "text": r.get("text", ""),
-            "score": r.get("score", 0.0),
+            "filename": r.filename or "",
+            "text": r.text,
+            "score": r.score,
         }
         for r in results
     ]
@@ -61,9 +61,9 @@ def search_workspace_documents_fresh(
         )
         return [
             {
-                "filename": r.get("filename", ""),
-                "text": r.get("text", ""),
-                "score": r.get("score", 0.0),
+                "filename": r.filename or "",
+                "text": r.text,
+                "score": r.score,
             }
             for r in results
         ]

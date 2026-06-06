@@ -18,6 +18,7 @@ from app.core.exceptions import AppError
 from app.core.runtime import AppRuntime
 from app.db.models import OrganizationMember, TokenUsage, User, Workspace
 from app.observability.models import TokenUsageEntry
+from app.routes.workspaces import _assert_workspace_access
 from app.services.research_agent.loop import _PLAN_PROMPT, _REFLECT_PROMPT, _REPORT_PROMPT
 
 router = APIRouter(prefix="/research", tags=["research"])
@@ -127,16 +128,7 @@ async def run_research_stream(
     current_user: User = Depends(get_current_user),
 ) -> StreamingResponse:
     """SSE streaming research — all DB work done before the generator starts."""
-    ws = db.query(Workspace).filter(Workspace.id == request.workspace_id).first()
-    if ws is None:
-        raise AppError(404, "workspace_not_found", "Workspace not found.")
-    if ws.organization_id is not None:
-        member = db.query(OrganizationMember).filter(
-            OrganizationMember.organization_id == ws.organization_id,
-            OrganizationMember.user_id == current_user.id,
-        ).first()
-        if member is None:
-            raise AppError(403, "forbidden", "You do not have access to this workspace.")
+    _assert_workspace_access(request.workspace_id, current_user, db)
 
     if not runtime.settings.openai_api_key:
         raise AppError(503, "openai_not_configured", "OpenAI API key is not configured.")
