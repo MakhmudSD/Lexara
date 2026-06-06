@@ -48,6 +48,11 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
   const [uploadStatus, setUploadStatus] = useState('');
   const [uploadedDocs, setUploadedDocs] = useState([]);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    // Show only if: no sessions, no uploads, no workspace, and not onboarded
+    const onboarded = localStorage.getItem('lexara_onboarded') === 'true';
+    return !onboarded;
+  });
 
   const normalizeMessages = useCallback((entries, fallbackTimestamp) => (
     (entries || []).map((entry, index) => ({
@@ -426,6 +431,13 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
 
   const canSend = input.trim() && !isLoading && !!workspaceId && hasWorkspaceName;
   const isEmpty = messages.length === 0 && !isLoading;
+  const shouldShowBanner = showOnboarding && sessions.length === 0 && uploadedDocs.length === 0 && !workspaceId;
+  
+  const dismissOnboarding = () => {
+    localStorage.setItem('lexara_onboarded', 'true');
+    setShowOnboarding(false);
+  };
+  
   const formatDate = (date) => {
     try {
       return new Date(date).toLocaleDateString();
@@ -442,6 +454,21 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
       </button>
       <div className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`} onClick={() => setSidebarOpen(false)} />
       <aside className={`chat-sidebar ${sidebarOpen ? 'open' : ''}`}>
+        {shouldShowBanner && (
+          <div className="onboarding-banner">
+            <div className="onboarding-banner-title">👋 Start here</div>
+            <div className="onboarding-banner-text">
+              Name your first project to begin uploading docs and asking questions.
+            </div>
+            <button
+              className="onboarding-banner-dismiss"
+              onClick={dismissOnboarding}
+            >
+              Got it
+            </button>
+          </div>
+        )}
+        
         <div className="sidebar-section">
           <WorkspaceSelector
             ref={workspaceSelectorRef}
@@ -449,6 +476,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
             workspaceName={workspaceName}
             onWorkspaceChange={(id) => {
               onChangeWorkspace(id);
+              if (id) dismissOnboarding();
               setMessages([]);
               setHistory([]);
               setError('');
