@@ -628,16 +628,16 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
         </div>
         <div className="landing-stats-row" ref={statsRef}>
           <div className="landing-stat">
-            <span className="landing-stat-number"><CountUp target={1200} />+</span>
-            <span className="landing-stat-label">{t('stat_docs_label') || 'documents indexed'}</span>
+            <span className="landing-stat-number"><CountUp target={100} /></span>
+            <span className="landing-stat-label">{t('landing_stat_free_queries') || 'Free queries/month'}</span>
           </div>
           <div className="landing-stat">
-            <span className="landing-stat-number"><CountUp target={50000} />+</span>
-            <span className="landing-stat-label">{t('stat_queries_label') || 'queries answered'}</span>
+            <span className="landing-stat-number"><CountUp target={5} /></span>
+            <span className="landing-stat-label">{t('landing_stat_laws') || 'Korean laws indexed'}</span>
           </div>
           <div className="landing-stat">
-            <span className="landing-stat-number"><CountUp target={99} />%</span>
-            <span className="landing-stat-label">{t('stat_uptime_label') || 'uptime'}</span>
+            <span className="landing-stat-number"><CountUp target={3} /></span>
+            <span className="landing-stat-label">{t('landing_stat_modes') || 'AI modes'}</span>
           </div>
         </div>
       </div>
