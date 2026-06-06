@@ -41,6 +41,13 @@ const ShieldIcon = () => (
   </svg>
 );
 
+const getGreeting = (t) => {
+  const hour = new Date().getHours();
+  if (hour < 12) return t('home_greeting_morning');
+  if (hour < 18) return t('home_greeting_afternoon');
+  return t('home_greeting_evening');
+};
+
 export default function HomePage({ authUser, onSelectMode }) {
   const { t } = useTranslation();
   
