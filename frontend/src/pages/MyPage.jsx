@@ -157,6 +157,43 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
   const [upgradeLoading, setUpgradeLoading] = useState(null);
   const [upgradeError, setUpgradeError] = useState('');
 
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
+  const handlePasswordChange = async () => {
+    if (newPassword.length < 8) {
+      setPasswordError('Password must be at least 8 characters');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match');
+      return;
+    }
+    setPasswordLoading(true);
+    setPasswordError('');
+    try {
+      await client.post('/auth/change-password', {
+        current_password: currentPassword,
+        new_password: newPassword,
+      });
+      setPasswordSuccess('Password changed successfully');
+      setShowPasswordForm(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => setPasswordSuccess(''), 5000);
+    } catch (err) {
+      setPasswordError(err?.response?.data?.detail || 'Password change failed');
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
   const PLAN_FEATURES = {
     free:     PLAN_FEATURES_KEYS.free.map((k, i) => t(k) || PLAN_FEATURES_DEFAULTS.free[i]),
     pro:      PLAN_FEATURES_KEYS.pro.map((k, i) => t(k) || PLAN_FEATURES_DEFAULTS.pro[i]),
@@ -365,6 +402,62 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
               ))}
             </select>
           </div>
+
+          <div className="mypage-divider" />
+
+          <div className="mypage-section-title">SECURITY</div>
+          {passwordSuccess && (
+            <p className="mypage-password-success">{passwordSuccess}</p>
+          )}
+          {!showPasswordForm ? (
+            <button
+              className="mypage-change-password-btn"
+              onClick={() => setShowPasswordForm(true)}
+            >
+              Change password
+            </button>
+          ) : (
+            <div className="mypage-password-form">
+              <input
+                type="password"
+                placeholder="Current password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="mypage-password-input"
+              />
+              <input
+                type="password"
+                placeholder="New password (min 8 chars)"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="mypage-password-input"
+              />
+              <input
+                type="password"
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="mypage-password-input"
+              />
+              {passwordError && <p className="mypage-password-error">{passwordError}</p>}
+              <div className="mypage-password-actions">
+                <button
+                  className="mypage-btn-primary"
+                  onClick={handlePasswordChange}
+                  disabled={passwordLoading}
+                >
+                  {passwordLoading ? 'Saving…' : 'Save password'}
+                </button>
+                <button
+                  className="mypage-signout-btn"
+                  style={{ marginTop: 0 }}
+                  onClick={() => { setShowPasswordForm(false); setPasswordError(''); }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="mypage-divider" />
           <button className="mypage-signout-btn" onClick={onLogout}>

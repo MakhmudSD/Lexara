@@ -5,6 +5,7 @@ from uuid import uuid4
 import secrets
 
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -203,3 +204,23 @@ def reset_password(
     token_row.used_at = datetime.utcnow()
     db.commit()
     return {"message": "Password reset successfully"}
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+
+@router.post("/change-password")
+def change_password(
+    payload: ChangePasswordRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    if not verify_password(payload.current_password, current_user.hashed_password):
+        raise AppError(400, "invalid_password", "Current password is incorrect.")
+    if len(payload.new_password) < 8:
+        raise AppError(400, "password_too_short", "Password must be at least 8 characters.")
+    current_user.hashed_password = hash_password(payload.new_password)
+    db.commit()
+    return {"status": "ok"}
