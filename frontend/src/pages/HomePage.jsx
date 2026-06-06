@@ -79,9 +79,15 @@ export default function HomePage({ authUser, onSelectMode }) {
   ];
   
   const rawName = authUser?.full_name?.split(' ')[0] || '';
-  // If full_name is empty or looks like a username (no spaces, all lowercase + numbers),
+  // If full_name is empty or looks like a username (contains underscore, all lowercase, or has numbers),
   // use a generic greeting instead
-  const looksLikeUsername = rawName && /^[a-z0-9_]+$/.test(rawName);
+  const looksLikeUsername = rawName && (
+    /^[a-z0-9_]+$/i.test(rawName) &&        // matches alphanumeric + underscore (case-insensitive)
+    !/\s/.test(rawName) &&                   // confirm no spaces
+    (rawName.includes('_') ||               // has underscore (typical username pattern)
+     rawName === rawName.toLowerCase() ||   // all lowercase (typical username pattern)
+     /\d/.test(rawName))                    // contains numbers (typical username pattern)
+  );
   const displayName = looksLikeUsername ? '' : rawName;
   const greeting = displayName ? `${getGreeting(t)}, ${displayName}` : `${getGreeting(t)}!`;
 

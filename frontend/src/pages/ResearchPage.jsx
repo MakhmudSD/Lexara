@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import client, { API_BASE_URL } from '../api/client';
 import { useTranslation } from '../i18n/useTranslation';
 import WorkspaceSelector from '../components/WorkspaceSelector';
+import { uploadDocument, getDocumentStatus } from '../api/upload';
 import '../styles/ResearchPage.css';
 
 const PHASES = ['Planning…', 'Searching…', 'Reflecting…', 'Writing…'];
@@ -54,6 +55,8 @@ function getVerdict(reflection = '') {
 export default function ResearchPage({ workspaceId, workspaceName, onBack, onChangeWorkspace, onWorkspaceNameChange }) {
   const { t } = useTranslation();
   const workspaceSelectorRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const pollTimeoutRef = useRef(null);
   const [topic, setTopic] = useState('');
   const [mode, setMode] = useState('general_research');
   const [loading, setLoading] = useState(false);
@@ -62,6 +65,9 @@ export default function ResearchPage({ workspaceId, workspaceName, onBack, onCha
   const [error, setError] = useState('');
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadedDocs, setUploadedDocs] = useState([]);
 
   /* Advance loading phase indicator while request is in-flight */
   useEffect(() => {
@@ -102,7 +108,7 @@ export default function ResearchPage({ workspaceId, workspaceName, onBack, onCha
 
       const data = await res.json();
       setResult(data);
-      setActiveTab('plan');
+      setActiveTab('report');
     } catch (err) {
       setError(err.message || 'Research failed. Please try again.');
     } finally {
@@ -117,6 +123,59 @@ export default function ResearchPage({ workspaceId, workspaceName, onBack, onCha
       setTimeout(() => setCopied(false), 2000);
     });
   };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !workspaceId) return;
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    let documentId = null;
+    try {
+      const result = await uploadDocument(file, workspaceId, null, (pct) => setUploadProgress(pct));
+      documentId = result?.id;
+    } catch {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    if (!documentId) {
+      setUploadedDocs(prev => [...prev, { id: Date.now(), filename: file.name }]);
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    const poll = async () => {
+      try {
+        const status = await getDocumentStatus(documentId);
+        if (status.status === 'ready') {
+          setUploadedDocs(prev => [...prev, {
+            id: documentId,
+            filename: status.filename || file.name,
+          }]);
+          setIsUploading(false);
+          if (fileInputRef.current) fileInputRef.current.value = '';
+        } else if (status.status === 'failed') {
+          setIsUploading(false);
+          if (fileInputRef.current) fileInputRef.current.value = '';
+        } else {
+          pollTimeoutRef.current = setTimeout(poll, 2000);
+        }
+      } catch {
+        pollTimeoutRef.current = setTimeout(poll, 2000);
+      }
+    };
+    pollTimeoutRef.current = setTimeout(poll, 2000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current);
+    };
+  }, []);
 
   const verdict = result ? getVerdict(result.reflection || '') : null;
 
@@ -146,6 +205,38 @@ export default function ResearchPage({ workspaceId, workspaceName, onBack, onCha
               onConnectionError={() => {}}
               onCreatingChange={() => {}}
             />
+          </div>
+        )}
+
+        {/* Document upload — shown when workspace is selected */}
+        {workspaceId && (
+          <div className="research-upload-area">
+            <input
+              ref={fileInputRef}
+              type="file"
+              style={{ display: 'none' }}
+              onChange={handleFileUpload}
+              accept=".pdf,.doc,.docx,.txt"
+              aria-label="Upload document"
+            />
+            <button
+              className="research-upload-btn"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+            >
+              {isUploading
+                ? `Uploading… ${uploadProgress}%`
+                : '+ Upload document'}
+            </button>
+            {uploadedDocs.length > 0 && (
+              <div className="research-doc-list">
+                {uploadedDocs.map((doc) => (
+                  <div key={doc.id} className="research-doc-chip">
+                    📄 {doc.filename}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -245,37 +336,62 @@ export default function ResearchPage({ workspaceId, workspaceName, onBack, onCha
             </div>
 
             {/* ── PLAN tab ── */}
-            {activeTab === 'plan' && (
+            {activeTab === 'plan' && result?.plan && (
               <div className="research-tab-panel" role="tabpanel">
-                <p className="research-plan-text">
-                  {result.plan || 'No plan generated.'}
-                </p>
+                <div className="research-plan">
+                  <div className="research-plan-question">
+                    <div className="research-plan-label">Main Question</div>
+                    <p className="research-plan-value">{result.plan.main_question}</p>
+                  </div>
+
+                  {result.plan.sub_questions?.length > 0 && (
+                    <div className="research-plan-section">
+                      <div className="research-plan-label">Sub-questions</div>
+                      <ul className="research-plan-list">
+                        {result.plan.sub_questions.map((q, i) => (
+                          <li key={i} className="research-plan-list-item">{q}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {result.plan.report_sections?.length > 0 && (
+                    <div className="research-plan-section">
+                      <div className="research-plan-label">Report Sections</div>
+                      <div className="research-plan-chips">
+                        {result.plan.report_sections.map((s, i) => (
+                          <span key={i} className="research-plan-chip">{s}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
             {/* ── SEARCHES tab ── */}
             {activeTab === 'searches' && (
               <div className="research-tab-panel" role="tabpanel">
-                {(result.searches || []).length === 0 ? (
-                  <p style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>No searches recorded.</p>
+                {result?.searches?.length > 0 ? (
+                  <div className="research-searches">
+                    {result.searches.map((s, i) => {
+                      const isDoc = s.query?.startsWith('[DOC]');
+                      const query = isDoc ? s.query.replace('[DOC]', '').trim() : s.query;
+                      const kb = s.chars ? `${(s.chars / 1000).toFixed(1)}k chars` : '';
+                      return (
+                        <div key={i} className="research-search-row">
+                          <span className="research-search-round">R{s.round || 1}</span>
+                          <span className={`research-search-badge ${isDoc ? 'doc' : 'web'}`}>
+                            {isDoc ? 'DOC' : 'WEB'}
+                          </span>
+                          <span className="research-search-query">{query}</span>
+                          {kb && <span className="research-search-size">{kb}</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
                 ) : (
-                  (result.searches || []).map((s, i) => (
-                    <div key={i} className="research-search-row">
-                      <span className="research-search-index">{i + 1}</span>
-                      <span className="research-search-query">{s.query}</span>
-                      <div className="research-search-hits">
-                        {s.doc_hits > 0 && (
-                          <span className="research-hit-badge doc">{s.doc_hits} DOC</span>
-                        )}
-                        {s.web_hits > 0 && (
-                          <span className="research-hit-badge web">{s.web_hits} WEB</span>
-                        )}
-                        {s.doc_hits === 0 && s.web_hits === 0 && (
-                          <span className="research-hit-badge web">0 hits</span>
-                        )}
-                      </div>
-                    </div>
-                  ))
+                  <div className="research-empty-tab">No searches recorded.</div>
                 )}
               </div>
             )}

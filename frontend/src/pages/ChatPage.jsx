@@ -560,10 +560,18 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
                 {(() => {
                   try {
                     const u = JSON.parse(localStorage.getItem('authUser') || '{}');
-                    const name = u.full_name?.split(' ')[0] || u.email?.split('@')[0] || '';
+                    const rawName = u.full_name?.split(' ')[0] || '';
+                    const looksLikeUsername = rawName && (
+                      /^[a-z0-9_]+$/i.test(rawName) &&
+                      !/\s/.test(rawName) &&
+                      (rawName.includes('_') ||
+                       rawName === rawName.toLowerCase() ||
+                       /\d/.test(rawName))
+                    );
+                    const displayName = looksLikeUsername ? '' : rawName;
                     const hour = new Date().getHours();
                     const tod = hour < 12 ? t('good_morning') : hour < 18 ? t('good_afternoon') : t('good_evening');
-                    return name ? `${tod}, ${name} 👋` : `${tod} 👋`;
+                    return displayName ? `${tod}, ${displayName} 👋` : `${tod} 👋`;
                   } catch { return '👋'; }
                 })()}
               </div>
@@ -591,9 +599,17 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
                       {(() => {
                         try {
                           const u = JSON.parse(localStorage.getItem('authUser') || '{}');
-                          const name = u.full_name?.split(' ')[0] || u.email?.split('@')[0] || '';
+                          const rawName = u.full_name?.split(' ')[0] || '';
+                          const looksLikeUsername = rawName && (
+                            /^[a-z0-9_]+$/i.test(rawName) &&
+                            !/\s/.test(rawName) &&
+                            (rawName.includes('_') ||
+                             rawName === rawName.toLowerCase() ||
+                             /\d/.test(rawName))
+                          );
+                          const displayName = looksLikeUsername ? '' : rawName;
                           const base = t('ai_welcome_msg') || 'Hi{name}! Upload a document using the button below, then ask me anything about it.';
-                          return base.replace('{name}', name ? ` ${name}` : '');
+                          return base.replace('{name}', displayName ? ` ${displayName}` : '');
                         } catch { return t('ai_welcome_msg') || 'Upload a document, then ask me anything about it.'; }
                       })()}
                     </p>
