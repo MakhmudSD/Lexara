@@ -23,6 +23,7 @@ function App() {
   const [workspaceName, setWorkspaceName] = useState(() => localStorage.getItem('workspaceName') || '');
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') === 'dark');
   const [legalChatWs, setLegalChatWs] = useState({ id: '', name: '' });
+  const [legalJurisdiction, setLegalJurisdiction] = useState('KR');
   const [currentPage, setCurrentPage] = useState('home');
   const [page, setPage] = useState(() => (localStorage.getItem('authUser') ? 'app' : 'landing'));
   const [transitioning, setTransitioning] = useState(false);
@@ -437,10 +438,11 @@ function App() {
         {page === 'admin' && authUser.role?.toLowerCase() === 'admin' && lazySuspense(<AdminPage onGoChat={() => goAppSection('chat')} />)}
         {page === 'app' && currentPage === 'legal' && lazySuspense(
           <LegalPage
-            onAskQuestion={(ws) => {
+            onAskQuestion={(ws, jurisdiction) => {
               if (ws?.id) {
                 setLegalChatWs({ id: ws.id, name: ws.name || '' });
               }
+              setLegalJurisdiction(jurisdiction || 'KR');
               goAppSection('legal-chat');
             }}
           />
@@ -449,6 +451,7 @@ function App() {
           <LegalChatPage
             workspaceId={legalChatWs.id}
             workspaceName={legalChatWs.name}
+            jurisdiction={legalJurisdiction}
             onBack={() => goAppSection('legal')}
           />
         )}

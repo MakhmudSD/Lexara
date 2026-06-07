@@ -69,7 +69,7 @@ function JurisdictionCard({ ws, docs, badge, title, expandKey, expanded, onToggl
           ))}
         </ul>
       )}
-      <button className="legal-card-cta" onClick={() => onAsk(ws)}>
+      <button className="legal-card-cta" onClick={() => onAsk(ws, badge)}>
         {t('legal_ask_btn') || 'Ask a question'}
       </button>
     </div>
@@ -102,10 +102,10 @@ export default function LegalPage({ onAskQuestion }) {
   const handleToggle = (key) =>
     setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
 
-  const handleAsk = (ws) => {
+  const handleAsk = (ws, jurisdiction) => {
     if (typeof onAskQuestion === 'function') {
       setAskError('');
-      onAskQuestion(ws);
+      onAskQuestion(ws, jurisdiction);
     } else {
       setAskError('Navigation unavailable — please reload the page.');
     }

@@ -8,7 +8,7 @@ import '../styles/LegalChatPage.css';
 
 const HISTORY_LIMIT = 12;
 
-export default function LegalChatPage({ workspaceId, workspaceName, onBack }) {
+export default function LegalChatPage({ workspaceId, workspaceName, jurisdiction = 'KR', onBack }) {
   const { t } = useTranslation();
   const [messages, setMessages] = useState([]);
   const [history, setHistory] = useState([]);
@@ -260,6 +260,12 @@ export default function LegalChatPage({ workspaceId, workspaceName, onBack }) {
 
   const canSend = input.trim() && !isLoading;
   const isEmpty = messages.length === 0 && !isLoading;
+  const displayTitle = jurisdiction === 'UZ'
+    ? (t('uzbek_law') || 'Uzbek Law')
+    : (t('korean_law') || 'Korean Law');
+  const emptyStateText = jurisdiction === 'UZ'
+    ? (t('legal_uz_empty') || 'Ask about Uzbek statutes — Labour Code, Civil Code, Criminal Code, and the Constitution.')
+    : (t('legal_kr_empty') || 'Ask about Korean statutes — Personal Information Protection Act, Labor Standards Act, Civil Act, Criminal Act, and the Constitution.');
   const formatDate = (date) => {
     try {
       return new Date(date).toLocaleDateString();
@@ -310,9 +316,9 @@ export default function LegalChatPage({ workspaceId, workspaceName, onBack }) {
       <main className="chat-main">
         <div className="legal-chat-header">
           <div className="legal-chat-header-ws">
-            <span className="legal-chat-badge">KR</span>
+            <span className="legal-chat-badge">{jurisdiction}</span>
             <div className="chat-status-dot" />
-            <span className="legal-chat-ws-name">{workspaceName}</span>
+            <span className="legal-chat-ws-name">{displayTitle}</span>
           </div>
           <button type="button" className="legal-chat-back" onClick={onBack}>
             ← All databases
@@ -323,10 +329,7 @@ export default function LegalChatPage({ workspaceId, workspaceName, onBack }) {
           {isEmpty && (
             <div className="legal-chat-empty">
               <LexaraIcon size={32} />
-              <p>
-                Ask about Korean statutes — Personal Information Protection Act, Labor Standards Act,
-                Civil Act, Criminal Act, and the Constitution.
-              </p>
+              <p>{emptyStateText}</p>
             </div>
           )}
 
