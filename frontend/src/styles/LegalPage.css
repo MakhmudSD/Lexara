@@ -43,22 +43,23 @@
 
 /* ── Cards grid ── */
 .legal-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
   width: 100%;
   max-width: 1100px;
   margin-bottom: 3rem;
 }
 
-@media (max-width: 900px) {
-  .legal-cards-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+/* Pair of jurisdiction cards (KR + UZ) from the same workspace */
+.legal-jurisdiction-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
-@media (max-width: 580px) {
-  .legal-cards-grid {
+@media (max-width: 640px) {
+  .legal-jurisdiction-pair {
     grid-template-columns: 1fr;
   }
 }
