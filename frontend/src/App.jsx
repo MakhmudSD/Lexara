@@ -24,8 +24,8 @@ function App() {
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') === 'dark');
   const [legalChatWs, setLegalChatWs] = useState({ id: '', name: '' });
   const [legalJurisdiction, setLegalJurisdiction] = useState('KR');
-  const [currentPage, setCurrentPage] = useState('home');
-  const [page, setPage] = useState(() => (localStorage.getItem('authUser') ? 'app' : 'landing'));
+  const [currentPage, setCurrentPage] = useState(localStorage.getItem('lexara_current_page') || 'home');
+  const [page, setPage] = useState(localStorage.getItem('lexara_page') || (localStorage.getItem('authUser') ? 'app' : 'landing'));
   const [transitioning, setTransitioning] = useState(false);
   const [authUser, setAuthUser] = useState(() => {
     try {
@@ -42,6 +42,7 @@ function App() {
 
   // GSAP page transition: fade+slide out, swap state, fade+slide in
   const navigate = (newPage) => {
+    localStorage.setItem('lexara_page', newPage);
     const el = contentRef.current;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!el || reduced) {
@@ -72,6 +73,8 @@ function App() {
         if (!stored) {
           localStorage.removeItem('workspaceId');
           localStorage.removeItem('workspaceName');
+          localStorage.setItem('lexara_page', 'landing');
+          localStorage.removeItem('lexara_current_page');
           setWorkspaceId('');
           setWorkspaceName('');
           setPage('landing');
@@ -80,6 +83,8 @@ function App() {
         setAuthUser(null);
         localStorage.removeItem('workspaceId');
         localStorage.removeItem('workspaceName');
+        localStorage.setItem('lexara_page', 'landing');
+        localStorage.removeItem('lexara_current_page');
         setWorkspaceId('');
         setWorkspaceName('');
         setPage('landing');
@@ -116,10 +121,12 @@ function App() {
     const syncFromHash = () => {
       if (window.location.hash === '#admin') {
         if (authUser.role?.toLowerCase() === 'admin') {
+          localStorage.setItem('lexara_page', 'admin');
           setPage('admin');
           setAccessDenied('');
         } else {
           setAccessDenied('Access denied');
+          localStorage.setItem('lexara_page', 'app');
           setPage('app');
           window.setTimeout(() => {
             window.location.hash = '';
@@ -197,8 +204,10 @@ function App() {
           setAuthUser(user);
           if (plan && plan !== 'free') {
             setIntendedPlan(plan);
+            localStorage.setItem('lexara_current_page', 'mypage');
             setCurrentPage('mypage');
           }
+          localStorage.setItem('lexara_page', 'app');
           setPage('app');
         }}
         onBackToLogin={() => { setAuthMode('login'); navigate('login'); }}
@@ -218,8 +227,10 @@ function App() {
           setAuthUser(user);
           if (plan && plan !== 'free') {
             setIntendedPlan(plan);
+            localStorage.setItem('lexara_current_page', 'mypage');
             setCurrentPage('mypage');
           }
+          localStorage.setItem('lexara_page', 'app');
           setPage('app');
         }}
         onRegister={() => { setAuthMode('register'); navigate('register'); }}
@@ -235,6 +246,8 @@ function App() {
       gsap.to(el, {
         opacity: 0, y: -12, duration: 0.15, ease: 'power2.in',
         onComplete: () => {
+          localStorage.setItem('lexara_page', 'app');
+          localStorage.setItem('lexara_current_page', section);
           setPage('app');
           setCurrentPage(section);
           window.location.hash = '';
@@ -242,6 +255,8 @@ function App() {
         },
       });
     } else {
+      localStorage.setItem('lexara_page', 'app');
+      localStorage.setItem('lexara_current_page', section);
       setPage('app');
       setCurrentPage(section);
       window.location.hash = '';
