@@ -16,7 +16,15 @@ const formatLegalWorkspaceName = (name) =>
     .trim();
 
 function splitDocs(documents = []) {
-  const koreanDocs = documents.filter((d) => {
+  const dedup = (docs) => {
+    const seen = new Set();
+    return docs.filter((d) => {
+      if (seen.has(d.filename)) return false;
+      seen.add(d.filename);
+      return true;
+    });
+  };
+  const koreanDocs = dedup(documents.filter((d) => {
     const f = d.filename.toLowerCase();
     return (
       !f.includes('uzbek') &&
@@ -25,19 +33,19 @@ function splitDocs(documents = []) {
       !f.includes('criminal_code_of_uzbek') &&
       !f.includes('constitution_of_uzbek')
     );
-  });
-  const uzbekDocs = documents.filter((d) => {
+  }));
+  const uzbekDocs = dedup(documents.filter((d) => {
     const f = d.filename.toLowerCase();
     return f.includes('uzbek') || f.includes('labour_code');
-  });
+  }));
   return { koreanDocs, uzbekDocs };
 }
 
-function JurisdictionCard({ ws, docs, badge, expandKey, expanded, onToggle, onAsk, t }) {
+function JurisdictionCard({ ws, docs, badge, title, expandKey, expanded, onToggle, onAsk, t }) {
   return (
     <div className="legal-card">
       <div className="legal-card-jurisdiction">{badge}</div>
-      <h2 className="legal-card-title">{formatLegalWorkspaceName(ws.name)}</h2>
+      <h2 className="legal-card-title">{title}</h2>
       <p className="legal-card-description">{ws.description}</p>
       {docs.length > 0 && (
         <span className="legal-card-badge">
@@ -144,6 +152,7 @@ export default function LegalPage({ onAskQuestion }) {
                       ws={ws}
                       docs={koreanDocs}
                       badge="KR"
+                      title={t('korean_law') || 'Korean Law'}
                       expandKey={`${ws.id}_kr`}
                       expanded={!!expanded[`${ws.id}_kr`]}
                       onToggle={handleToggle}
@@ -154,6 +163,7 @@ export default function LegalPage({ onAskQuestion }) {
                       ws={ws}
                       docs={uzbekDocs}
                       badge="UZ"
+                      title={t('uzbek_law') || 'Uzbek Law'}
                       expandKey={`${ws.id}_uz`}
                       expanded={!!expanded[`${ws.id}_uz`]}
                       onToggle={handleToggle}
@@ -164,14 +174,19 @@ export default function LegalPage({ onAskQuestion }) {
                 );
               }
 
-              const badge = uzbekDocs.length > 0 ? 'UZ' : 'KR';
-              const docs = uzbekDocs.length > 0 ? uzbekDocs : koreanDocs;
+              const isUz = uzbekDocs.length > 0;
+              const badge = isUz ? 'UZ' : 'KR';
+              const docs = isUz ? uzbekDocs : koreanDocs;
+              const title = isUz
+                ? (t('uzbek_law') || 'Uzbek Law')
+                : (t('korean_law') || 'Korean Law');
               return (
                 <JurisdictionCard
                   key={ws.id}
                   ws={ws}
                   docs={docs}
                   badge={badge}
+                  title={title}
                   expandKey={ws.id}
                   expanded={!!expanded[ws.id]}
                   onToggle={handleToggle}
