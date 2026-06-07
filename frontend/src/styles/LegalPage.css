@@ -9,7 +9,9 @@
   --legal-text:    #f1f5f9;
   --legal-muted:   #94a3b8;
 
-  min-height: 100vh;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
   background: var(--legal-bg);
   color: var(--legal-text);
   display: flex;
