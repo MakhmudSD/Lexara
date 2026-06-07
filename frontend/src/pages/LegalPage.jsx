@@ -69,8 +69,15 @@ function JurisdictionCard({ ws, docs, badge, title, expandKey, expanded, onToggl
           ))}
         </ul>
       )}
-      <button className="legal-card-cta" onClick={() => onAsk(ws, badge)}>
-        {t('legal_ask_btn') || 'Ask a question'}
+      <button
+        className="legal-card-cta"
+        onClick={() => docs.length > 0 ? onAsk(ws, badge) : null}
+        disabled={docs.length === 0}
+        style={docs.length === 0 ? { opacity: 0.4, cursor: 'not-allowed' } : {}}
+      >
+        {docs.length === 0
+          ? (t('legal_no_docs_yet') || 'No documents yet')
+          : (t('legal_ask_btn') || 'Ask a question')}
       </button>
     </div>
   );

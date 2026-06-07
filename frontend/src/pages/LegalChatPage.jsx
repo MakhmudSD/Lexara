@@ -67,16 +67,16 @@ export default function LegalChatPage({ workspaceId, workspaceName, jurisdiction
     };
     const updated = [newSession, ...sessions];
     setSessions(updated);
-    localStorage.setItem(`lexara_sessions_${_userId}_${workspaceId}`, JSON.stringify(updated));
+    localStorage.setItem(`lexara_sessions_${_userId}_${workspaceId}_${jurisdiction}`, JSON.stringify(updated));
     setActiveSessionId(newSession.id);
     setMessages([]);
     setSidebarOpen(false);
-  }, [sessions, t, workspaceId, _userId]);
+  }, [sessions, t, workspaceId, _userId, jurisdiction]);
 
   const deleteSession = useCallback((sessionId) => {
     const updated = sessions.filter((s) => s.id !== sessionId);
     setSessions(updated);
-    localStorage.setItem(`lexara_sessions_${_userId}_${workspaceId}`, JSON.stringify(updated));
+    localStorage.setItem(`lexara_sessions_${_userId}_${workspaceId}_${jurisdiction}`, JSON.stringify(updated));
     if (activeSessionId === sessionId) {
       if (updated.length > 0) {
         loadSession(updated[0].id);
@@ -86,7 +86,7 @@ export default function LegalChatPage({ workspaceId, workspaceName, jurisdiction
       }
     }
     setSidebarOpen(false);
-  }, [activeSessionId, loadSession, sessions, workspaceId, _userId]);
+  }, [activeSessionId, loadSession, sessions, workspaceId, _userId, jurisdiction]);
 
   const saveSession = useCallback((sessionId, newMessages) => {
     if (!sessionId || !workspaceId) return;
@@ -100,17 +100,17 @@ export default function LegalChatPage({ workspaceId, workspaceName, jurisdiction
             }
           : s
       ));
-      localStorage.setItem(`lexara_sessions_${_userId}_${workspaceId}`, JSON.stringify(updated));
+      localStorage.setItem(`lexara_sessions_${_userId}_${workspaceId}_${jurisdiction}`, JSON.stringify(updated));
       return updated;
     });
-  }, [workspaceId, _userId]);
+  }, [workspaceId, _userId, jurisdiction]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   useEffect(() => {
-    const raw = localStorage.getItem(`lexara_sessions_${_userId}_${workspaceId}`);
+    const raw = localStorage.getItem(`lexara_sessions_${_userId}_${workspaceId}_${jurisdiction}`);
     if (raw) {
       try {
         const parsed = JSON.parse(raw);
@@ -137,7 +137,7 @@ export default function LegalChatPage({ workspaceId, workspaceName, jurisdiction
       setMessages([]);
       setHistory([]);
     }
-  }, [normalizeMessages, workspaceId]);
+  }, [normalizeMessages, workspaceId, jurisdiction]);
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -170,7 +170,7 @@ export default function LegalChatPage({ workspaceId, workspaceName, jurisdiction
       };
       const updated = [newSession, ...sessions];
       setSessions(updated);
-      localStorage.setItem(`lexara_sessions_${_userId}_${workspaceId}`, JSON.stringify(updated));
+      localStorage.setItem(`lexara_sessions_${_userId}_${workspaceId}_${jurisdiction}`, JSON.stringify(updated));
       setActiveSessionId(newSession.id);
       sessionId = newSession.id;
     }
@@ -256,7 +256,7 @@ export default function LegalChatPage({ workspaceId, workspaceName, jurisdiction
         setIsLoading(false);
       },
     );
-  }, [activeSessionId, appendHistory, history, isLoading, saveSession, sessions, t, workspaceId, _userId]);
+  }, [activeSessionId, appendHistory, history, isLoading, saveSession, sessions, t, workspaceId, _userId, jurisdiction]);
 
   const canSend = input.trim() && !isLoading;
   const isEmpty = messages.length === 0 && !isLoading;
@@ -321,7 +321,7 @@ export default function LegalChatPage({ workspaceId, workspaceName, jurisdiction
             <span className="legal-chat-ws-name">{displayTitle}</span>
           </div>
           <button type="button" className="legal-chat-back" onClick={onBack}>
-            ← All databases
+            {t('legal_back') || '← All databases'}
           </button>
         </div>
 
