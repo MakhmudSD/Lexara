@@ -8,7 +8,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.core.auth import get_current_user
-from app.core.config import PLAN_LIMITS
+from app.core.entitlements import effective_plan, plan_limit
 from app.core.dependencies import get_db, get_request_id, get_runtime
 from app.core.exceptions import AppError
 from app.observability.models import ConversationEntry, TokenUsageEntry
@@ -56,11 +56,9 @@ def _check_quota(db: Session, user_id: str | None) -> "User | None":
     if user is None:
         return None
 
-    plan = user.plan or "free"
-    if user.plan_expires_at and user.plan_expires_at < datetime.utcnow():
-        plan = "free"
+    plan = effective_plan(user)
 
-    monthly_limit = PLAN_LIMITS.get(plan, PLAN_LIMITS["free"])["monthly_queries"]
+    monthly_limit = plan_limit(user, "monthly_queries")
 
     now = datetime.utcnow()
     month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
