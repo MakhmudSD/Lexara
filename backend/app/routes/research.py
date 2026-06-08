@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import time
+from datetime import datetime
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends
@@ -14,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from app.core.auth import get_current_user
 from app.core.dependencies import get_db, get_runtime
+from app.core.entitlements import plan_limit, require_feature
 from app.core.exceptions import AppError
 from app.core.runtime import AppRuntime
 from app.db.models import OrganizationMember, TokenUsage, User, Workspace
@@ -23,6 +25,30 @@ from app.services.research_agent.loop import _PLAN_PROMPT, _REFLECT_PROMPT, _REP
 
 router = APIRouter(prefix="/research", tags=["research"])
 logger = logging.getLogger(__name__)
+
+
+def _check_research_quota(db: Session, user: User) -> None:
+    """Raise 429 if user has exceeded their monthly research-run sub-quota."""
+    limit = plan_limit(user, "monthly_research_runs")
+
+    now = datetime.utcnow()
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    run_count = (
+        db.query(TokenUsage)
+        .filter(
+            TokenUsage.user_id == str(user.id),
+            TokenUsage.timestamp >= month_start,
+            TokenUsage.mode.in_(["research", "research_stream"]),
+        )
+        .count()
+    )
+
+    if run_count >= limit:
+        raise AppError(
+            429,
+            "research_quota_exceeded",
+            f"Monthly research limit ({limit}) reached. Upgrade for more.",
+        )
 
 
 class ResearchRequest(BaseModel):
@@ -56,6 +82,9 @@ async def run_research(
         ).first()
         if member is None:
             raise AppError(403, "forbidden", "You do not have access to this workspace.")
+
+    require_feature(current_user, "research")
+    _check_research_quota(db, current_user)
 
     if not runtime.settings.openai_api_key:
         raise AppError(503, "openai_not_configured", "OpenAI API key is not configured.")
@@ -129,6 +158,9 @@ async def run_research_stream(
 ) -> StreamingResponse:
     """SSE streaming research — all DB work done before the generator starts."""
     _assert_workspace_access(request.workspace_id, current_user, db)
+
+    require_feature(current_user, "research")
+    _check_research_quota(db, current_user)
 
     if not runtime.settings.openai_api_key:
         raise AppError(503, "openai_not_configured", "OpenAI API key is not configured.")
