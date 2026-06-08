@@ -11,7 +11,17 @@ import '../styles/ChatPage.css';
 const HISTORY_LIMIT = 12;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace, onWorkspaceNameChange }) {
+const RETENTION_DAYS = { free: 7, pro: null, business: null };
+
+function pruneExpiredSessions(sessions, plan) {
+  const days = RETENTION_DAYS[(plan || 'free').toLowerCase()] ?? null;
+  if (days === null) return sessions;
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - days);
+  return sessions.filter(s => !s.createdAt || new Date(s.createdAt) >= cutoff);
+}
+
+export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace, onWorkspaceNameChange, onUpgrade }) {
   const { t } = useTranslation();
   const [messages, setMessages] = useState([]);
   const [history, setHistory] = useState([]);
@@ -23,8 +33,12 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
   const [error, setError] = useState('');
   const [connectionError, setConnectionError] = useState(false);
 
-  // Derive userId once at mount — component is re-keyed on user change so this is always fresh
-  const _userId = (() => { try { return JSON.parse(localStorage.getItem('authUser') || '{}').id || ''; } catch { return ''; } })();
+  // Derive userId and plan once at mount — component is re-keyed on user change so these are always fresh
+  const _authUser = (() => { try { return JSON.parse(localStorage.getItem('authUser') || '{}'); } catch { return {}; } })();
+  const _userId = _authUser.id || '';
+  const _plan = _authUser.plan || 'free';
+  const _planExpired = _authUser.plan_expires_at && new Date(_authUser.plan_expires_at) < new Date();
+  const effectivePlan = _planExpired ? 'free' : _plan.toLowerCase();
   const userIdRef = useRef(_userId);
 
   // Purge sessions belonging to other users — runs once on mount (safe side-effect location)
@@ -140,10 +154,14 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
     if (raw) {
       try {
         const parsed = JSON.parse(raw);
-        setSessions(Array.isArray(parsed) ? parsed : []);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setActiveSessionId(parsed[0].id);
-          const normalizedMessages = normalizeMessages(parsed[0].messages || [], new Date(parsed[0].createdAt || Date.now()).getTime());
+        const pruned = pruneExpiredSessions(Array.isArray(parsed) ? parsed : [], effectivePlan);
+        if (pruned.length !== (Array.isArray(parsed) ? parsed : []).length) {
+          localStorage.setItem(`lexara_sessions_${_userId}_${workspaceId}`, JSON.stringify(pruned));
+        }
+        setSessions(pruned);
+        if (pruned.length > 0) {
+          setActiveSessionId(pruned[0].id);
+          const normalizedMessages = normalizeMessages(pruned[0].messages || [], new Date(pruned[0].createdAt || Date.now()).getTime());
           setMessages(normalizedMessages);
           setHistory(normalizedMessages.filter((entry) => entry.role === 'user' || entry.role === 'assistant').slice(-HISTORY_LIMIT));
           setConnectionError(false);
@@ -494,6 +512,12 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
           <button className="new-chat-btn" onClick={createNewSession}>
             + {t('new_conversation')}
           </button>
+          {effectivePlan === 'free' && (
+            <div className="history-retention-notice">
+              Free plan: {RETENTION_DAYS.free}-day history.{' '}
+              <button className="history-retention-upgrade" onClick={() => { sessionStorage.setItem('intended_plan', 'pro'); onUpgrade?.(); }}>Upgrade</button>
+            </div>
+          )}
           <div className="sessions-list">
             {[...sessions].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((session) => (
               <div

@@ -323,3 +323,16 @@
   0%, 100% { opacity: 0.25; transform: scale(0.92); }
   50%       { opacity: 0.85; transform: scale(1); }
 }
+
+/* B3 — citation score badge (Business plan) */
+.source-score-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.source-score-badge--high   { background: #dcfce7; color: #15803d; }
+.source-score-badge--medium { background: #fef9c3; color: #a16207; }
+.source-score-badge--low    { background: #fee2e2; color: #b91c1c; }

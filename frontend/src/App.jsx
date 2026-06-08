@@ -452,6 +452,7 @@ function App() {
             workspaceName={workspaceName}
             onChangeWorkspace={setWorkspaceId}
             onWorkspaceNameChange={setWorkspaceName}
+            onUpgrade={() => { sessionStorage.setItem('intended_plan', 'pro'); goAppSection('mypage'); }}
           />
         )}
         {page === 'admin' && authUser.role?.toLowerCase() === 'admin' && lazySuspense(<AdminPage onGoChat={() => goAppSection('chat')} />)}

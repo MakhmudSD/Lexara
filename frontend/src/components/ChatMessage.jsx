@@ -62,23 +62,32 @@ function renderMarkdown(text = '') {
   return blocks.join('');
 }
 
-function SourceCard({ source }) {
+function SourceCard({ source, plan }) {
+  const effectivePlan = (plan || 'free').toLowerCase();
   const score = source.score || 0;
   const scoreClass = score >= 0.75 ? 'high' : score >= 0.55 ? 'medium' : 'low';
   const filename = source.filename || `doc:${String(source.document_id).slice(0, 8)}`;
-  const preview = source.text ? `${source.text.substring(0, 120)}${source.text.length > 120 ? '…' : ''}` : '';
+
+  // B3: citation richness by plan
+  const showExcerpt = effectivePlan === 'pro' || effectivePlan === 'business';
+  const showScoreBadge = effectivePlan === 'business';
+  const excerptLen = effectivePlan === 'business' ? 400 : 200;
+  const excerpt = showExcerpt && source.text
+    ? source.text.substring(0, excerptLen) + (source.text.length > excerptLen ? '…' : '')
+    : null;
 
   return (
     <div className="source-card">
       <div className="source-card-header">
         <span className={`source-score-dot ${scoreClass}`} aria-hidden="true" />
-        <span className="source-filename" title={filename}>
-          {filename}
-        </span>
+        <span className="source-filename" title={filename}>{filename}</span>
+        {showScoreBadge && (
+          <span className={`source-score-badge source-score-badge--${scoreClass}`}>
+            {Math.round(score * 100)}%
+          </span>
+        )}
       </div>
-      <p className="source-preview">
-        {preview}
-      </p>
+      {excerpt && <p className="source-preview">{excerpt}</p>}
     </div>
   );
 }
@@ -95,6 +104,7 @@ function formatTime(timestamp) {
 export default function ChatMessage({ role, content, sources, mode, isStreaming, timestamp }) {
   const { t } = useTranslation();
   const [showSources, setShowSources] = useState(false);
+  const _plan = (() => { try { const u = JSON.parse(localStorage.getItem('authUser') || '{}'); const exp = u.plan_expires_at && new Date(u.plan_expires_at) < new Date(); return exp ? 'free' : (u.plan || 'free'); } catch { return 'free'; } })();
   const rowRef = useRef(null);
 
   useEffect(() => {
@@ -207,7 +217,7 @@ export default function ChatMessage({ role, content, sources, mode, isStreaming,
           {showSources && (
             <div className="sources-grid">
               {sources.map((source, index) => (
-                <SourceCard key={index} source={source} />
+                <SourceCard key={index} source={source} plan={_plan} />
               ))}
             </div>
           )}

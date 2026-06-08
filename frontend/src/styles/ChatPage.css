@@ -993,3 +993,25 @@
   margin-right: auto;
   line-height: 1.5;
 }
+
+/* B1 — history retention banner */
+.history-retention-notice {
+  font-size: 11px;
+  color: var(--text-secondary, #6b7280);
+  padding: 6px 12px;
+  border-top: 1px solid var(--border-color, #e5e7eb);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.history-retention-upgrade {
+  background: none;
+  border: none;
+  color: #7c3aed;
+  cursor: pointer;
+  font-size: 11px;
+  text-decoration: underline;
+  padding: 0;
+  font-family: inherit;
+}
