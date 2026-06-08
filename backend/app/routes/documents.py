@@ -12,6 +12,7 @@ from app.core.auth import get_current_user
 from app.core.cache import get_retrieval_cache
 from app.core.config import Settings
 from app.core.dependencies import get_db, get_runtime
+from app.core.entitlements import plan_limit
 from app.core.exceptions import AppError
 from app.core.runtime import AppRuntime
 from app.db import SessionLocal
@@ -126,6 +127,24 @@ def upload_document(
     current_user: User = Depends(get_current_user),
 ) -> JSONResponse:
     _assert_workspace_access(workspace_id, current_user, db)
+
+    # enforce plan document limit per workspace
+    doc_count = (
+        db.query(Document)
+        .filter(
+            Document.workspace_id == workspace_id,
+            Document.is_active == True,  # noqa: E712
+        )
+        .count()
+    )
+    max_docs = plan_limit(current_user, "max_documents_per_workspace")
+    if doc_count >= max_docs:
+        raise AppError(
+            403,
+            "document_limit_reached",
+            f"Your plan allows {max_docs} document(s) per workspace. Upgrade for more.",
+        )
+
     raw_name = Path(file.filename or "").name
     if not raw_name or raw_name.startswith("."):
         raise AppError(400, "invalid_filename", "Invalid filename.")
