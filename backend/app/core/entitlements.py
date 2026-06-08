@@ -10,6 +10,7 @@ from app.db.models import User
 # NOTE: "legal" is intentionally NOT here — it uses a three-way "free taste" model.
 FEATURE_MATRIX: dict[str, set[str]] = {
     "research": {"pro", "business"},
+    "export":   {"pro", "business"},
 }
 
 

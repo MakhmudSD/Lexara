@@ -127,6 +127,28 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
     setSidebarOpen(false);
   }, [activeSessionId, loadSession, sessions, workspaceId]);
 
+  const handleExport = useCallback(async (format) => {
+    if (!activeSessionId) return;
+    try {
+      const token = localStorage.getItem('access_token');
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/export/conversation`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ conversation_id: activeSessionId, format }),
+      });
+      if (!res.ok) { const e = await res.json(); throw new Error(e?.error?.message || 'Export failed'); }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `conversation.${format}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err.message || 'Export failed');
+    }
+  }, [activeSessionId]);
+
   const saveSession = useCallback((sessionId, newMessages) => {
     if (!sessionId || !workspaceId) return;
     setSessions((prev) => {
@@ -554,6 +576,18 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
             </span>
           </div>
           <span className="chat-mode-badge">{workspaceId ? t('ready') : t('disconnected')}</span>
+          {activeSessionId && effectivePlan !== 'free' && (
+            <div className="export-controls">
+              <button className="export-btn" onClick={() => handleExport('pdf')} title="Export as PDF">
+                ↓ PDF
+              </button>
+              {effectivePlan === 'business' && (
+                <button className="export-btn" onClick={() => handleExport('docx')} title="Export as Word">
+                  ↓ DOCX
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="chat-messages">
