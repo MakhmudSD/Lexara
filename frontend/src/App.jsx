@@ -430,6 +430,10 @@ function App() {
           <HomePage
             authUser={authUser}
             onSelectMode={(mode) => mode === 'admin' ? navigate('admin') : goAppSection(mode)}
+            onUpgrade={() => {
+              sessionStorage.setItem('intended_plan', 'pro');
+              goAppSection('mypage');
+            }}
           />
         )}
         {page === 'app' && currentPage === 'research' && lazySuspense(

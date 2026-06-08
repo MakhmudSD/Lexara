@@ -48,8 +48,13 @@ const getGreeting = (t) => {
   return t('home_greeting_evening');
 };
 
-export default function HomePage({ authUser, onSelectMode }) {
+export default function HomePage({ authUser, onSelectMode, onUpgrade }) {
   const { t } = useTranslation();
+
+  const plan = (authUser?.plan || 'free').toLowerCase();
+  const isExpired = authUser?.plan_expires_at && new Date(authUser.plan_expires_at) < new Date();
+  const effectivePlan = isExpired ? 'free' : plan;
+  const canResearch = effectivePlan === 'pro' || effectivePlan === 'business';
   
   const MODES = [
     {
@@ -101,39 +106,48 @@ export default function HomePage({ authUser, onSelectMode }) {
       </header>
 
       <div className="home-grid" role="list">
-        {MODES.map(({ key, name, desc, uses, Icon, badge }) => (
-          <button
-            key={key}
-            className="mode-card"
-            role="listitem"
-            onClick={() => onSelectMode(key)}
-            aria-label={`${name} — ${desc}`}
-          >
-            <div className="mode-card-icon">
-              <Icon />
-            </div>
+        {MODES.map(({ key, name, desc, uses, Icon, badge }) => {
+          const isLocked = key === 'research' && !canResearch;
+          return (
+            <button
+              key={key}
+              className={`mode-card${isLocked ? ' mode-card--locked' : ''}`}
+              role="listitem"
+              onClick={() => isLocked ? onUpgrade?.() : onSelectMode(key)}
+              aria-label={isLocked ? `${name} — Pro plan required` : `${name} — ${desc}`}
+            >
+              <div className="mode-card-icon">
+                <Icon />
+              </div>
 
-            {badge && (
-              <span
-                className="mode-badge"
-                aria-label={badge === 'NEW' ? 'New feature' : 'Korean law'}
-              >
-                {badge}
-              </span>
-            )}
+              {isLocked && (
+                <span className="mode-card-badge mode-card-badge--pro" aria-label="Pro plan required">
+                  Pro
+                </span>
+              )}
 
-            <h2 className="mode-card-name">{name}</h2>
-            <p className="mode-card-desc">{desc}</p>
+              {!isLocked && badge && (
+                <span
+                  className="mode-badge"
+                  aria-label={badge === 'NEW' ? 'New feature' : 'Korean law'}
+                >
+                  {badge}
+                </span>
+              )}
 
-            <div className="mode-card-uses" aria-hidden="true">
-              {uses.map((use) => (
-                <span key={use} className="mode-card-use-chip">{use}</span>
-              ))}
-            </div>
+              <h2 className="mode-card-name">{name}</h2>
+              <p className="mode-card-desc">{desc}</p>
 
-            <span className="mode-card-arrow" aria-hidden="true">→</span>
-          </button>
-        ))}
+              <div className="mode-card-uses" aria-hidden="true">
+                {uses.map((use) => (
+                  <span key={use} className="mode-card-use-chip">{use}</span>
+                ))}
+              </div>
+
+              <span className="mode-card-arrow" aria-hidden="true">→</span>
+            </button>
+          );
+        })}
 
         {authUser?.role?.toLowerCase() === 'admin' && (
           <button
