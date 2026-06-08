@@ -222,6 +222,7 @@ def upload_document(
     tmp.close()
     temp_path = tmp.name
 
+    from app.core.entitlements import effective_plan
     background_tasks.add_task(
         _ingest_document_background,
         document_id=document.id,
@@ -229,6 +230,7 @@ def upload_document(
         workspace_id=workspace_id,
         raw_text=raw_text,
         settings=runtime.settings,
+        user_plan=effective_plan(current_user),
     )
 
     response_data = DocumentUploadResponse(
@@ -342,6 +344,7 @@ def get_document_status(
         "status": doc.status.value if doc.status else "processing",
         "chunk_count": doc.chunk_count,
         "error_message": doc.error_message,
+        "summary": (doc.document_metadata or {}).get("summary"),
     }
 
 
@@ -371,6 +374,7 @@ def _ingest_document_background(
     workspace_id: UUID,
     raw_text: str,
     settings: Settings,
+    user_plan: str = "free",
     _attempt: int = 1,
 ) -> None:
     """Chunk, embed, and index a document. Runs after the 202 response is returned.
@@ -425,6 +429,32 @@ def _ingest_document_background(
             )
 
         document_crud.mark_document_processed(db, document_id, len(chunk_records))
+
+        # B5 — auto-summary for Pro/Business plans
+        if user_plan in ("pro", "business") and raw_text.strip() and settings.openai_api_key:
+            try:
+                from openai import OpenAI as _OpenAI
+                _client = _OpenAI(api_key=settings.openai_api_key)
+                _resp = _client.chat.completions.create(
+                    model=settings.chat_model,
+                    messages=[{"role": "user", "content": (
+                        "Summarize the following document in 2-3 sentences. "
+                        "Be concise and factual.\n\n"
+                        + raw_text[:3000]
+                    )}],
+                    max_tokens=200,
+                    temperature=0.3,
+                )
+                summary = (_resp.choices[0].message.content or "").strip()
+                if summary:
+                    doc_row = db.query(Document).filter(Document.id == document_id).first()
+                    if doc_row is not None:
+                        meta = dict(doc_row.document_metadata or {})
+                        meta["summary"] = summary
+                        doc_row.document_metadata = meta
+            except Exception as _exc:
+                logger.warning("Auto-summary failed for doc %s: %s", document_id, _exc)
+
         db.commit()
         get_retrieval_cache().clear()
         logger.info("Background ingestion done: doc=%s chunks=%d", document_id, len(chunk_records))

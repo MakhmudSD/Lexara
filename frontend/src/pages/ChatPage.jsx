@@ -425,6 +425,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
               filename: status.filename || file.name,
               chunk_count: status.chunk_count ?? 0,
               file_size_bytes: uploadResult?.file_size_bytes ?? file.size ?? 0,
+              summary: status.summary || null,
             },
           ]);
           setUploadStatus('');
@@ -771,6 +772,11 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
                       ? `${(doc.file_size_bytes / (1024 * 1024)).toFixed(1)} MB`
                       : `${Math.round(doc.file_size_bytes / 1024)} KB`}
                   </span>
+                  {doc.summary && (
+                    <p className="doc-card-summary" title={doc.summary}>
+                      {doc.summary.length > 120 ? doc.summary.slice(0, 120) + '…' : doc.summary}
+                    </p>
+                  )}
                   {confirmDeleteId === doc.id ? (
                     <span className="doc-card-confirm">
                       Delete?&nbsp;

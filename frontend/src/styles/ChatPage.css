@@ -1020,3 +1020,12 @@
 .export-controls { display: flex; gap: 6px; align-items: center; margin-left: auto; }
 .export-btn { font-size: 11px; padding: 3px 8px; border: 1px solid var(--border-color, #e5e7eb); border-radius: 4px; background: var(--bg-secondary, #f9fafb); cursor: pointer; color: var(--text-primary, #111); }
 .export-btn:hover { background: var(--bg-hover, #f3f4f6); }
+
+/* B5 — document auto-summary */
+.doc-card-summary {
+  font-size: 11px;
+  color: var(--text-secondary, #6b7280);
+  margin: 4px 0 0;
+  line-height: 1.4;
+  word-break: break-word;
+}
