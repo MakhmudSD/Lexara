@@ -1,3 +1,4 @@
+import re
 from collections import defaultdict
 
 from fastapi import APIRouter, Depends
@@ -7,6 +8,9 @@ from app.core.entitlements import effective_plan
 from app.db import get_db
 from app.db import models
 from app.db.models import User
+
+# Matches "KR", "KR-Law", "KR_Civil", "Seoul KR" but not "crank" or "acre"
+_KR_PATTERN = re.compile(r"(?<![a-z])kr(?![a-z])", re.IGNORECASE)
 
 router = APIRouter(prefix="/legal", tags=["legal"])
 
@@ -29,7 +33,8 @@ def get_legal_workspaces(
     if plan != "business":
         workspaces = [
             ws for ws in workspaces
-            if any(kw in ws.name.lower() for kw in ["법", "korea", "korean", " kr", "kr "])
+            if any(kw in ws.name.lower() for kw in ["법", "korea", "korean"])
+            or _KR_PATTERN.search(ws.name)
         ]
 
     workspace_ids = [ws.id for ws in workspaces]

@@ -17,8 +17,14 @@ FEATURE_MATRIX: dict[str, set[str]] = {
 def effective_plan(user: User) -> str:
     """Return the user's active plan, downgrading expired paid plans to free."""
     plan = user.plan or "free"
-    if user.plan_expires_at and user.plan_expires_at < datetime.utcnow():
-        return "free"
+    if user.plan_expires_at:
+        try:
+            expired = user.plan_expires_at < datetime.utcnow()
+        except TypeError:
+            # offset-aware plan_expires_at vs naive utcnow — treat as not expired
+            expired = False
+        if expired:
+            return "free"
     return plan if plan in PLAN_LIMITS else "free"
 
 

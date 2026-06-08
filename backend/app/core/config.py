@@ -112,9 +112,9 @@ class Settings(BaseSettings):
 
 
 PLAN_LIMITS: dict[str, dict] = {
-    "free":     {"monthly_queries": 100,  "max_workspaces": 1,   "max_documents_per_workspace": 5,   "monthly_research_runs": 0},
-    "pro":      {"monthly_queries": 1000, "max_workspaces": 5,   "max_documents_per_workspace": 999,  "monthly_research_runs": 100},
-    "business": {"monthly_queries": 5000, "max_workspaces": 999, "max_documents_per_workspace": 999,  "monthly_research_runs": 600},
+    "free":     {"monthly_queries": 100,  "max_workspaces": 1,   "max_documents_per_workspace": 5,   "monthly_research_runs": 0,   "monthly_legal_queries": 5},
+    "pro":      {"monthly_queries": 1000, "max_workspaces": 5,   "max_documents_per_workspace": 999,  "monthly_research_runs": 100, "monthly_legal_queries": 9999},
+    "business": {"monthly_queries": 5000, "max_workspaces": 999, "max_documents_per_workspace": 999,  "monthly_research_runs": 600, "monthly_legal_queries": 9999},
 }
 
 

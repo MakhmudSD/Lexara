@@ -87,8 +87,9 @@ def export_conversation(
     if conversation is None:
         raise AppError(404, "conversation_not_found", "Conversation not found.")
 
-    if conversation.workspace_id:
-        _assert_workspace_access(conversation.workspace_id, current_user, db)
+    if not conversation.workspace_id:
+        raise AppError(404, "conversation_not_found", "Conversation not found.")
+    _assert_workspace_access(conversation.workspace_id, current_user, db)
 
     # Step 4: load turns ordered by turn_index
     turns = (

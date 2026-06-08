@@ -18,7 +18,7 @@ from app.core.dependencies import get_db, get_runtime
 from app.core.entitlements import plan_limit, require_feature
 from app.core.exceptions import AppError
 from app.core.runtime import AppRuntime
-from app.db.models import OrganizationMember, TokenUsage, User, Workspace
+from app.db.models import TokenUsage, User
 from app.observability.models import TokenUsageEntry
 from app.routes.workspaces import _assert_workspace_access
 from app.services.research_agent.loop import _PLAN_PROMPT, _REFLECT_PROMPT, _REPORT_PROMPT
@@ -72,16 +72,7 @@ async def run_research(
     current_user: User = Depends(get_current_user),
 ) -> ResearchResponse:
     """Run the Plan → Research → Reflect → Write loop for a workspace-scoped topic."""
-    ws = db.query(Workspace).filter(Workspace.id == request.workspace_id).first()
-    if ws is None:
-        raise AppError(404, "workspace_not_found", "Workspace not found.")
-    if ws.organization_id is not None:
-        member = db.query(OrganizationMember).filter(
-            OrganizationMember.organization_id == ws.organization_id,
-            OrganizationMember.user_id == current_user.id,
-        ).first()
-        if member is None:
-            raise AppError(403, "forbidden", "You do not have access to this workspace.")
+    _assert_workspace_access(request.workspace_id, current_user, db)
 
     require_feature(current_user, "research")
     _check_research_quota(db, current_user)

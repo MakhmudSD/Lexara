@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.core.auth import get_current_user
 from app.core.entitlements import effective_plan, plan_limit
 from app.core.dependencies import get_db, get_request_id, get_runtime
+from app.routes.workspaces import _assert_workspace_access
 from app.core.exceptions import AppError
 from app.observability.models import ConversationEntry, TokenUsageEntry
 from app.db.models import Organization, TokenUsage, User, Workspace
@@ -67,6 +68,7 @@ def _check_quota(db: Session, user_id: str | None) -> "User | None":
         .filter(
             TokenUsage.user_id == user_id,
             TokenUsage.timestamp >= month_start,
+            TokenUsage.mode != "legal",
         )
         .count()
     )
@@ -82,10 +84,10 @@ def _check_quota(db: Session, user_id: str | None) -> "User | None":
 
 
 def _check_legal_quota(db: Session, user_id: str, user: User) -> None:
-    """Raise 429 for Free users who exceed 5 legal queries/month."""
+    """Raise 429 for Free users who exceed their monthly legal-query cap."""
     if effective_plan(user) != "free":
         return  # only Free users have a separate legal cap
-    limit = 5
+    limit = plan_limit(user, "monthly_legal_queries")
     now = datetime.utcnow()
     month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     legal_count = (
@@ -123,6 +125,9 @@ async def chat_query(
 ) -> ChatQueryResponse:
     uid = str(current_user.id)
     quota_user = _check_quota(db, uid)
+    if quota_user is None:
+        raise AppError(401, "user_not_found", "Authenticated user no longer exists.")
+    _assert_workspace_access(payload.workspace_id, current_user, db)
     started_at = time.perf_counter()
     retrieved_chunks = query_workspace(
         db,
@@ -133,7 +138,7 @@ async def chat_query(
     )
     is_legal = _is_legal_workspace(db, payload.workspace_id)
     if is_legal:
-        _check_legal_quota(db, uid, quota_user or current_user)
+        _check_legal_quota(db, uid, quota_user)
     context_texts = [chunk.text for chunk in retrieved_chunks]
 
     answer = None
@@ -253,6 +258,9 @@ async def chat_stream(
 ) -> StreamingResponse:
     uid = str(current_user.id)
     quota_user = _check_quota(db, uid)
+    if quota_user is None:
+        raise AppError(401, "user_not_found", "Authenticated user no longer exists.")
+    _assert_workspace_access(payload.workspace_id, current_user, db)
     sources = query_workspace(
         db,
         runtime.settings,
@@ -262,7 +270,7 @@ async def chat_stream(
     )
     is_legal = _is_legal_workspace(db, payload.workspace_id)
     if is_legal:
-        _check_legal_quota(db, uid, quota_user or current_user)
+        _check_legal_quota(db, uid, quota_user)
     stream_context_texts = [chunk.text for chunk in sources]
     serialized_sources = _serialize_sources(sources)
     stream_mode = "legal" if is_legal else "rag"
