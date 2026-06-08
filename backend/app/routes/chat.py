@@ -81,6 +81,30 @@ def _check_quota(db: Session, user_id: str | None) -> "User | None":
     return user
 
 
+def _check_legal_quota(db: Session, user_id: str, user: User) -> None:
+    """Raise 429 for Free users who exceed 5 legal queries/month."""
+    if effective_plan(user) != "free":
+        return  # only Free users have a separate legal cap
+    limit = 5
+    now = datetime.utcnow()
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    legal_count = (
+        db.query(TokenUsage)
+        .filter(
+            TokenUsage.user_id == user_id,
+            TokenUsage.timestamp >= month_start,
+            TokenUsage.mode == "legal",
+        )
+        .count()
+    )
+    if legal_count >= limit:
+        raise AppError(
+            429,
+            "legal_quota_exceeded",
+            f"Free plan allows {limit} legal queries/month. Upgrade for unlimited access.",
+        )
+
+
 def _serialize_sources(sources: list) -> list[dict]:
     return [source.model_dump(mode="json") for source in sources]
 
@@ -108,6 +132,8 @@ async def chat_query(
         top_k=payload.top_k,
     )
     is_legal = _is_legal_workspace(db, payload.workspace_id)
+    if is_legal:
+        _check_legal_quota(db, uid, quota_user or current_user)
     context_texts = [chunk.text for chunk in retrieved_chunks]
 
     answer = None
@@ -121,6 +147,7 @@ async def chat_query(
             top_score=retrieved_chunks[0].score if retrieved_chunks else None,
             system_prompt_override=LEGAL_SYSTEM_PROMPT if is_legal else None,
         )
+        query_mode = "legal" if is_legal else "rag"
         runtime.observability.add_token_usage(
             TokenUsageEntry(
                 request_id=request_id,
@@ -131,7 +158,7 @@ async def chat_query(
                 total_tokens=usage.total_tokens,
                 estimated_cost_usd=usage.estimated_cost_usd,
                 latency_ms=usage.latency_ms,
-                mode="rag",
+                mode=query_mode,
                 context_chunks_used=usage.context_chunks_used,
             )
         )
@@ -147,7 +174,7 @@ async def chat_query(
                     total_tokens=usage.total_tokens,
                     estimated_cost_usd=usage.estimated_cost_usd,
                     latency_ms=usage.latency_ms,
-                    mode="rag",
+                    mode=query_mode,
                     context_chunks_used=usage.context_chunks_used,
                 )
             )
@@ -163,7 +190,7 @@ async def chat_query(
                 workspace_id=str(payload.workspace_id),
                 question=payload.question,
                 answer=answer,
-                mode="rag",
+                mode=query_mode,
                 sources=[chunk.filename or str(chunk.document_id) for chunk in retrieved_chunks],
                 top_score=retrieved_chunks[0].score if retrieved_chunks else None,
                 history_turns=len(payload.history or []),
@@ -234,8 +261,11 @@ async def chat_stream(
         top_k=payload.top_k,
     )
     is_legal = _is_legal_workspace(db, payload.workspace_id)
+    if is_legal:
+        _check_legal_quota(db, uid, quota_user or current_user)
     stream_context_texts = [chunk.text for chunk in sources]
     serialized_sources = _serialize_sources(sources)
+    stream_mode = "legal" if is_legal else "rag"
 
     async def event_stream():
         started_at = time.perf_counter()
@@ -306,7 +336,7 @@ async def chat_stream(
                     total_tokens=usage.total_tokens,
                     estimated_cost_usd=usage.estimated_cost_usd,
                     latency_ms=usage.latency_ms,
-                    mode="rag",
+                    mode=stream_mode,
                     context_chunks_used=usage.context_chunks_used,
                 )
             )
@@ -322,7 +352,7 @@ async def chat_stream(
                         total_tokens=usage.total_tokens,
                         estimated_cost_usd=usage.estimated_cost_usd,
                         latency_ms=usage.latency_ms,
-                        mode="rag",
+                        mode=stream_mode,
                         context_chunks_used=usage.context_chunks_used,
                     )
                 )
@@ -345,7 +375,7 @@ async def chat_stream(
                     latency_ms=duration_ms,
                 )
             )
-            yield _sse_payload("done", {"mode": "rag", "latency_ms": duration_ms})
+            yield _sse_payload("done", {"mode": stream_mode, "latency_ms": duration_ms})
         except AppError as exc:
             yield _sse_payload("error", exc.message)
         except Exception as exc:

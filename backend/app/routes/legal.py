@@ -2,14 +2,20 @@ from collections import defaultdict
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from app.core.auth import get_current_user
+from app.core.entitlements import effective_plan
 from app.db import get_db
 from app.db import models
+from app.db.models import User
 
 router = APIRouter(prefix="/legal", tags=["legal"])
 
 
 @router.get("/workspaces")
-def get_legal_workspaces(db: Session = Depends(get_db)):
+def get_legal_workspaces(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """Return all workspaces whose name contains 'Law', 'Legal', or '법'."""
     # Query 1: fetch matching workspaces
     workspaces = db.query(models.Workspace).filter(
@@ -17,6 +23,14 @@ def get_legal_workspaces(db: Session = Depends(get_db)):
         models.Workspace.name.ilike("%legal%") |
         models.Workspace.name.ilike("%법%")
     ).all()
+
+    # Filter by jurisdiction based on plan: Free/Pro → KR only, Business → all
+    plan = effective_plan(current_user)
+    if plan != "business":
+        workspaces = [
+            ws for ws in workspaces
+            if any(kw in ws.name.lower() for kw in ["법", "korea", "korean", " kr", "kr "])
+        ]
 
     workspace_ids = [ws.id for ws in workspaces]
 
