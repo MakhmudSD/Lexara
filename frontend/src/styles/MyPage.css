@@ -13,6 +13,9 @@
   gap: 16px;
   font-family: var(--font-sans);
   animation: page-enter 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  overflow-y: auto;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 @media (prefers-reduced-motion: reduce) {

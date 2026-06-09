@@ -79,7 +79,8 @@ export default function HomePage({ authUser, onSelectMode, onUpgrade }) {
       desc: t('mode_legal_desc'),
       uses: [t('mode_legal_use1'), t('mode_legal_use2'), t('mode_legal_use3')],
       Icon: ScaleIcon,
-      badge: 'KR',
+      badge: effectivePlan === 'business' ? 'KR+UZ' : 'KR',
+      legalFreeHint: effectivePlan === 'free',
     },
   ];
   
@@ -106,7 +107,7 @@ export default function HomePage({ authUser, onSelectMode, onUpgrade }) {
       </header>
 
       <div className="home-grid" role="list">
-        {MODES.map(({ key, name, desc, uses, Icon, badge }) => {
+        {MODES.map(({ key, name, desc, uses, Icon, badge, legalFreeHint }) => {
           const isLocked = key === 'research' && !canResearch;
           return (
             <button
@@ -137,6 +138,9 @@ export default function HomePage({ authUser, onSelectMode, onUpgrade }) {
 
               <h2 className="mode-card-name">{name}</h2>
               <p className="mode-card-desc">{desc}</p>
+              {legalFreeHint && (
+                <span className="mode-card-legal-hint">5 free queries/mo · KR law only</span>
+              )}
 
               <div className="mode-card-uses" aria-hidden="true">
                 {uses.map((use) => (

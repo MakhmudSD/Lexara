@@ -17,6 +17,29 @@ import { LexaraIcon, LexaraLogo } from './assets/LexaraLogo';
 import { useTranslation } from './i18n/useTranslation';
 import './App.css';
 
+// Decode JWT exp claim without crypto — backend still validates the signature.
+function isTokenExpired(token) {
+  try {
+    const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const { exp } = JSON.parse(atob(b64));
+    return typeof exp === 'number' && exp * 1000 < Date.now();
+  } catch {
+    return true;
+  }
+}
+
+// Module-level: clear stale token before any state initialiser reads localStorage.
+(function clearExpiredSession() {
+  const token = localStorage.getItem('access_token');
+  if (token && isTokenExpired(token)) {
+    ['access_token', 'authUser', 'workspaceId', 'workspaceName'].forEach((k) =>
+      localStorage.removeItem(k)
+    );
+    localStorage.setItem('lexara_page', 'landing');
+    localStorage.removeItem('lexara_current_page');
+  }
+})();
+
 function App() {
   const { t, lang, setLang, currentLanguage, languageOptions } = useTranslation();
   const [workspaceId, setWorkspaceId] = useState(() => localStorage.getItem('workspaceId') || '');
@@ -432,6 +455,7 @@ function App() {
             onSelectMode={(mode) => mode === 'admin' ? navigate('admin') : goAppSection(mode)}
             onUpgrade={() => {
               sessionStorage.setItem('intended_plan', 'pro');
+              setIntendedPlan('pro');
               goAppSection('mypage');
             }}
           />
@@ -452,7 +476,7 @@ function App() {
             workspaceName={workspaceName}
             onChangeWorkspace={setWorkspaceId}
             onWorkspaceNameChange={setWorkspaceName}
-            onUpgrade={() => { sessionStorage.setItem('intended_plan', 'pro'); goAppSection('mypage'); }}
+            onUpgrade={() => { sessionStorage.setItem('intended_plan', 'pro'); setIntendedPlan('pro'); goAppSection('mypage'); }}
           />
         )}
         {page === 'admin' && authUser.role?.toLowerCase() === 'admin' && lazySuspense(<AdminPage onGoChat={() => goAppSection('chat')} />)}

@@ -504,7 +504,7 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
               )}
               {intendedPlan && intendedPlan !== 'free' && (
                 <div className="mypage-intent-banner">
-                  <span>You selected <strong>{intendedPlan.charAt(0).toUpperCase() + intendedPlan.slice(1)}</strong> — complete your upgrade below.</span>
+                  <span>Research mode and exports require a <strong>Pro</strong> plan. Choose a plan below to unlock them.</span>
                   <button
                     className="mypage-intent-dismiss"
                     onClick={() => onIntendedPlanConsumed?.()}
