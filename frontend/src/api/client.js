@@ -2,6 +2,13 @@ import axios from 'axios';
 
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
+const AUTH_KEYS = ['access_token', 'authUser', 'workspaceId', 'workspaceName'];
+export function clearAuthStorage() {
+  AUTH_KEYS.forEach((k) => localStorage.removeItem(k));
+  localStorage.setItem('lexara_page', 'landing');
+  localStorage.removeItem('lexara_current_page');
+}
+
 const client = axios.create({
   baseURL: API_BASE_URL,
   timeout: 90000,
@@ -27,10 +34,7 @@ client.interceptors.response.use(
       'Network error';
     if (import.meta.env.DEV) console.error(`[api] ${status ?? 'ERR'} — ${detail}`);
     if (status === 401 && !err.config?.url?.includes('/auth/login')) {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('authUser');
-      localStorage.removeItem('workspaceId');
-      localStorage.removeItem('workspaceName');
+      clearAuthStorage();
       window.dispatchEvent(new Event('auth:change'));
     }
     return Promise.reject({ status, message: detail, raw: err, response: err.response });

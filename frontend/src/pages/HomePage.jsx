@@ -130,7 +130,7 @@ export default function HomePage({ authUser, onSelectMode, onUpgrade }) {
               {!isLocked && badge && (
                 <span
                   className="mode-badge"
-                  aria-label={badge === 'NEW' ? 'New feature' : 'Korean law'}
+                  aria-label={badge === 'NEW' ? 'New feature' : badge === 'KR+UZ' ? 'Korean and Uzbek law' : 'Korean law'}
                 >
                   {badge}
                 </span>

@@ -16,29 +16,26 @@ const ResearchPage = lazy(() => import('./pages/ResearchPage'));
 import { LexaraIcon, LexaraLogo } from './assets/LexaraLogo';
 import { useTranslation } from './i18n/useTranslation';
 import './App.css';
+import { clearAuthStorage } from './api/client';
 
 // Decode JWT exp claim without crypto — backend still validates the signature.
 function isTokenExpired(token) {
   try {
     const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
     const { exp } = JSON.parse(atob(b64));
+    // No exp claim = indefinite-lifetime token; treat as valid.
     return typeof exp === 'number' && exp * 1000 < Date.now();
   } catch {
-    return true;
+    // Unparseable token: assume not expired — backend will reject it if invalid.
+    return false;
   }
 }
 
 // Module-level: clear stale token before any state initialiser reads localStorage.
-(function clearExpiredSession() {
-  const token = localStorage.getItem('access_token');
-  if (token && isTokenExpired(token)) {
-    ['access_token', 'authUser', 'workspaceId', 'workspaceName'].forEach((k) =>
-      localStorage.removeItem(k)
-    );
-    localStorage.setItem('lexara_page', 'landing');
-    localStorage.removeItem('lexara_current_page');
-  }
-})();
+const _startupToken = localStorage.getItem('access_token');
+if (_startupToken && isTokenExpired(_startupToken)) {
+  clearAuthStorage();
+}
 
 function App() {
   const { t, lang, setLang, currentLanguage, languageOptions } = useTranslation();

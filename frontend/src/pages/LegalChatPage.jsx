@@ -249,9 +249,13 @@ export default function LegalChatPage({ workspaceId, workspaceName, jurisdiction
       (message) => {
         if (settled) return;
         settled = true;
+        const isLegalQuota = message?.includes('legal_quota_exceeded');
         const isQuota = message?.includes('monthly_quota_exceeded') ||
                         message?.includes('tugadi');
-        setError(isQuota ? (t('quota_exceeded') || message) : message);
+        const errorMsg = isLegalQuota
+          ? (t('legal_quota_exceeded') || 'Free plan: 5 legal queries/month reached. Upgrade to Pro for unlimited access.')
+          : isQuota ? (t('quota_exceeded') || message) : message;
+        setError(errorMsg);
         setMessages((prev) => prev.filter((entry) => entry.id !== assistantId));
         setIsLoading(false);
       },
