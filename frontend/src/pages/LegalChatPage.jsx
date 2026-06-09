@@ -246,15 +246,14 @@ export default function LegalChatPage({ workspaceId, workspaceName, jurisdiction
         }
         setIsLoading(false);
       },
-      (message) => {
+      (errData) => {
         if (settled) return;
         settled = true;
-        const isLegalQuota = message?.includes('legal_quota_exceeded');
-        const isQuota = message?.includes('monthly_quota_exceeded') ||
-                        message?.includes('tugadi');
-        const errorMsg = isLegalQuota
-          ? (t('legal_quota_exceeded') || 'Free plan: 5 legal queries/month reached. Upgrade to Pro for unlimited access.')
-          : isQuota ? (t('quota_exceeded') || message) : message;
+        const code = typeof errData === 'object' ? errData.code : '';
+        const message = typeof errData === 'object' ? errData.message : (errData || '');
+        const errorMsg = code === 'legal_quota_exceeded'
+          ? t('legal_quota_exceeded')
+          : code === 'monthly_quota_exceeded' ? t('quota_exceeded') : message;
         setError(errorMsg);
         setMessages((prev) => prev.filter((entry) => entry.id !== assistantId));
         setIsLoading(false);

@@ -385,9 +385,9 @@ async def chat_stream(
             )
             yield _sse_payload("done", {"mode": stream_mode, "latency_ms": duration_ms})
         except AppError as exc:
-            yield _sse_payload("error", exc.message)
+            yield _sse_payload("error", {"code": exc.code, "message": exc.message})
         except Exception as exc:
-            yield _sse_payload("error", str(exc))
+            yield _sse_payload("error", {"code": "internal_error", "message": str(exc)})
 
     return StreamingResponse(
         event_stream(),
