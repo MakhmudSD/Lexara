@@ -125,13 +125,13 @@ export default function ResearchPage({ workspaceId, workspaceName, onBack, onCha
           let event;
           try { event = JSON.parse(line.slice(6)); } catch { continue; }
 
-          const idx = PHASE_MAP[event.phase];
+          const idx = PHASE_MAP[event.type];
           if (idx !== undefined) setPhaseIndex(idx);
 
-          if (event.phase === 'complete') {
+          if (event.type === 'complete') {
             setResult(event.result);
             setActiveTab('report');
-          } else if (event.phase === 'error') {
+          } else if (event.type === 'error') {
             throw new Error(event.message || 'Research failed.');
           }
         }

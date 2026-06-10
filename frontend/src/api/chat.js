@@ -74,7 +74,13 @@ export const streamChat = async (
 
         if (!dataLine) continue;
 
-        const payload = JSON.parse(dataLine.slice(6));
+        let payload;
+        try {
+          payload = JSON.parse(dataLine.slice(6));
+        } catch {
+          onError?.({ code: 'parse_error', message: 'Malformed response from server' });
+          continue;
+        }
         if (payload.type === 'sources') onSources?.(payload.data);
         if (payload.type === 'delta') onDelta?.(payload.data);
         if (payload.type === 'done') onDone?.(payload.data);

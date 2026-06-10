@@ -3,12 +3,12 @@ import ChatMessage from '../components/ChatMessage';
 import WorkspaceSelector from '../components/WorkspaceSelector';
 import { LexaraIcon } from '../assets/LexaraLogo';
 import { useTranslation } from '../i18n/useTranslation';
-import { streamChat } from '../api/chat';
 import { uploadDocument, getDocumentStatus, deleteDocument } from '../api/upload';
 import ThreeBackground from '../components/ThreeBackground';
+import { useChatSession } from '../hooks/useChatSession';
+import { isUsernamePattern } from '../utils/nameUtils';
 import '../styles/ChatPage.css';
 
-const HISTORY_LIMIT = 12;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const RETENTION_DAYS = { free: 7, pro: null, business: null };
@@ -23,39 +23,38 @@ function pruneExpiredSessions(sessions, plan) {
 
 export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace, onWorkspaceNameChange, onUpgrade }) {
   const { t } = useTranslation();
-  const [messages, setMessages] = useState([]);
-  const [history, setHistory] = useState([]);
-  const [sessions, setSessions] = useState([]);
-  const [activeSessionId, setActiveSessionId] = useState(null);
-  const [input, setInput] = useState('');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [connectionError, setConnectionError] = useState(false);
 
-  // Derive userId and plan once at mount — component is re-keyed on user change so these are always fresh
+  // Plan derivation — used for pruning and UI gating
   const _authUser = (() => { try { return JSON.parse(localStorage.getItem('authUser') || '{}'); } catch { return {}; } })();
-  const _userId = _authUser.id || '';
   const _plan = _authUser.plan || 'free';
   const _planExpired = _authUser.plan_expires_at && new Date(_authUser.plan_expires_at) < new Date();
   const effectivePlan = _planExpired ? 'free' : _plan.toLowerCase();
-  const userIdRef = useRef(_userId);
 
-  // Purge sessions belonging to other users — runs once on mount (safe side-effect location)
-  useEffect(() => {
-    const uid = userIdRef.current;
-    if (!uid) return;
-    Object.keys(localStorage)
-      .filter(k => k.startsWith('lexara_sessions_') && !k.startsWith(`lexara_sessions_${uid}_`))
-      .forEach(k => localStorage.removeItem(k));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const {
+    messages, setMessages,
+    sessions,
+    activeSessionId,
+    input, setInput,
+    sidebarOpen, setSidebarOpen,
+    isLoading,
+    error, setError,
+    messagesEndRef,
+    textareaRef,
+    sendMessage,
+    createNewSession,
+    deleteSession,
+    loadSession,
+  } = useChatSession({
+    workspaceId,
+    t,
+    pruneSessions: (list) => pruneExpiredSessions(list, effectivePlan),
+  });
 
-  const messagesEndRef = useRef(null);
-  const textareaRef = useRef(null);
+  const [connectionError, setConnectionError] = useState(false);
   const workspaceSelectorRef = useRef(null);
   const fileInputRef = useRef(null);
   const pollTimeoutRef = useRef(null);
+  const isMountedRef = useRef(true);
   const [isUploading, setIsUploading] = useState(false);
   const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -68,64 +67,9 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
     return !onboarded;
   });
 
-  const normalizeMessages = useCallback((entries, fallbackTimestamp) => (
-    (entries || []).map((entry, index) => ({
-      ...entry,
-      timestamp: entry.timestamp || entry.createdAt || new Date((fallbackTimestamp || Date.now()) + index * 60000).toISOString(),
-    }))
-  ), []);
-
   const retryWorkspaceCreation = useCallback(() => {
     workspaceSelectorRef.current?.retryWorkspaceCreation?.();
   }, []);
-
-  const loadSession = useCallback((sessionId) => {
-    const session = sessions.find((item) => item.id === sessionId);
-    if (!session) return;
-    setActiveSessionId(session.id);
-    const normalizedMessages = normalizeMessages(session.messages || [], new Date(session.createdAt || Date.now()).getTime());
-    setMessages(normalizedMessages);
-    const rebuiltHistory = normalizedMessages
-      .filter((entry) => entry.role === 'user' || entry.role === 'assistant')
-      .map((entry) => ({ role: entry.role, content: entry.content || '' }))
-      .slice(-HISTORY_LIMIT);
-    setHistory(rebuiltHistory);
-    setError('');
-    setConnectionError(false);
-  }, [normalizeMessages, sessions]);
-
-  const createNewSession = useCallback(() => {
-    if (!workspaceId) return;
-    const newSession = {
-      id: globalThis.crypto?.randomUUID?.() || `session-${Date.now()}`,
-      title: t('new_conversation'),
-      createdAt: new Date().toISOString(),
-      messages: [],
-      workspaceId,
-    };
-    const updated = [newSession, ...sessions];
-    setSessions(updated);
-    localStorage.setItem(`lexara_sessions_${_userId}_${workspaceId}`, JSON.stringify(updated));
-    setActiveSessionId(newSession.id);
-    setMessages([]);
-    setSidebarOpen(false);
-    setConnectionError(false);
-  }, [sessions, t, workspaceId]);
-
-  const deleteSession = useCallback((sessionId) => {
-    const updated = sessions.filter((s) => s.id !== sessionId);
-    setSessions(updated);
-    localStorage.setItem(`lexara_sessions_${_userId}_${workspaceId}`, JSON.stringify(updated));
-    if (activeSessionId === sessionId) {
-      if (updated.length > 0) {
-        loadSession(updated[0].id);
-      } else {
-        setActiveSessionId(null);
-        setMessages([]);
-      }
-    }
-    setSidebarOpen(false);
-  }, [activeSessionId, loadSession, sessions, workspaceId]);
 
   const handleExport = useCallback(async (format) => {
     if (!activeSessionId) return;
@@ -149,191 +93,13 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
     }
   }, [activeSessionId]);
 
-  const saveSession = useCallback((sessionId, newMessages) => {
-    if (!sessionId || !workspaceId) return;
-    setSessions((prev) => {
-      const updated = prev.map((s) => (
-        s.id === sessionId
-          ? {
-              ...s,
-              messages: newMessages,
-              title: newMessages.find((m) => m.role === 'user')?.content?.slice(0, 40) || s.title,
-            }
-          : s
-      ));
-      localStorage.setItem(`lexara_sessions_${_userId}_${workspaceId}`, JSON.stringify(updated));
-      return updated;
-    });
-  }, [workspaceId]);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  useEffect(() => {
-    if (!workspaceId) return;
-    const raw = localStorage.getItem(`lexara_sessions_${_userId}_${workspaceId}`);
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw);
-        const pruned = pruneExpiredSessions(Array.isArray(parsed) ? parsed : [], effectivePlan);
-        if (pruned.length !== (Array.isArray(parsed) ? parsed : []).length) {
-          localStorage.setItem(`lexara_sessions_${_userId}_${workspaceId}`, JSON.stringify(pruned));
-        }
-        setSessions(pruned);
-        if (pruned.length > 0) {
-          setActiveSessionId(pruned[0].id);
-          const normalizedMessages = normalizeMessages(pruned[0].messages || [], new Date(pruned[0].createdAt || Date.now()).getTime());
-          setMessages(normalizedMessages);
-          setHistory(normalizedMessages.filter((entry) => entry.role === 'user' || entry.role === 'assistant').slice(-HISTORY_LIMIT));
-          setConnectionError(false);
-        } else {
-          setActiveSessionId(null);
-          setMessages([]);
-          setHistory([]);
-          setConnectionError(false);
-        }
-      } catch {
-        setSessions([]);
-        setActiveSessionId(null);
-        setMessages([]);
-        setHistory([]);
-        setConnectionError(false);
-      }
-    } else {
-      setSessions([]);
-      setActiveSessionId(null);
-      setMessages([]);
-      setHistory([]);
-      setConnectionError(false);
-    }
-  }, [normalizeMessages, workspaceId]);
-
-  useEffect(() => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    textarea.style.height = 'auto';
-    textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
-  }, [input]);
-
-  // Clear any in-flight polling timeout when the component unmounts
+  // Clear any in-flight polling timeout and mark unmounted
   useEffect(() => {
     return () => {
+      isMountedRef.current = false;
       if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current);
     };
   }, []);
-
-  const appendHistory = useCallback((userContent, assistantContent) => {
-    setHistory((prev) => (
-      [
-        ...prev,
-        { role: 'user', content: userContent },
-        { role: 'assistant', content: assistantContent },
-      ].slice(-HISTORY_LIMIT)
-    ));
-  }, []);
-
-  const sendMessage = useCallback(async (text) => {
-    if (!text.trim() || isLoading || !workspaceId) return;
-    const question = text.trim();
-    let sessionId = activeSessionId;
-    if (!sessionId) {
-      const newSession = {
-        id: globalThis.crypto?.randomUUID?.() || `session-${Date.now()}`,
-        title: t('new_conversation'),
-        createdAt: new Date().toISOString(),
-        messages: [],
-        workspaceId,
-      };
-      const updated = [newSession, ...sessions];
-      setSessions(updated);
-      localStorage.setItem(`lexara_sessions_${_userId}_${workspaceId}`, JSON.stringify(updated));
-      setActiveSessionId(newSession.id);
-      sessionId = newSession.id;
-    }
-    const historyForRequest = history.slice(-HISTORY_LIMIT);
-    const assistantId = `assistant-${Date.now()}`;
-    const sentAt = new Date().toISOString();
-
-    setInput('');
-    setError('');
-    setConnectionError(false);
-    setIsLoading(true);
-    setMessages((prev) => [
-      ...prev,
-      { role: 'user', content: question, timestamp: sentAt },
-      { id: assistantId, role: 'assistant', content: '', sources: [], mode: 'rag', isStreaming: true, timestamp: sentAt },
-    ]);
-
-    let finalContent = '';
-    let finalMode = 'retrieval';
-    let finalSources = [];
-    let settled = false;
-
-    await streamChat(
-      workspaceId,
-      question,
-      historyForRequest,
-      (delta) => {
-        finalContent += delta;
-        setMessages((prev) => prev.map((message) => (
-          message.id === assistantId ? { ...message, content: finalContent } : message
-        )));
-      },
-      (sources) => {
-        finalSources = (sources || []).map((source) => ({
-          ...source,
-          filename: source.filename || `doc:${String(source.document_id).slice(0, 8)}`,
-        }));
-        setMessages((prev) => prev.map((message) => (
-          message.id === assistantId ? { ...message, sources: finalSources } : message
-        )));
-      },
-      (done) => {
-        settled = true;
-        finalMode = done?.mode || 'retrieval';
-        if (finalMode === 'retrieval' && !finalContent && finalSources.length === 0) {
-          finalContent = t('no_results');
-        }
-        setMessages((prev) => {
-          const finalMessages = prev.map((message) => (
-            message.id === assistantId
-              ? {
-                  ...message,
-                  mode: finalMode,
-                  content: finalMode === 'rag' ? finalContent : (finalContent || ''),
-                  sources: finalSources,
-                  isStreaming: false,
-                }
-              : message
-          ));
-          saveSession(sessionId, finalMessages);
-          return finalMessages;
-        });
-        appendHistory(question, finalMode === 'rag' ? finalContent : '');
-        try {
-          const existing = JSON.parse(localStorage.getItem('lexara_stats') || '{}');
-          const next = {
-            total_queries: Number(existing.total_queries || 0) + 1,
-            total_tokens: Number(existing.total_tokens || 0),
-            total_cost: Number(existing.total_cost || 0),
-          };
-          localStorage.setItem('lexara_stats', JSON.stringify(next));
-        } catch {
-          // no-op
-        }
-        setIsLoading(false);
-      },
-      (errData) => {
-        if (settled) return;
-        settled = true;
-        const { code = '', message = '' } = errData;
-        setError(code === 'monthly_quota_exceeded' ? t('quota_exceeded') : message);
-        setMessages((prev) => prev.filter((entry) => entry.id !== assistantId));
-        setIsLoading(false);
-      },
-    );
-  }, [activeSessionId, appendHistory, history, isLoading, saveSession, sessions, t, workspaceId]);
 
   const hasWorkspaceName = Boolean(workspaceName && workspaceName.trim() && !UUID_RE.test(workspaceName.trim()));
 
@@ -389,11 +155,8 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
     const startTime = Date.now();
 
     const poll = async () => {
-      // Safety: stop if component unmounted the ref was cleared
-      if (!pollTimeoutRef.current && Date.now() - startTime > 0) {
-        // ref is cleared on unmount — bail silently
-        return;
-      }
+      if (!isMountedRef.current) return;
+
 
       if (Date.now() - startTime >= POLL_TIMEOUT_MS) {
         setUploadStatus(`✗ ${t('upload_timeout') || 'Processing timed out. Please try again.'}`);
@@ -518,7 +281,6 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
               onChangeWorkspace(id);
               if (id) dismissOnboarding();
               setMessages([]);
-              setHistory([]);
               setError('');
               setConnectionError(false);
               setSidebarOpen(false);
@@ -619,14 +381,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
                   try {
                     const u = JSON.parse(localStorage.getItem('authUser') || '{}');
                     const rawName = u.full_name?.split(' ')[0] || '';
-                    const looksLikeUsername = rawName && (
-                      /^[a-z0-9_]+$/i.test(rawName) &&
-                      !/\s/.test(rawName) &&
-                      (rawName.includes('_') ||
-                       rawName === rawName.toLowerCase() ||
-                       /\d/.test(rawName))
-                    );
-                    const displayName = looksLikeUsername ? '' : rawName;
+                    const displayName = isUsernamePattern(rawName) ? '' : rawName;
                     const hour = new Date().getHours();
                     const tod = hour < 12 ? t('good_morning') : hour < 18 ? t('good_afternoon') : t('good_evening');
                     return displayName ? `${tod}, ${displayName} 👋` : `${tod} 👋`;
@@ -658,14 +413,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
                         try {
                           const u = JSON.parse(localStorage.getItem('authUser') || '{}');
                           const rawName = u.full_name?.split(' ')[0] || '';
-                          const looksLikeUsername = rawName && (
-                            /^[a-z0-9_]+$/i.test(rawName) &&
-                            !/\s/.test(rawName) &&
-                            (rawName.includes('_') ||
-                             rawName === rawName.toLowerCase() ||
-                             /\d/.test(rawName))
-                          );
-                          const displayName = looksLikeUsername ? '' : rawName;
+                          const displayName = isUsernamePattern(rawName) ? '' : rawName;
                           const base = t('ai_welcome_msg') || 'Hi{name}! Upload a document using the button below, then ask me anything about it.';
                           return base.replace('{name}', displayName ? ` ${displayName}` : '');
                         } catch { return t('ai_welcome_msg') || 'Upload a document, then ask me anything about it.'; }

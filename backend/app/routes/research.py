@@ -17,6 +17,7 @@ from app.core.auth import get_current_user
 from app.core.dependencies import get_db, get_runtime
 from app.core.entitlements import plan_limit, require_feature
 from app.core.exceptions import AppError
+from app.services.llm_service import _check_for_injection
 from app.core.runtime import AppRuntime
 from app.db.models import TokenUsage, User
 from app.observability.models import TokenUsageEntry
@@ -72,6 +73,7 @@ async def run_research(
     current_user: User = Depends(get_current_user),
 ) -> ResearchResponse:
     """Run the Plan → Research → Reflect → Write loop for a workspace-scoped topic."""
+    _check_for_injection(request.topic, label="research_topic")
     _assert_workspace_access(request.workspace_id, current_user, db)
 
     require_feature(current_user, "research")
@@ -148,6 +150,7 @@ async def run_research_stream(
     current_user: User = Depends(get_current_user),
 ) -> StreamingResponse:
     """SSE streaming research — all DB work done before the generator starts."""
+    _check_for_injection(request.topic, label="research_topic_stream")
     _assert_workspace_access(request.workspace_id, current_user, db)
 
     require_feature(current_user, "research")
@@ -170,18 +173,22 @@ async def run_research_stream(
         from openai import AsyncOpenAI
         from app.services.research_agent.tools import search_workspace_documents_fresh, search_web
         from app.services.llm_service import RESEARCH_SYSTEM_PROMPT
+        from app.services.research_agent.loop import _PLAN_SYSTEM, _REFLECT_SYSTEM
 
         client = AsyncOpenAI(api_key=openai_key)
 
         def sse(phase: str, **kwargs) -> str:
-            return f"data: {json.dumps({'phase': phase, **kwargs}, ensure_ascii=False)}\n\n"
+            return f"data: {json.dumps({'type': phase, **kwargs}, ensure_ascii=False)}\n\n"
 
         try:
             yield sse("planning", message="Creating research plan…")
 
             plan_resp = await client.chat.completions.create(
                 model=chat_model,
-                messages=[{"role": "user", "content": _PLAN_PROMPT.format(topic=topic)}],
+                messages=[
+                    {"role": "system", "content": _PLAN_SYSTEM},
+                    {"role": "user", "content": _PLAN_PROMPT.format(topic=topic)},
+                ],
                 temperature=0.3,
             )
             plan_raw = plan_resp.choices[0].message.content or "{}"
@@ -226,9 +233,12 @@ async def run_research_stream(
             yield sse("reflecting", message="Checking research quality…")
             reflect_resp = await client.chat.completions.create(
                 model=chat_model,
-                messages=[{"role": "user", "content": _REFLECT_PROMPT.format(
-                    evidence_summary=evidence_summary or "(no evidence found)"
-                )}],
+                messages=[
+                    {"role": "system", "content": _REFLECT_SYSTEM},
+                    {"role": "user", "content": _REFLECT_PROMPT.format(
+                        evidence_summary=evidence_summary or "(no evidence found)"
+                    )},
+                ],
                 temperature=0.3,
             )
             reflect_raw = reflect_resp.choices[0].message.content or "{}"

@@ -56,9 +56,6 @@ export async function deleteDocument(documentId) {
  * @returns {Promise<{id: string, filename: string, status: string, chunk_count: number|null, error_message: string|null}>}
  */
 export async function getDocumentStatus(documentId) {
-  const token = localStorage.getItem('lexara_token');
-  const response = await client.get(`/documents/${documentId}/status`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const response = await client.get(`/documents/${documentId}/status`);
   return response.data;
 }

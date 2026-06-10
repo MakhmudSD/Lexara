@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import '../styles/HomePage.css';
 import { useTranslation } from '../i18n/useTranslation';
+import { isUsernamePattern } from '../utils/nameUtils';
 
 /* ── Inline SVG icons (no dependency) ── */
 const FileQuestionIcon = () => (
@@ -92,16 +93,7 @@ export default function HomePage({ authUser, onSelectMode, onUpgrade }) {
   ];
   
   const rawName = authUser?.full_name?.split(' ')[0] || '';
-  // If full_name is empty or looks like a username (contains underscore, all lowercase, or has numbers),
-  // use a generic greeting instead
-  const looksLikeUsername = rawName && (
-    /^[a-z0-9_]+$/i.test(rawName) &&        // matches alphanumeric + underscore (case-insensitive)
-    !/\s/.test(rawName) &&                   // confirm no spaces
-    (rawName.includes('_') ||               // has underscore (typical username pattern)
-     rawName === rawName.toLowerCase() ||   // all lowercase (typical username pattern)
-     /\d/.test(rawName))                    // contains numbers (typical username pattern)
-  );
-  const displayName = looksLikeUsername ? '' : rawName;
+  const displayName = isUsernamePattern(rawName) ? '' : rawName;
   const greeting = displayName ? `${getGreeting(t)}, ${displayName}` : `${getGreeting(t)}!`;
 
   return (

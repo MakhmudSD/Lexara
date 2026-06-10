@@ -54,7 +54,6 @@ function App() {
       return null;
     }
   });
-  const [authMode, setAuthMode] = useState('login');
   const [accessDenied, setAccessDenied] = useState('');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [intendedPlan, setIntendedPlan] = useState(() => sessionStorage.getItem('intended_plan') || null);
@@ -230,7 +229,7 @@ function App() {
           localStorage.setItem('lexara_page', 'app');
           setPage('app');
         }}
-        onBackToLogin={() => { setAuthMode('login'); navigate('login'); }}
+        onBackToLogin={() => navigate('login')}
         onHome={() => navigate('landing')}
       />
     );
@@ -253,7 +252,7 @@ function App() {
           localStorage.setItem('lexara_page', 'app');
           setPage('app');
         }}
-        onRegister={() => { setAuthMode('register'); navigate('register'); }}
+        onRegister={() => navigate('register')}
         onHome={() => navigate('landing')}
       />
     );
