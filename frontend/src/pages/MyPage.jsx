@@ -31,14 +31,14 @@ const PLAN_GRADIENTS = {
 
 const PLAN_FEATURES_KEYS = {
   free:     ['plan_free_f1', 'plan_free_f2', 'plan_free_f3'],
-  pro:      ['plan_pro_f1', 'plan_pro_f2', 'plan_pro_f3', 'plan_pro_f4'],
-  business: ['plan_business_f1', 'plan_business_f2', 'plan_business_f3', 'plan_business_f4'],
+  pro:      ['plan_pro_f1', 'plan_pro_f2', 'plan_pro_f3', 'plan_pro_f4', 'plan_pro_f5'],
+  business: ['plan_business_f1', 'plan_business_f2', 'plan_business_f3', 'plan_business_f4', 'plan_business_f5'],
 };
 
 const PLAN_FEATURES_DEFAULTS = {
   free:     ['100 queries/month', '1 workspace', '5 documents'],
-  pro:      ['1,000 queries/month', '5 workspaces', 'Unlimited documents', 'Usage analytics'],
-  business: ['5,000 queries/month', 'Unlimited workspaces', 'All Pro features', 'Priority support'],
+  pro:      ['1,000 queries/month', '5 workspaces', 'Unlimited documents', 'Usage analytics', '100 research reports/month'],
+  business: ['5,000 queries/month', 'Unlimited workspaces', 'All Pro features', 'Priority support', '600 research reports/month'],
 };
 
 const formatDate = (dateStr, language) => {
@@ -519,7 +519,7 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
               <div className="mypage-upgrade-card">
                 <div className="mypage-upgrade-card-header" style={{ background: PLAN_GRADIENTS.pro }}>
                   <div className="mypage-upgrade-plan-name">Pro</div>
-                  <div className="mypage-upgrade-price">$19<span>/oy</span></div>
+                  <div className="mypage-upgrade-price">$19<span>{t('per_month_short') || '/mo'}</span></div>
                 </div>
                 <div className="mypage-upgrade-features">
                   {PLAN_FEATURES.pro.map((f) => (
@@ -538,7 +538,7 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
               <div className="mypage-upgrade-card">
                 <div className="mypage-upgrade-card-header" style={{ background: PLAN_GRADIENTS.business }}>
                   <div className="mypage-upgrade-plan-name">Business</div>
-                  <div className="mypage-upgrade-price">$49<span>/oy</span></div>
+                  <div className="mypage-upgrade-price">$49<span>{t('per_month_short') || '/mo'}</span></div>
                 </div>
                 <div className="mypage-upgrade-features">
                   {PLAN_FEATURES.business.map((f) => (
