@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import '../styles/HomePage.css';
 import { useTranslation } from '../i18n/useTranslation';
 
@@ -50,6 +51,12 @@ const getGreeting = (t) => {
 
 export default function HomePage({ authUser, onSelectMode, onUpgrade }) {
   const { t } = useTranslation();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  const UPGRADE_PLANS = [
+    { key: 'pro',      price: '$19', f1: 'plan_pro_f1',      f5: 'plan_pro_f5',      f3: 'plan_pro_f3',      cta: 'upgrade_to_pro' },
+    { key: 'business', price: '$49', f1: 'plan_business_f1', f5: 'plan_business_f5', f3: 'plan_business_f3', cta: 'upgrade_to_business' },
+  ];
 
   const plan = (authUser?.plan || 'free').toLowerCase();
   const isExpired = authUser?.plan_expires_at && new Date(authUser.plan_expires_at) < new Date();
@@ -114,7 +121,14 @@ export default function HomePage({ authUser, onSelectMode, onUpgrade }) {
               key={key}
               className={`mode-card${isLocked ? ' mode-card--locked' : ''}`}
               role="listitem"
-              onClick={() => isLocked ? onUpgrade?.() : onSelectMode(key)}
+              onClick={() => {
+                if (isLocked) {
+                  onUpgrade?.('pro', false);
+                  setShowUpgradeModal(true);
+                } else {
+                  onSelectMode(key);
+                }
+              }}
               aria-label={isLocked ? `${name} — Pro plan required` : `${name} — ${desc}`}
             >
               <div className="mode-card-icon">
@@ -178,6 +192,35 @@ export default function HomePage({ authUser, onSelectMode, onUpgrade }) {
           </button>
         )}
       </div>
+
+      {showUpgradeModal && (
+        <div className="upgrade-modal-overlay" onClick={() => setShowUpgradeModal(false)}>
+          <div className="upgrade-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="upgrade-modal-close" onClick={() => setShowUpgradeModal(false)} aria-label="Close">×</button>
+            <h2 className="upgrade-modal-title">{t('upgrade_research_title')}</h2>
+            <p className="upgrade-modal-desc">{t('upgrade_research_desc')}</p>
+            <div className="upgrade-modal-plans">
+              {UPGRADE_PLANS.map(({ key, price, f1, f5, f3, cta }) => (
+                <div key={key} className={`upgrade-modal-plan upgrade-modal-plan--${key}`}>
+                  <div className="upgrade-modal-plan-name">{key.charAt(0).toUpperCase() + key.slice(1)}</div>
+                  <div className="upgrade-modal-plan-price">{price}<span>{t('per_month_short')}</span></div>
+                  <ul className="upgrade-modal-features">
+                    <li>{t(f1)}</li>
+                    <li>{t(f5)}</li>
+                    <li>{t(f3)}</li>
+                  </ul>
+                  <button
+                    className={`upgrade-modal-btn upgrade-modal-btn--${key}`}
+                    onClick={() => { setShowUpgradeModal(false); onUpgrade?.(key, true); }}
+                  >
+                    {t(cta)}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

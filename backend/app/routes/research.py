@@ -313,9 +313,12 @@ async def run_research_stream(
                 "report": report,
             })
 
+        except AppError as exc:
+            logger.warning("research_app_error: %s", exc.code)
+            yield sse("error", code=exc.code, message=exc.message)
         except Exception as exc:
             logger.exception("research_stream_error")
-            yield sse("error", message=str(exc))
+            yield sse("error", code="internal_error", message=str(exc))
 
     return StreamingResponse(
         generate(),

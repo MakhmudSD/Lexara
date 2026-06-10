@@ -327,8 +327,7 @@ export default function ChatPage({ workspaceId, workspaceName, onChangeWorkspace
       (errData) => {
         if (settled) return;
         settled = true;
-        const code = typeof errData === 'object' ? errData.code : '';
-        const message = typeof errData === 'object' ? errData.message : (errData || '');
+        const { code = '', message = '' } = errData;
         setError(code === 'monthly_quota_exceeded' ? t('quota_exceeded') : message);
         setMessages((prev) => prev.filter((entry) => entry.id !== assistantId));
         setIsLoading(false);

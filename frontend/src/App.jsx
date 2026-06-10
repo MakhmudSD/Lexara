@@ -58,7 +58,6 @@ function App() {
   const [accessDenied, setAccessDenied] = useState('');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [intendedPlan, setIntendedPlan] = useState(() => sessionStorage.getItem('intended_plan') || null);
-  const [showResearchUpgrade, setShowResearchUpgrade] = useState(false);
   const contentRef = useRef(null);
 
   // GSAP page transition: fade+slide out, swap state, fade+slide in
@@ -451,7 +450,11 @@ function App() {
           <HomePage
             authUser={authUser}
             onSelectMode={(mode) => mode === 'admin' ? navigate('admin') : goAppSection(mode)}
-            onUpgrade={() => setShowResearchUpgrade(true)}
+            onUpgrade={(plan, shouldNavigate = true) => {
+              sessionStorage.setItem('intended_plan', plan);
+              setIntendedPlan(plan);
+              if (shouldNavigate) goAppSection('mypage');
+            }}
           />
         )}
         {page === 'app' && currentPage === 'research' && lazySuspense(
@@ -505,47 +508,6 @@ function App() {
             }} intendedPlan={intendedPlan} onIntendedPlanConsumed={() => setIntendedPlan(null)} />)}
       </div>
 
-      {showResearchUpgrade && (
-        <div className="upgrade-modal-overlay" onClick={() => setShowResearchUpgrade(false)}>
-          <div className="upgrade-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="upgrade-modal-close" onClick={() => setShowResearchUpgrade(false)} aria-label="Close">×</button>
-            <h2 className="upgrade-modal-title">{t('upgrade_research_title')}</h2>
-            <p className="upgrade-modal-desc">{t('upgrade_research_desc')}</p>
-            <div className="upgrade-modal-plans">
-              <div className="upgrade-modal-plan upgrade-modal-plan--pro">
-                <div className="upgrade-modal-plan-name">Pro</div>
-                <div className="upgrade-modal-plan-price">$19<span>{t('per_month_short') || '/mo'}</span></div>
-                <ul className="upgrade-modal-features">
-                  <li>{t('plan_pro_f1')}</li>
-                  <li>{t('plan_pro_f5')}</li>
-                  <li>{t('plan_pro_f3')}</li>
-                </ul>
-                <button
-                  className="upgrade-modal-btn upgrade-modal-btn--pro"
-                  onClick={() => { sessionStorage.setItem('intended_plan', 'pro'); setIntendedPlan('pro'); setShowResearchUpgrade(false); goAppSection('mypage'); }}
-                >
-                  {t('upgrade_to_pro')}
-                </button>
-              </div>
-              <div className="upgrade-modal-plan upgrade-modal-plan--business">
-                <div className="upgrade-modal-plan-name">Business</div>
-                <div className="upgrade-modal-plan-price">$49<span>{t('per_month_short') || '/mo'}</span></div>
-                <ul className="upgrade-modal-features">
-                  <li>{t('plan_business_f1')}</li>
-                  <li>{t('plan_business_f5')}</li>
-                  <li>{t('plan_business_f3')}</li>
-                </ul>
-                <button
-                  className="upgrade-modal-btn upgrade-modal-btn--business"
-                  onClick={() => { sessionStorage.setItem('intended_plan', 'business'); setIntendedPlan('business'); setShowResearchUpgrade(false); goAppSection('mypage'); }}
-                >
-                  {t('upgrade_to_business')}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

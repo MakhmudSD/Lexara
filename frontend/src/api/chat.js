@@ -44,7 +44,15 @@ export const streamChat = async (
 
     if (!response.ok || !response.body) {
       const fallback = await response.text();
-      throw new Error(fallback || 'Streaming request failed');
+      let errData;
+      try {
+        const parsed = JSON.parse(fallback);
+        errData = { code: parsed.code || 'request_failed', message: parsed.message || fallback || 'Streaming request failed' };
+      } catch {
+        errData = { code: 'request_failed', message: fallback || 'Streaming request failed' };
+      }
+      onError?.(errData);
+      return;
     }
 
     const reader = response.body.getReader();
@@ -74,6 +82,6 @@ export const streamChat = async (
       }
     }
   } catch (error) {
-    onError?.(error.message || 'Streaming request failed');
+    onError?.({ code: 'network_error', message: error.message || 'Streaming request failed' });
   }
 };

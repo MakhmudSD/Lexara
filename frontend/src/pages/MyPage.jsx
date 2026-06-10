@@ -519,7 +519,7 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
               <div className="mypage-upgrade-card">
                 <div className="mypage-upgrade-card-header" style={{ background: PLAN_GRADIENTS.pro }}>
                   <div className="mypage-upgrade-plan-name">Pro</div>
-                  <div className="mypage-upgrade-price">$19<span>{t('per_month_short') || '/mo'}</span></div>
+                  <div className="mypage-upgrade-price">$19<span>{t('per_month_short')}</span></div>
                 </div>
                 <div className="mypage-upgrade-features">
                   {PLAN_FEATURES.pro.map((f) => (
@@ -538,7 +538,7 @@ export default function MyPage({ onLogout, intendedPlan, onIntendedPlanConsumed 
               <div className="mypage-upgrade-card">
                 <div className="mypage-upgrade-card-header" style={{ background: PLAN_GRADIENTS.business }}>
                   <div className="mypage-upgrade-plan-name">Business</div>
-                  <div className="mypage-upgrade-price">$49<span>{t('per_month_short') || '/mo'}</span></div>
+                  <div className="mypage-upgrade-price">$49<span>{t('per_month_short')}</span></div>
                 </div>
                 <div className="mypage-upgrade-features">
                   {PLAN_FEATURES.business.map((f) => (
