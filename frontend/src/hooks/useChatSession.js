@@ -245,15 +245,13 @@ export function useChatSession({ workspaceId, jurisdiction = null, t, onQuotaErr
         if (settled) return;
         settled = true;
         const { code = '', message = '' } = errData;
-        if (onQuotaError && (code === 'monthly_quota_exceeded' || code === 'legal_quota_exceeded' || code === 'prompt_injection_blocked')) {
+        if (onQuotaError && (code === 'monthly_quota_exceeded' || code === 'legal_quota_exceeded')) {
           onQuotaError({ code, message });
         }
         const errorMsg = code === 'legal_quota_exceeded'
           ? t('legal_quota_exceeded')
           : code === 'monthly_quota_exceeded'
           ? t('quota_exceeded')
-          : code === 'prompt_injection_blocked'
-          ? t('prompt_injection_blocked') || message
           : message;
         setError(errorMsg);
         setMessages((prev) => prev.filter((e) => e.id !== assistantId));
