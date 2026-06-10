@@ -47,7 +47,8 @@ export const streamChat = async (
       let errData;
       try {
         const parsed = JSON.parse(fallback);
-        errData = { code: parsed.code || 'request_failed', message: parsed.message || fallback || 'Streaming request failed' };
+        const errorObj = parsed.error || parsed;
+        errData = { code: errorObj.code || 'request_failed', message: errorObj.message || fallback || 'Streaming request failed' };
       } catch {
         errData = { code: 'request_failed', message: fallback || 'Streaming request failed' };
       }

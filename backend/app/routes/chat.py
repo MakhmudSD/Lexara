@@ -17,6 +17,7 @@ from app.db.models import Organization, TokenUsage, User, Workspace
 from app.schemas.chat import ChatQueryRequest, ChatQueryResponse
 from app.services.llm_service import (
     LEGAL_SYSTEM_PROMPT,
+    _check_for_injection,
     build_token_usage_data,
     generate_answer,
     generate_answer_stream,
@@ -128,6 +129,7 @@ async def chat_query(
     if quota_user is None:
         raise AppError(401, "user_not_found", "Authenticated user no longer exists.")
     _assert_workspace_access(payload.workspace_id, current_user, db)
+    _check_for_injection(payload.question, label="question")
     started_at = time.perf_counter()
     retrieved_chunks = query_workspace(
         db,
@@ -261,6 +263,7 @@ async def chat_stream(
     if quota_user is None:
         raise AppError(401, "user_not_found", "Authenticated user no longer exists.")
     _assert_workspace_access(payload.workspace_id, current_user, db)
+    _check_for_injection(payload.question, label="question_stream")
     sources = query_workspace(
         db,
         runtime.settings,
