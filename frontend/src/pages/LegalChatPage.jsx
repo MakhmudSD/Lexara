@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import ChatMessage from '../components/ChatMessage';
 import { LexaraIcon } from '../assets/LexaraLogo';
 import { useTranslation } from '../i18n/useTranslation';
@@ -5,8 +6,13 @@ import { useChatSession } from '../hooks/useChatSession';
 import '../styles/ChatPage.css';
 import '../styles/LegalChatPage.css';
 
-export default function LegalChatPage({ workspaceId, jurisdiction = 'KR', onBack }) {
+export default function LegalChatPage({ workspaceId, workspaceName, jurisdiction = 'KR', onBack, onUpgrade }) {
   const { t } = useTranslation();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  const handleQuotaError = ({ code }) => {
+    if (code === 'legal_quota_exceeded') setShowUpgradeModal(true);
+  };
 
   const {
     messages, sessions, activeSessionId,
@@ -14,7 +20,7 @@ export default function LegalChatPage({ workspaceId, jurisdiction = 'KR', onBack
     isLoading, error,
     messagesEndRef, textareaRef,
     sendMessage, createNewSession, deleteSession, loadSession,
-  } = useChatSession({ workspaceId, jurisdiction, t });
+  } = useChatSession({ workspaceId, jurisdiction, t, onQuotaError: handleQuotaError });
 
   const canSend = input.trim() && !isLoading;
   const isEmpty = messages.length === 0 && !isLoading;
@@ -126,6 +132,29 @@ export default function LegalChatPage({ workspaceId, jurisdiction = 'KR', onBack
           <div className="input-hint">{t('newline_hint') || '⏎ Send · ⇧⏎ New line'}</div>
         </div>
       </main>
+
+      {showUpgradeModal && (
+        <div className="legal-upgrade-overlay" role="dialog" aria-modal="true">
+          <div className="legal-upgrade-modal">
+            <h2>{t('legal_upgrade_modal_title') || 'Monthly limit reached'}</h2>
+            <p>{t('legal_upgrade_modal_body') || "You've used all 5 free legal questions this month. Upgrade to Pro for unlimited Korean law — and Business for Uzbek law too."}</p>
+            <div className="legal-upgrade-modal-actions">
+              <button
+                className="legal-upgrade-btn-primary"
+                onClick={() => { if (onUpgrade) onUpgrade(); }}
+              >
+                {t('legal_upgrade_modal_cta') || 'Upgrade now'}
+              </button>
+              <button
+                className="legal-upgrade-btn-secondary"
+                onClick={() => setShowUpgradeModal(false)}
+              >
+                {t('legal_upgrade_modal_dismiss') || 'Maybe later'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

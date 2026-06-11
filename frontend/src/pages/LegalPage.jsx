@@ -83,13 +83,28 @@ function JurisdictionCard({ ws, docs, badge, title, expandKey, expanded, onToggl
   );
 }
 
-export default function LegalPage({ onAskQuestion }) {
+function LockedJurisdictionCard({ badge, title, description, ctaLabel, onUpgrade }) {
+  return (
+    <div className="legal-card legal-card--locked" aria-label={`${title} — locked`}>
+      <div className="legal-card-jurisdiction legal-card-jurisdiction--locked">{badge}</div>
+      <div className="legal-card-lock-icon" aria-hidden="true">🔒</div>
+      <h2 className="legal-card-title">{title}</h2>
+      <p className="legal-card-description">{description}</p>
+      <button className="legal-card-cta legal-card-cta--locked" onClick={onUpgrade}>
+        {ctaLabel}
+      </button>
+    </div>
+  );
+}
+
+export default function LegalPage({ onAskQuestion, onUpgrade }) {
   const { t } = useTranslation();
   const [workspaces, setWorkspaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [askError, setAskError] = useState('');
   const [expanded, setExpanded] = useState({});
+  const [quota, setQuota] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -104,6 +119,12 @@ export default function LegalPage({ onAskQuestion }) {
         setWorkspaces([]);
       })
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    client.get('/legal/quota')
+      .then(r => setQuota(r.data))
+      .catch(() => {}); // silently fail — counter is non-critical
   }, []);
 
   const handleToggle = (key) =>
@@ -147,6 +168,20 @@ export default function LegalPage({ onAskQuestion }) {
       {!loading && !error && workspaces.length > 0 && (
         <>
           {askError && <div className="legal-error" role="alert">{askError}</div>}
+          {quota && quota.plan === 'free' && (
+            <div className="legal-trial-banner" role="status">
+              <span className="legal-trial-count">
+                {(t('legal_trial_used') || 'Free plan: {used} of {limit} legal questions used this month.')
+                  .replace('{used}', quota.used)
+                  .replace('{limit}', quota.limit)}
+              </span>
+              {quota.used >= quota.limit && (
+                <span className="legal-trial-limit-reached">
+                  {' — '}{t('legal_trial_limit_reached') || 'Upgrade to Pro for unlimited access.'}
+                </span>
+              )}
+            </div>
+          )}
           <div className="legal-cards-grid">
             {workspaces.map((ws) => {
               const { koreanDocs, uzbekDocs } = splitDocs(ws.documents || []);
@@ -188,18 +223,28 @@ export default function LegalPage({ onAskQuestion }) {
                 ? (t('uzbek_law') || 'Uzbek Law')
                 : (t('korean_law') || 'Korean Law');
               return (
-                <JurisdictionCard
-                  key={ws.id}
-                  ws={ws}
-                  docs={docs}
-                  badge={badge}
-                  title={title}
-                  expandKey={ws.id}
-                  expanded={!!expanded[ws.id]}
-                  onToggle={handleToggle}
-                  onAsk={handleAsk}
-                  t={t}
-                />
+                <div key={ws.id} className="legal-jurisdiction-pair">
+                  <JurisdictionCard
+                    ws={ws}
+                    docs={docs}
+                    badge={badge}
+                    title={title}
+                    expandKey={ws.id}
+                    expanded={!!expanded[ws.id]}
+                    onToggle={handleToggle}
+                    onAsk={handleAsk}
+                    t={t}
+                  />
+                  {!isUz && quota?.plan !== 'business' && (
+                    <LockedJurisdictionCard
+                      badge="UZ"
+                      title={t('legal_uz_locked_title') || 'Uzbek Law — Business Plan'}
+                      description={t('legal_uz_locked_desc') || 'Unlock Uzbek law research with a Business plan.'}
+                      ctaLabel={t('legal_uz_locked_cta') || 'View plans'}
+                      onUpgrade={onUpgrade}
+                    />
+                  )}
+                </div>
               );
             })}
           </div>

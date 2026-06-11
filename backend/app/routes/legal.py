@@ -4,7 +4,9 @@ from collections import defaultdict
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.core.auth import get_current_user
-from app.core.entitlements import effective_plan
+from datetime import datetime
+from app.core.entitlements import effective_plan, plan_limit
+from app.db.models import TokenUsage
 from app.db import get_db
 from app.db import models
 from app.db.models import User
@@ -62,3 +64,28 @@ def get_legal_workspaces(
             "documents": [{"id": str(d.id), "filename": d.filename} for d in docs],
         })
     return workspaces_data
+
+
+@router.get("/quota")
+def get_legal_quota(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Return the user's legal query usage and limit for the current month."""
+    plan = effective_plan(current_user)
+    limit = plan_limit(current_user, "monthly_legal_queries")
+
+    now = datetime.utcnow()
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    used = (
+        db.query(TokenUsage)
+        .filter(
+            TokenUsage.user_id == str(current_user.id),
+            TokenUsage.mode == "legal",
+            TokenUsage.timestamp >= month_start,
+        )
+        .count()
+    )
+
+    return {"used": used, "limit": limit, "plan": plan}

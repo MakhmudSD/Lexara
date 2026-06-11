@@ -239,3 +239,104 @@
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   width: 100%;
 }
+
+/* ── Phase 2: Trial counter banner ── */
+.legal-trial-banner {
+  max-width: 1100px;
+  margin: 0 auto 1rem;
+  padding: 0.6rem 1rem;
+  background: color-mix(in srgb, var(--legal-warn) 12%, var(--legal-surface));
+  border: 1px solid color-mix(in srgb, var(--legal-warn) 40%, transparent);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: var(--legal-warn);
+}
+.legal-trial-limit-reached {
+  color: #f87171;
+  font-weight: 600;
+}
+
+/* ── Phase 3: Locked jurisdiction card ── */
+.legal-card--locked {
+  opacity: 0.75;
+  border-color: color-mix(in srgb, var(--legal-accent) 25%, transparent);
+  position: relative;
+}
+.legal-card--locked:hover {
+  opacity: 1;
+  border-color: var(--legal-accent);
+}
+.legal-card-lock-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.legal-card-jurisdiction--locked {
+  background: color-mix(in srgb, var(--legal-accent) 30%, transparent);
+  color: var(--legal-muted);
+}
+.legal-card-cta--locked {
+  background: transparent;
+  border: 1px solid var(--legal-accent);
+  color: var(--legal-accent);
+}
+.legal-card-cta--locked:hover {
+  background: color-mix(in srgb, var(--legal-accent) 15%, transparent);
+}
+
+/* ── Phase 4: Upgrade modal ── */
+.legal-upgrade-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.legal-upgrade-modal {
+  background: var(--legal-surface);
+  border: 1px solid var(--legal-accent);
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+}
+.legal-upgrade-modal h2 {
+  color: var(--legal-text);
+  margin-bottom: 0.75rem;
+}
+.legal-upgrade-modal p {
+  color: var(--legal-muted);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+.legal-upgrade-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+.legal-upgrade-btn-primary {
+  background: var(--legal-accent);
+  color: #0b0e14;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.legal-upgrade-btn-primary:hover {
+  opacity: 0.85;
+}
+.legal-upgrade-btn-secondary {
+  background: transparent;
+  color: var(--legal-muted);
+  border: 1px solid var(--legal-muted);
+  border-radius: 8px;
+  padding: 0.6rem 1.25rem;
+  cursor: pointer;
+}
+.legal-upgrade-btn-secondary:hover {
+  color: var(--legal-text);
+  border-color: var(--legal-text);
+}

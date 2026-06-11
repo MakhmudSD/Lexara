@@ -485,6 +485,11 @@ function App() {
               setLegalJurisdiction(jurisdiction || 'KR');
               goAppSection('legal-chat');
             }}
+            onUpgrade={() => {
+              sessionStorage.setItem('intended_plan', 'pro');
+              setIntendedPlan('pro');
+              goAppSection('mypage');
+            }}
           />
         )}
         {page === 'app' && currentPage === 'legal-chat' && lazySuspense(
@@ -493,6 +498,11 @@ function App() {
             workspaceName={legalChatWs.name}
             jurisdiction={legalJurisdiction}
             onBack={() => goAppSection('legal')}
+            onUpgrade={() => {
+              sessionStorage.setItem('intended_plan', 'pro');
+              setIntendedPlan('pro');
+              goAppSection('mypage');
+            }}
           />
         )}
         {page === 'app' && currentPage === 'mypage' && lazySuspense(<MyPage authUser={authUser} onLogout={() => {
