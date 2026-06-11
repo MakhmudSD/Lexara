@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import logging
 import re
 import time
@@ -148,19 +149,21 @@ def _trim_history(history: list[dict[str, Any]] | None) -> list[dict[str, str]]:
     if not history:
         return []
 
-    trimmed: list[dict[str, str]] = []
+    clean: list[dict[str, str]] = []
     for item in history[-MAX_HISTORY_ENTRIES:]:
         role = str(item.get("role", "")).strip()
         content = str(item.get("content", "")).strip()
         if role not in {"user", "assistant"} or not content:
             continue
-        # Drop history turns that contain injection patterns — they may be
-        # fabricated turns an attacker submitted to claim prior consent.
         if _INJECTION_RE.search(content):
             logger.warning("prompt_injection_in_history_dropped role=%s", role)
+            # Drop the counterpart turn too — OpenAI requires strictly alternating
+            # user/assistant turns; an orphaned turn causes HTTP 400.
+            if clean and clean[-1]["role"] != role:
+                clean.pop()
             continue
-        trimmed.append({"role": role, "content": content})
-    return trimmed
+        clean.append({"role": role, "content": content})
+    return clean
 
 
 def _prepare_context_chunks(context_chunks: list[str]) -> list[str]:
@@ -211,7 +214,7 @@ def _build_context(chunks: list[str]) -> str:
     parts = []
     for i, chunk in enumerate(chunks, 1):
         text = chunk.strip() if isinstance(chunk, str) else str(chunk)
-        parts.append(f'<document index="{i}">\n{text}\n</document>')
+        parts.append(f'<document index="{i}">\n{html.escape(text)}\n</document>')
 
     return "\n\n".join(parts)
 

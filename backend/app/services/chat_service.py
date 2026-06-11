@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import time
 
-from app.api.schemas.chat import ChatDebugResponse, ChatRequest, ChatResponse, ChatSource
+from app.schemas.chat import ChatDebugResponse, ChatRequest, ChatResponse, ChatSource
 from app.core.exceptions import AppError
 from app.core.runtime import AppRuntime
 from app.observability.models import PipelineStepEntry, RetrievalHistoryEntry, RetrievalResultEntry

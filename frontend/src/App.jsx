@@ -486,8 +486,8 @@ function App() {
               goAppSection('legal-chat');
             }}
             onUpgrade={() => {
-              sessionStorage.setItem('intended_plan', 'pro');
-              setIntendedPlan('pro');
+              sessionStorage.setItem('intended_plan', 'business');
+              setIntendedPlan('business');
               goAppSection('mypage');
             }}
           />

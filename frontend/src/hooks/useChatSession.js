@@ -90,13 +90,15 @@ export function useChatSession({ workspaceId, jurisdiction = null, t, onQuotaErr
       messages: [],
       workspaceId,
     };
-    const updated = [newSession, ...sessions];
-    setSessions(updated);
-    localStorage.setItem(buildStorageKey(_userId, workspaceId, jurisdiction), JSON.stringify(updated));
+    setSessions((prev) => {
+      const updated = [newSession, ...prev];
+      localStorage.setItem(buildStorageKey(_userId, workspaceId, jurisdiction), JSON.stringify(updated));
+      return updated;
+    });
     setActiveSessionId(newSession.id);
     setMessages([]);
     setSidebarOpen(false);
-  }, [sessions, t, workspaceId, _userId, jurisdiction]);
+  }, [t, workspaceId, _userId, jurisdiction]);
 
   const deleteSession = useCallback((sessionId) => {
     const updated = sessions.filter((s) => s.id !== sessionId);
@@ -163,7 +165,7 @@ export function useChatSession({ workspaceId, jurisdiction = null, t, onQuotaErr
   }, [input]);
 
   const sendMessage = useCallback(async (text) => {
-    if (!text.trim() || isLoading) return;
+    if (!text.trim() || isLoading || !workspaceId) return;
     const question = text.trim();
     let sessionId = activeSessionId;
 
@@ -216,9 +218,11 @@ export function useChatSession({ workspaceId, jurisdiction = null, t, onQuotaErr
         setMessages((prev) => prev.map((m) => m.id === assistantId ? { ...m, sources: finalSources } : m));
       },
       (done) => {
+        if (settled) return;
         settled = true;
         finalMode = done?.mode || 'retrieval';
-        if (finalMode === 'retrieval' && !finalContent && finalSources.length === 0) {
+        const noResultsFallback = finalMode === 'retrieval' && !finalContent && finalSources.length === 0;
+        if (noResultsFallback) {
           finalContent = t('no_results');
         }
         setMessages((prev) => {
@@ -230,7 +234,8 @@ export function useChatSession({ workspaceId, jurisdiction = null, t, onQuotaErr
           saveSession(sessionId, finalMessages);
           return finalMessages;
         });
-        appendHistory(question, finalMode === 'rag' ? finalContent : '');
+        // Don't pass UI fallback strings into LLM history — send empty for no-results turns
+        appendHistory(question, noResultsFallback ? '' : finalContent || '');
         try {
           const existing = JSON.parse(localStorage.getItem('lexara_stats') || '{}');
           localStorage.setItem('lexara_stats', JSON.stringify({

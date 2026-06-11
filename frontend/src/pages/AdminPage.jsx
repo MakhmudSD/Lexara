@@ -85,7 +85,10 @@ function DeleteConfirmModal({ user, onConfirm, onCancel }) {
 function formatTime(ts) {
   if (!ts) return '—';
   try {
-    return new Date(ts).toLocaleTimeString();
+    return new Date(ts).toLocaleString(undefined, {
+      month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    });
   } catch {
     return ts;
   }
@@ -443,6 +446,8 @@ function UsagePanel({ summary, usage, t }) {
   );
 }
 
+const USERS_PER_PAGE = 10;
+
 function UsersPanel({
   users,
   onReload,
@@ -452,16 +457,37 @@ function UsersPanel({
   onSearchChange,
   roleFilter,
   onRoleFilterChange,
+  sortBy,
+  onSortByChange,
+  page,
+  onPageChange,
   loading,
 }) {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const sourceUsers = Array.isArray(users) ? users : [];
-  const filteredUsers = sourceUsers.filter((user) => {
-    const haystack = `${user.email || ''} ${user.full_name || ''}`.toLowerCase();
-    const matchesSearch = !search || haystack.includes(search.toLowerCase());
-    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
-    return matchesSearch && matchesRole;
-  });
+
+  const filteredUsers = sourceUsers
+    .filter((user) => {
+      const haystack = `${user.email || ''} ${user.full_name || ''}`.toLowerCase();
+      const matchesSearch = !search || haystack.includes(search.toLowerCase());
+      const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+      return matchesSearch && matchesRole;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'email_asc':  return (a.email || '').localeCompare(b.email || '');
+        case 'email_desc': return (b.email || '').localeCompare(a.email || '');
+        case 'name_asc':   return (a.full_name || '').localeCompare(b.full_name || '');
+        case 'name_desc':  return (b.full_name || '').localeCompare(a.full_name || '');
+        case 'joined_asc': return new Date(a.created_at) - new Date(b.created_at);
+        case 'joined_desc':
+        default:           return new Date(b.created_at) - new Date(a.created_at);
+      }
+    });
+
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / USERS_PER_PAGE));
+  const safePage = Math.min(page, totalPages);
+  const pageUsers = filteredUsers.slice((safePage - 1) * USERS_PER_PAGE, safePage * USERS_PER_PAGE);
 
   const handleToggleRole = async (user) => {
     const nextRole = user.role === 'admin' ? 'user' : 'admin';
@@ -521,6 +547,17 @@ function UsersPanel({
             <option value="user">{t('admin_filter_user')}</option>
           </select>
         </label>
+        <label className="users-role-filter">
+          <span>Sort</span>
+          <select value={sortBy} onChange={(event) => onSortByChange(event.target.value)}>
+            <option value="joined_desc">Joined ↓</option>
+            <option value="joined_asc">Joined ↑</option>
+            <option value="email_asc">Email A–Z</option>
+            <option value="email_desc">Email Z–A</option>
+            <option value="name_asc">Name A–Z</option>
+            <option value="name_desc">Name Z–A</option>
+          </select>
+        </label>
       </div>
 
       {!sourceUsers.length ? (
@@ -541,7 +578,7 @@ function UsersPanel({
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map((user) => (
+              {pageUsers.map((user) => (
                 <tr key={user.user_id}>
                   <td>{user.email}</td>
                   <td>{user.full_name}</td>
@@ -580,6 +617,25 @@ function UsersPanel({
               ))}
             </tbody>
           </table>
+          {totalPages > 1 && (
+            <div className="admin-pagination">
+              <button
+                className="admin-page-btn"
+                disabled={safePage <= 1}
+                onClick={() => onPageChange(safePage - 1)}
+              >
+                ‹
+              </button>
+              <span className="admin-page-info">{safePage} / {totalPages}</span>
+              <button
+                className="admin-page-btn"
+                disabled={safePage >= totalPages}
+                onClick={() => onPageChange(safePage + 1)}
+              >
+                ›
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -650,6 +706,8 @@ export default function AdminPage({ onGoChat }) {
   const [expandedRow, setExpandedRow] = useState('');
   const [userSearch, setUserSearch] = useState('');
   const [userRoleFilter, setUserRoleFilter] = useState('all');
+  const [userSortBy, setUserSortBy] = useState('joined_desc');
+  const [userPage, setUserPage] = useState(1);
   const [conversationScoreFilter, setConversationScoreFilter] = useState('all');
 
   const loadUsers = useCallback(async () => {
@@ -829,7 +887,7 @@ export default function AdminPage({ onGoChat }) {
               <tbody>
                 {errorLogs.slice(0, 10).map((log, i) => (
                   <tr key={i}>
-                    <td className="mono">{new Date(log.timestamp).toLocaleTimeString()}</td>
+                    <td className="mono">{formatTime(log.timestamp)}</td>
                     <td style={{ color: '#b91c1c' }}>{log.message}</td>
                     <td className="mono">{(log.request_id || '').substring(0, 8)}…</td>
                   </tr>
@@ -1038,9 +1096,13 @@ export default function AdminPage({ onGoChat }) {
                 }
                 t={t}
                 search={userSearch}
-                onSearchChange={setUserSearch}
+                onSearchChange={(v) => { setUserSearch(v); setUserPage(1); }}
                 roleFilter={userRoleFilter}
-                onRoleFilterChange={setUserRoleFilter}
+                onRoleFilterChange={(v) => { setUserRoleFilter(v); setUserPage(1); }}
+                sortBy={userSortBy}
+                onSortByChange={(v) => { setUserSortBy(v); setUserPage(1); }}
+                page={userPage}
+                onPageChange={setUserPage}
                 loading={loading}
               />
             )}

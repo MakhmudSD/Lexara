@@ -2,7 +2,7 @@ import time
 
 from sqlalchemy.orm import Session
 
-from app.api.schemas.admin import AdminDocumentResponse, HealthResponse
+from app.schemas.admin import AdminDocumentResponse, HealthResponse
 from app.core.runtime import AppRuntime
 from app.db import SessionLocal
 from app.db.models import Document, DocumentChunk

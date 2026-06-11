@@ -97,6 +97,13 @@ function LockedJurisdictionCard({ badge, title, description, ctaLabel, onUpgrade
   );
 }
 
+function getLocalPlan() {
+  try {
+    const u = JSON.parse(localStorage.getItem('authUser') || '{}');
+    return u.plan || u.subscription_plan || 'free';
+  } catch { return 'free'; }
+}
+
 export default function LegalPage({ onAskQuestion, onUpgrade }) {
   const { t } = useTranslation();
   const [workspaces, setWorkspaces] = useState([]);
@@ -104,6 +111,7 @@ export default function LegalPage({ onAskQuestion, onUpgrade }) {
   const [error, setError] = useState('');
   const [askError, setAskError] = useState('');
   const [expanded, setExpanded] = useState({});
+  const [localPlan] = useState(getLocalPlan);
   const [quota, setQuota] = useState(null);
 
   useEffect(() => {
@@ -235,7 +243,7 @@ export default function LegalPage({ onAskQuestion, onUpgrade }) {
                     onAsk={handleAsk}
                     t={t}
                   />
-                  {!isUz && quota?.plan !== 'business' && (
+                  {!isUz && localPlan !== 'business' && (
                     <LockedJurisdictionCard
                       badge="UZ"
                       title={t('legal_uz_locked_title') || 'Uzbek Law — Business Plan'}

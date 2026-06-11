@@ -4,7 +4,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes.admin import router as admin_router
+from app.routes.admin import router as admin_router
 from app.core.config import get_settings
 from app.core.exceptions import register_exception_handlers
 from app.core.limiter import limiter

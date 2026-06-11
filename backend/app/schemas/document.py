@@ -4,6 +4,14 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 
+class DocumentChunk(BaseModel):
+    chunk_id: str
+    document_id: str
+    workspace_id: str
+    index: int
+    content: str
+
+
 class DocumentUploadResponse(BaseModel):
     id: UUID
     workspace_id: UUID

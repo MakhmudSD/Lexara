@@ -3,7 +3,7 @@ from datetime import datetime
 from fastapi import APIRouter, BackgroundTasks, Depends, Response
 from sqlalchemy.orm import Session
 
-from app.api.schemas.admin import (
+from app.schemas.admin import (
     AdminDocumentResponse,
     ConversationResponse,
     HealthResponse,

@@ -1,18 +1,17 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import ChatMessage from '../components/ChatMessage';
 import { LexaraIcon } from '../assets/LexaraLogo';
 import { useTranslation } from '../i18n/useTranslation';
 import { useChatSession } from '../hooks/useChatSession';
-import '../styles/ChatPage.css';
 import '../styles/LegalChatPage.css';
 
 export default function LegalChatPage({ workspaceId, workspaceName, jurisdiction = 'KR', onBack, onUpgrade }) {
   const { t } = useTranslation();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  const handleQuotaError = ({ code }) => {
+  const handleQuotaError = useCallback(({ code }) => {
     if (code === 'legal_quota_exceeded') setShowUpgradeModal(true);
-  };
+  }, []);
 
   const {
     messages, sessions, activeSessionId,

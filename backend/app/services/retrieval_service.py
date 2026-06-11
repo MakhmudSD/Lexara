@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 from pydantic import BaseModel
 
-from app.storage.models import DocumentChunk
+from app.schemas.document import DocumentChunk
 
 
 class RetrievalMatch(BaseModel):
