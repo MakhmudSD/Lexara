@@ -154,8 +154,18 @@ html, body, #root {
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
+/* overflow-x: hidden belongs on <html>, not <body> — per the CSS overflow
+   spec, giving one axis a non-visible value while the other is left at its
+   visible default silently computes that axis to auto too. On body (which
+   is pinned to height:100% above), that turned body into its own scroll
+   container holding the page's real overflow, while <html> — what
+   scrollIntoView()/scrollTo() target via document.scrollingElement — had
+   nothing to scroll. <html> is meant to be the one true scrolling element. */
+html {
   overflow-x: hidden;
+}
+
+body {
   background: var(--color-bg);
   transition: background-color 200ms ease, color 200ms ease;
 }
