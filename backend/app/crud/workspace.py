@@ -42,6 +42,26 @@ def list_workspaces(
     return query.order_by(Workspace.created_at.desc()).offset(skip).limit(limit).all()
 
 
+def count_billable_workspaces(db: Session, user_id: UUID) -> int:
+    """
+    Count active workspaces that count toward a user's plan limit.
+    Excludes "Lexara Legal" org workspaces (shared legal-mode resources,
+    e.g. the seeded law database) for the same reason list_workspaces
+    excludes them: they aren't a personal workspace slot.
+    """
+    return (
+        db.query(Workspace)
+        .join(UserWorkspace, UserWorkspace.workspace_id == Workspace.id)
+        .outerjoin(Organization, Organization.id == Workspace.organization_id)
+        .filter(
+            Workspace.is_active.is_(True),
+            UserWorkspace.user_id == user_id,
+            or_(Workspace.organization_id.is_(None), Organization.name != "Lexara Legal"),
+        )
+        .count()
+    )
+
+
 def deactivate_workspace(db: Session, workspace_id: UUID) -> Workspace:
     """Soft-delete a workspace by setting is_active = False."""
     workspace = get_workspace_or_404(db, workspace_id)

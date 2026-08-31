@@ -108,15 +108,7 @@ def quick_create_workspace(
     workspace_name = _friendly_name() if not requested_name or requested_name == "My Workspace" else requested_name
 
     # enforce plan workspace limit
-    existing_count = (
-        db.query(Workspace)
-        .join(UserWorkspace, UserWorkspace.workspace_id == Workspace.id)
-        .filter(
-            UserWorkspace.user_id == current_user.id,
-            Workspace.is_active == True,
-        )
-        .count()
-    )
+    existing_count = workspace_crud.count_billable_workspaces(db, current_user.id)
     max_ws = plan_limit(current_user, "max_workspaces")
     if existing_count >= max_ws:
         raise AppError(
@@ -172,15 +164,7 @@ def create_workspace(
 ) -> WorkspaceResponse:
     _assert_org_membership(payload.organization_id, current_user, db)
     # enforce plan workspace limit
-    existing_count = (
-        db.query(Workspace)
-        .join(UserWorkspace, UserWorkspace.workspace_id == Workspace.id)
-        .filter(
-            UserWorkspace.user_id == current_user.id,
-            Workspace.is_active == True,
-        )
-        .count()
-    )
+    existing_count = workspace_crud.count_billable_workspaces(db, current_user.id)
     max_ws = plan_limit(current_user, "max_workspaces")
     if existing_count >= max_ws:
         raise AppError(
@@ -245,15 +229,7 @@ def create_org_workspace(
     org_id = _resolve_org(org_slug, db)
     _assert_org_membership(org_id, current_user, db)
     # enforce plan workspace limit
-    existing_count = (
-        db.query(Workspace)
-        .join(UserWorkspace, UserWorkspace.workspace_id == Workspace.id)
-        .filter(
-            UserWorkspace.user_id == current_user.id,
-            Workspace.is_active == True,
-        )
-        .count()
-    )
+    existing_count = workspace_crud.count_billable_workspaces(db, current_user.id)
     max_ws = plan_limit(current_user, "max_workspaces")
     if existing_count >= max_ws:
         raise AppError(
