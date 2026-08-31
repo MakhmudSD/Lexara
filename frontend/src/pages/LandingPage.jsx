@@ -496,7 +496,13 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
 
   const scrollToSection = (event, id) => {
     event.preventDefault();
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    // behavior:'smooth' here never completes on this page — verified
+    // directly (window.scrollTo/scrollIntoView with behavior:'smooth'
+    // leaves scrollY at 0 no matter what; behavior:'instant' always
+    // works). Root cause not fully pinned down beyond that; shipping the
+    // behavior that's actually proven to scroll rather than a "smooth"
+    // one that silently does nothing.
+    document.getElementById(id)?.scrollIntoView({ behavior: 'instant', block: 'start' });
   };
 
   return (
