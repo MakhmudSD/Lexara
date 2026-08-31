@@ -321,12 +321,14 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
     };
   }, []);
 
-  // Smooth scroll pacing via CSS — Lenis transforms <html> which breaks
-  // position:fixed children (ThreeBackground scrolls off-screen with the page)
-  useEffect(() => {
-    document.documentElement.style.scrollBehavior = 'smooth';
-    return () => { document.documentElement.style.scrollBehavior = ''; };
-  }, []);
+  // Deliberately no CSS `scroll-behavior: smooth` here. Setting it on
+  // <html> while also calling scrollIntoView({behavior:'smooth'}) /
+  // scrollTo({behavior:'smooth'}) from JS (scrollToSection, below) makes
+  // the browser drop the scroll entirely — scrollY silently stays put.
+  // Verified: removing the CSS property and keeping the JS smooth option
+  // is the only combination that actually scrolls. scrollToSection
+  // already requests smooth behavior itself, so nothing loses the
+  // animation by dropping this.
 
   // Reading-progress bar: grows right-edge line as user scrolls
   useEffect(() => {
