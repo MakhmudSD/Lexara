@@ -92,6 +92,30 @@ def _assert_workspace_access(workspace_id, user: User, db: Session) -> None:
     raise AppError(403, "forbidden", "You do not have access to this workspace.")
 
 
+@router.get("/_debug_quota")
+def _debug_quota(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Temporary diagnostic endpoint — remove after QA investigation."""
+    from app.db.models import Organization
+    rows = (
+        db.query(Workspace.id, Workspace.name, Workspace.is_active, Workspace.organization_id, Organization.name)
+        .join(UserWorkspace, UserWorkspace.workspace_id == Workspace.id)
+        .outerjoin(Organization, Organization.id == Workspace.organization_id)
+        .filter(UserWorkspace.user_id == current_user.id)
+        .all()
+    )
+    return {
+        "existing_count": workspace_crud.count_billable_workspaces(db, current_user.id),
+        "max_ws": plan_limit(current_user, "max_workspaces"),
+        "rows": [
+            {"workspace_id": str(r[0]), "name": r[1], "is_active": r[2], "org_id": str(r[3]) if r[3] else None, "org_name": r[4]}
+            for r in rows
+        ],
+    }
+
+
 @router.post("/quick", response_model=WorkspaceResponse, status_code=201)
 def quick_create_workspace(
     payload: WorkspaceQuickCreate,
@@ -108,15 +132,7 @@ def quick_create_workspace(
     workspace_name = _friendly_name() if not requested_name or requested_name == "My Workspace" else requested_name
 
     # enforce plan workspace limit
-    existing_count = (
-        db.query(Workspace)
-        .join(UserWorkspace, UserWorkspace.workspace_id == Workspace.id)
-        .filter(
-            UserWorkspace.user_id == current_user.id,
-            Workspace.is_active == True,
-        )
-        .count()
-    )
+    existing_count = workspace_crud.count_billable_workspaces(db, current_user.id)
     max_ws = plan_limit(current_user, "max_workspaces")
     if existing_count >= max_ws:
         raise AppError(
@@ -172,15 +188,7 @@ def create_workspace(
 ) -> WorkspaceResponse:
     _assert_org_membership(payload.organization_id, current_user, db)
     # enforce plan workspace limit
-    existing_count = (
-        db.query(Workspace)
-        .join(UserWorkspace, UserWorkspace.workspace_id == Workspace.id)
-        .filter(
-            UserWorkspace.user_id == current_user.id,
-            Workspace.is_active == True,
-        )
-        .count()
-    )
+    existing_count = workspace_crud.count_billable_workspaces(db, current_user.id)
     max_ws = plan_limit(current_user, "max_workspaces")
     if existing_count >= max_ws:
         raise AppError(
@@ -245,15 +253,7 @@ def create_org_workspace(
     org_id = _resolve_org(org_slug, db)
     _assert_org_membership(org_id, current_user, db)
     # enforce plan workspace limit
-    existing_count = (
-        db.query(Workspace)
-        .join(UserWorkspace, UserWorkspace.workspace_id == Workspace.id)
-        .filter(
-            UserWorkspace.user_id == current_user.id,
-            Workspace.is_active == True,
-        )
-        .count()
-    )
+    existing_count = workspace_crud.count_billable_workspaces(db, current_user.id)
     max_ws = plan_limit(current_user, "max_workspaces")
     if existing_count >= max_ws:
         raise AppError(
