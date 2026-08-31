@@ -32,8 +32,10 @@ class Settings(BaseSettings):
     # Legacy SQLite (kept for now)
     sqlite_db_path: str = DEFAULT_SQLITE_DB_PATH
     
-    # Upload settings
-    max_upload_size_bytes: int = 10 * 1024 * 1024
+    # Upload settings — matches the documented 50MB limit (README, portfolio
+    # copy). Was stuck at 10MB since the initial commit with no indication
+    # it was ever a deliberate infra constraint (git blame, no comment).
+    max_upload_size_bytes: int = 50 * 1024 * 1024
     
     # Document processing — 1500 chars keeps full article heading + body together
     default_chunk_size: int = 1500

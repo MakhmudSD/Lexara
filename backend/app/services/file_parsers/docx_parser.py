@@ -17,5 +17,14 @@ def parse_docx_bytes(file_bytes: bytes) -> str:
             "docx_parser_unavailable",
             "DOCX support is not installed on the server.",
         )
-    document = Document(BytesIO(file_bytes))
-    return "\n".join(paragraph.text for paragraph in document.paragraphs if paragraph.text)
+    try:
+        document = Document(BytesIO(file_bytes))
+        return "\n".join(paragraph.text for paragraph in document.paragraphs if paragraph.text)
+    except AppError:
+        raise
+    except Exception as exc:
+        raise AppError(
+            400,
+            "corrupt_file",
+            "Unable to read this file — it may be corrupted or not a valid DOCX.",
+        ) from exc
