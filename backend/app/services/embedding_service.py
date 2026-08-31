@@ -33,11 +33,43 @@ def _embed_via_openai(texts: list[str], settings: Settings) -> list[list[float]]
     return [item.embedding for item in response.data]
 
 
+# OpenAI's embeddings endpoint caps a single request at 300k input tokens.
+# No tiktoken dependency here, so this uses a conservative chars-per-token
+# floor (CJK text runs closer to 1-2 chars/token, well under the ~4 chars/
+# token typical for English) to stay under the real limit even for
+# Korean/Japanese-heavy documents, which this app explicitly supports.
+_MAX_BATCH_CHARS = 400_000
+
+
 def embed_texts(texts: list[str], settings: Settings) -> list[list[float]]:
-    """Generate embeddings for a batch of text chunks (document-side)."""
+    """Generate embeddings for a batch of text chunks (document-side).
+
+    Splits into multiple requests when the combined text would exceed
+    OpenAI's per-request token cap — a single large document (many chunks)
+    used to be sent as one request and fail outright once its total size
+    passed that cap.
+    """
     if not texts:
         return []
-    return _embed_via_openai(texts, settings)
+
+    batches: list[list[str]] = []
+    current: list[str] = []
+    current_chars = 0
+    for text in texts:
+        text_len = len(text)
+        if current and current_chars + text_len > _MAX_BATCH_CHARS:
+            batches.append(current)
+            current = []
+            current_chars = 0
+        current.append(text)
+        current_chars += text_len
+    if current:
+        batches.append(current)
+
+    embeddings: list[list[float]] = []
+    for batch in batches:
+        embeddings.extend(_embed_via_openai(batch, settings))
+    return embeddings
 
 
 def embed_query(question: str, settings: Settings) -> list[float]:
