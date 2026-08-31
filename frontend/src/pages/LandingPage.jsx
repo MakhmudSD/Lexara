@@ -308,10 +308,15 @@ export default function LandingPage({ onSignIn, onSignUp, onPrivacy, onTerms }) 
   }, [darkMode]);
 
   useEffect(() => {
-    document.body.style.overflow = 'auto';
+    // Only <html> should own scrolling here. Also setting overflow:auto on
+    // <body> (which index.css pins to height:100%) turns body into its own
+    // scroll container with the real overflowing content, while <html> —
+    // what scrollIntoView()/scrollTo() actually target as
+    // document.scrollingElement — ends up with nothing to scroll. Wheel
+    // scrolling still hits body's box directly so it looks fine, but any
+    // programmatic scroll (nav anchor links) silently no-ops.
     document.documentElement.style.overflow = 'auto';
     return () => {
-      document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
     };
   }, []);
