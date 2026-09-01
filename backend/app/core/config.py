@@ -32,10 +32,19 @@ class Settings(BaseSettings):
     # Legacy SQLite (kept for now)
     sqlite_db_path: str = DEFAULT_SQLITE_DB_PATH
     
-    # Upload settings — matches the documented 50MB limit (README, portfolio
-    # copy). Was stuck at 10MB since the initial commit with no indication
-    # it was ever a deliberate infra constraint (git blame, no comment).
-    max_upload_size_bytes: int = 50 * 1024 * 1024
+    # Upload settings — reverted to 10MB. Raising this to 50MB (matching the
+    # old marketing claim) exposed a real bottleneck: document ingestion runs
+    # synchronously on the single Railway worker (--workers 1), so a large
+    # document's embedding batches block the whole process, and overlapping
+    # uploads pile up and stall each other. Tested 10/15/2MB uploads under
+    # this condition on 2026-09-01: none completed within 60s once more than
+    # one ingestion job was in flight, and even an isolated run took well
+    # over 100s. 10MB is not a verified-fast size either — it's the
+    # pre-existing value, kept because nothing larger is safer, not because
+    # it's confirmed quick. The documented "50MB" claim should be corrected
+    # to reflect this; the real fix is making ingestion non-blocking
+    # (separate worker/queue), which is out of scope here.
+    max_upload_size_bytes: int = 10 * 1024 * 1024
     
     # Document processing — 1500 chars keeps full article heading + body together
     default_chunk_size: int = 1500
