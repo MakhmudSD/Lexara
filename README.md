@@ -30,7 +30,7 @@ A production-grade Retrieval-Augmented Generation platform. Upload documents, as
 - **JWT authentication** — register, login, token-based session
 - **Multi-workspace** — each workspace has isolated document storage and vector index
 - **Tenant-scoped access** — all routes enforce org membership; document and chat endpoints require a valid token
-- **Document ingestion** — PDF, DOCX, TXT up to 50MB; chunked, embedded, and indexed on upload
+- **Document ingestion** — PDF, DOCX, TXT up to 10MB; chunked, embedded, and indexed on upload. Processing time scales with document size and current system load.
 - **Semantic search** — FAISS similarity search over per-workspace vector indexes
 - **RAG chat** — retrieved chunks injected as context into `gpt-4o-mini`; sources returned with every answer
 - **Admin dashboard** — request logs, latency tracking, document inventory, retrieval history, system health
