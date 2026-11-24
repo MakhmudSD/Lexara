@@ -29,6 +29,7 @@ def _embed_via_openai(texts: list[str], settings: Settings) -> list[list[float]]
     response = client.embeddings.create(
         model=settings.embedding_model,
         input=texts,
+        dimensions=settings.embedding_dimension,
     )
     return [item.embedding for item in response.data]
 
