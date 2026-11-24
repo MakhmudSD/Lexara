@@ -279,6 +279,13 @@ def build_token_usage_data(
     )
 
 
+def _penalty_kwargs(settings: Settings) -> dict[str, float]:
+    """Send frequency_penalty only when set; Gemini's OpenAI-compatible API rejects it."""
+    if settings.chat_frequency_penalty:
+        return {"frequency_penalty": settings.chat_frequency_penalty}
+    return {}
+
+
 @retry(
     retry=retry_if_exception_type((RateLimitError, APIStatusError)),
     wait=wait_exponential(multiplier=1, min=2, max=60),
@@ -298,8 +305,7 @@ async def _create_completion(
             max_tokens=settings.chat_max_tokens,
             temperature=settings.chat_temperature,
             top_p=settings.chat_top_p,
-            presence_penalty=0.0,
-            frequency_penalty=settings.chat_frequency_penalty,
+            **_penalty_kwargs(settings),
         )
     except APIStatusError as exc:
         if exc.status_code in {429, 500}:
@@ -326,8 +332,7 @@ async def _create_stream_completion(
             max_tokens=settings.chat_max_tokens,
             temperature=settings.chat_temperature,
             top_p=settings.chat_top_p,
-            presence_penalty=0.0,
-            frequency_penalty=settings.chat_frequency_penalty,
+            **_penalty_kwargs(settings),
             stream=True,
         )
     except APIStatusError as exc:
